@@ -1,0 +1,14 @@
+.modal-content {
+  border-radius: 0px;
+  background: $flyoutBoxBackground;
+  border: 1px solid rgba(147, 147, 147, 0.47);
+}
+.modal-header {
+  border-bottom: none;
+  background: $flyoutBoxHeaderBg;
+  color: #fff;
+  text-align: center;
+}
+.modal-footer {
+  border-top: none;
+}

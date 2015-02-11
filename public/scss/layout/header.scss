@@ -1,0 +1,44 @@
+#header {
+  position: relative;
+  height: 114px;
+  .logo {
+    padding: 35px 0 0 0;
+    i {
+      float: left;
+      margin: -7px 6px 0 0;
+      font-size: 5rem;
+      color: #40A639;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #FFF;
+      &:first-letter {
+        margin-right: 2px;
+        font-size: 2.3rem;
+        background: #F5A44D;
+        border-radius: 3px;
+        padding: 0 2px;
+      }
+    }
+    p {
+      font-size: 1.2rem;
+      margin-top: 2px;
+    }
+  }
+
+  .account {
+    position: absolute;
+    right: 0;
+    top: 15px;
+    font-size: 14px;
+    i {
+      margin-right: 8px;
+      color: #eee;
+      font-size: 1.1em;
+    }
+    a {
+      color: #A8C45C;
+    }
+  }
+}

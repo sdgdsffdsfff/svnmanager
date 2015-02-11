@@ -1,0 +1,18 @@
+@mixin arrow($width: 5px, $color: #fff) {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border: $width solid $color;
+  &.left {
+    border-color: transparent $color transparent transparent;
+  }
+  &, &.right {
+    border-color: transparent transparent transparent $color;
+  }
+  &.top {
+    border-color: transparent transparent $color transparent;
+  }
+  &.bottom {
+    border-color: $color transparent transparent transparent;
+  }
+}

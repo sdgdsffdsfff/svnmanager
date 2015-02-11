@@ -1,0 +1,18 @@
+html {
+  font-size: 62.5%;
+}
+body {
+  font-size: 1.4rem;
+  font-family: sans-serif;
+  background: $bodyBg;
+  color: $bodyColor;
+}
+
+ul, li {
+  list-style: none;
+}
+
+.container-fluid {
+  padding: 0 50px;
+  position: relative;
+}

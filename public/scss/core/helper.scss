@@ -1,0 +1,58 @@
+.clearfix {
+  *zoom: 1;
+  &:before,
+  &:after {
+    display: table;
+    content: "";
+    line-height: 0;
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+.column-2 {
+  @extend .clearfix;
+  .left {
+    float: left;
+  }
+  .right {
+    overflow: hidden;
+  }
+}
+
+.mod {
+  &, .hd, .bd, .ft {
+    position: relative;
+  }
+}
+
+.ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.word-break {
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
+.cur-pointer {
+  cursor: pointer;
+}
+
+.pre {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.vertical-center {
+  position: absolute;
+  top: 50%;
+  @include transform(translateY(-50%));
+}

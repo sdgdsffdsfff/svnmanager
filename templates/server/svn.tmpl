@@ -1,0 +1,39 @@
+<div class="container page-svn" ng-controller="SvnCtrl">
+    <h1>Version control</h1>
+    <div class="mod">
+        <div class="hd">
+            <div class="row">
+                <div class="col-sm-8">
+                    <p>latest version：<span ng-init="version.Version=${.Version}" ng-bind-html="version.Version"></span></p>
+                    <p>latest version date：<span ng-init="version.Time='${.Time}'" ng-bind-html="time(version.Time)"></span></p>
+                </div>
+                <div class="col-sm-4 text-right">
+                    <button class="btn btn-success" svn-up>update</button>
+                    <button class="btn btn-primary" deploy>deploy</button>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
+                            revert <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#">Recent</a></li>
+                            <li><a href="#">2014-11-10 16:30</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bd">
+            <ol>
+                <li ng-repeat="item in updateList">
+                    <span ng-bind-html="item.Action"></span>
+                    <span ng-bind-html="item.Path"></span>
+                </li>
+            </ol>
+        </div>
+    </div>
+</div>
+<script>
+    _inlineRun(function(){
+        require(["controller/svnCtrl"])
+    })
+</script>
