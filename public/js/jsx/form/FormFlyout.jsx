@@ -91,11 +91,10 @@ function (core, React, Flyout, formHelper, FormBody, FormBtns) {
             'class': flyoutClass
         });
 
+        div.data('reactElement', React.render(<FormFlyout {...config} overload={flyout} />, div[0]));
+
         var flyout = new Flyout(div, flyoutConfig, extFlyout);
 
-        var dom = React.render(<FormFlyout {...config} overload={flyout} />, div[0]);
-        flyout.dom = dom;
-        flyout.refs = dom.refs;
         flyout.arrow();
 
         document.body.appendChild(div[0]);

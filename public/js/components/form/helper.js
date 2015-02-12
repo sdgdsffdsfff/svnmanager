@@ -1,18 +1,6 @@
 define(['kernel'], function(core){
     return {
         submitForm: $.noop,
-        getRef: function( name ){
-            if( name in this ){
-                return this[name];
-            }
-            if( name in this.dom.refs ){
-                return this.dom.refs[name];
-            }
-            if( typeof name === 'undefined' ){
-                return this.dom.refs
-            }
-            return null;
-        },
         focusFirst: function(){
             var formBody = this.getRef('formBody'),
                 fields = formBody.props.fields, field;

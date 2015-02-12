@@ -1,7 +1,7 @@
 define([
 'kernel',
 'react',
-'components/ui/Dialog',
+'components/template/Dialog',
 'bootstrap'
 ],
 function( core, React, DialogComponent ){
@@ -36,6 +36,8 @@ function( core, React, DialogComponent ){
             this.body = this.element.find('.modal-body');
             this.footer = this.element.find('.modal-footer');
 
+            this._reactElement = this.element.data('reactElement');
+
             core.body.append( this.element );
 
             this.element.on('shown.bs.modal', function(){
@@ -44,6 +46,20 @@ function( core, React, DialogComponent ){
             this.element.on('hidden.bs.modal', function(){
                 self.options.onHidden.apply(self, arguments);
             });
+        },
+        _reactElement: null,
+        getRef: function( name ){
+
+            if( name in this ){
+                return this[name];
+            }
+            if( name in this._reactElement.refs ){
+                return this._reactElement.refs[name];
+            }
+            if( typeof name === 'undefined' ){
+                return this._reactElement.refs
+            }
+            return null;
         },
         setTitle: function( title ){
             this.title.html( title );

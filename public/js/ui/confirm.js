@@ -1,10 +1,9 @@
 define([
 'kernel',
 'ui/Flyout',
-'react',
-'components/ui/Confirm'
+'components/ui/confirm'
 ],
-function(core, Flyout, React, Confirm){
+function(core, Flyout, confirm){
     var flyout = null, text = null;
 
     return function(anchor, ok, options){
@@ -18,11 +17,9 @@ function(core, Flyout, React, Confirm){
             okClick: ok || $.noop
         }, options);
 
+        var elem = confirm(options);
+
         if(flyout == null){
-
-            var elem = $('<div class="ui-flyout confirm" />');
-            React.render(React.createElement(Confirm, options), elem[0]);
-
             flyout = new Flyout(elem, {
                 onRendered: function(element){
                     var thisFlyout = this;

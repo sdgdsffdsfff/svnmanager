@@ -1,5 +1,5 @@
-define(['kernel'], 
-function(core){
+define(['kernel', 'react'],
+function(core, React){
 	
 	var $window = $(window), $document = $(document);
 	
@@ -25,9 +25,11 @@ function(core){
     			core.body.append( element )
     		}
 
-            if( element.attr('id') && !document.getElementById(element.attr('id')) ){
-                core.body.append( element )
+            if( element.attr('id') && !document.getElementById(element.attr('id')) ) {
+                core.body.append( element );
             }
+
+            this._reactElement = element.data('reactElement');
 
 			if (typeof props !== 'undefined') {
 				$.extend(this, props);
@@ -53,9 +55,27 @@ function(core){
 		_isHide: true,
 		_currentAnchor: null,
 		_currentAnchorBox: {},
+        _reactElement: null,
         
         //用于扩展属性
         parasitic: {},
+
+        getRef: function( name ){
+            if( typeof name === 'undefined' ){
+                return this._reactElement.refs
+            }
+            if( name in this ){
+                return this[name];
+            }
+            if( name in this._reactElement.refs ){
+                return this._reactElement.refs[name];
+            }
+            return null;
+        },
+
+        getReact: function(){
+            return this._reactElement;
+        },
 
 		_baseFlyoutConstructor: function (element, options, methods) {
         	

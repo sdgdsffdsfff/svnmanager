@@ -2,19 +2,18 @@ define([
 'kernel',
 'angular',
 './module',
-'react',
 'ui/Flyout',
-'components/ui/Wrap',
-'components/ui/Mod',
+'components/ui/upfileList',
 'service/SvnService'
 ],
-function( core, ng, directive, React, Flyout, Wrap, Mod ){
+function( core, ng, directive, Flyout, upfileList ){
     directive
         .directive('svnUpdate', function (SvnService) {
+            var flyout = new Flyout( upfileList(), {
+                classStyle: 'box'
+            });
 
-            var flyout = new Flyout(Wrap(Mod, {
-                title: "Upgrade.."
-            }));
+            var list = [{"Action":3,"Path":"/css.js"},{"Action":3,"Path":"/data.js"},{"Action":1,"Path":"/attributes/css.js"},{"Action":1,"Path":"/attributes/data.js"},{"Action":3,"Path":"/core/attr.js"},{"Action":3,"Path":"/core/init.js"},{"Action":3,"Path":"/core/ready.js"},{"Action":1,"Path":"/effects/init.js"},{"Action":1,"Path":"/effects/ready.js"},{"Action":1,"Path":"/effects/attr.js"}];
 
             return {
                 controller: function ($scope) {
@@ -24,9 +23,9 @@ function( core, ng, directive, React, Flyout, Wrap, Mod ){
 
                     $scope.svnUpdate = function () {
                         return SvnService.svnup().then(function (data) {
-                            $scope.upFileList = data.List;
-                            $scope.deployEnable = true;
-                            ng.extend($scope.version, data.Version);
+                            //$scope.upFileList = data.List;
+                            //$scope.deployEnable = true;
+                            //ng.extend($scope.version, data.Version);
                         }, function (data) {
                             console.log(data)
                         })
@@ -34,7 +33,11 @@ function( core, ng, directive, React, Flyout, Wrap, Mod ){
                 },
                 link: function (scope, elem) {
                     elem.click(function () {
+
+                        flyout.getReact().setList(list);
+
                         flyout.show(this, 'bottom', 'right');
+                        //scope.svnUpdate();
                     });
                 }
             }

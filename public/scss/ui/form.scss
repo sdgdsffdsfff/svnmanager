@@ -8,11 +8,16 @@
   }
 }
 .form-control {
-  border-color: #4f4f4f;
+  border-color: #737373;
   border-radius: 0;
-  background: #2E3537;
+  background: rgba(255, 255, 255, 0.06);
   color: #fff;
 }
+
+select.form-control {
+  background: $flyoutBoxBackground;
+}
+
 .form-buttons {
   text-align: right;
 }
