@@ -13,12 +13,6 @@ define([
 function (core, React, Flyout, formHelper, FormBody, FormBtns) {
 
     var FormFlyout = React.createClass({
-        getDefaultProps: function () {
-            return {
-                fields: [],
-                buttons: []
-            }
-        },
         render: function () {
 
             this.flyout = this.props.flyout;
@@ -30,26 +24,14 @@ function (core, React, Flyout, formHelper, FormBody, FormBtns) {
             return (
                 <div className="mod">
                     {titleEl}
-                    <div className="bd">
-                        <FormBody
-                            fields={this.props.fields}
-                            overload={this.props.overload}
-                            inline={this.props.inline}
-                            useLabel={this.props.useLabel}
-                            ref="formBody"
-                        />
-                        <FormBtns
-                            buttons={this.props.buttons}
-                            overload={this.props.overload}
-                            ref="formBtns"
-                        />
-                    </div>
+                    <div className="bd"></div>
+                    <div className="ft"></div>
                 </div>
             )
         }
     });
 
-    return function (config, flyoutConfig, extFlyout) {
+    return function (formConfig, flyoutConfig, extFlyout) {
         var btns = [{
             text: 'OK',
             className: 'btn-primary',
@@ -57,47 +39,59 @@ function (core, React, Flyout, formHelper, FormBody, FormBtns) {
                 this.submitForm();
             }
         }];
-        if (config) {
-            if (config.buttons && config.buttons[0] == 'append') {
-                config.buttons.splice(0, 1);
-                config.buttons = btns.concat(config.buttons)
+
+        if (formConfig) {
+            if (formConfig.buttons && formConfig.buttons[0] == 'append') {
+                formConfig.buttons.splice(0, 1);
+                formConfig.buttons = btns.concat(formConfig.buttons)
             } else {
-                config.buttons = btns;
+                formConfig.buttons = btns;
             }
         }
-        config = $.extend({
+
+        formConfig = $.extend({
             title: '',
             useLabel: false,
             inline: false,
             fields: [],
             buttons: []
-        }, config);
+        }, formConfig);
 
         flyoutConfig = $.extend({
             onShow: $.noop,
             onHide: $.noop,
             init: $.noop,
-            submit: $.noop
+            submit: $.noop,
+            classStyle: 'form box'
         }, flyoutConfig);
 
         extFlyout = $.extend({}, formHelper, extFlyout);
 
-        var flyoutClass = 'form box';
-        if (config.inline && config.useLabel) {
-            flyoutClass += ' form-horizontal';
+        if (formConfig.inline && formConfig.useLabel) {
+            flyoutConfig.classStyle += ' form-horizontal';
         }
 
         var div = $('<div />', {
-            'class': flyoutClass
+            id: 'id'+core.random(10)
         });
-
-        div.data('reactElement', React.render(<FormFlyout {...config} overload={flyout} />, div[0]));
+        div.data('reactElement', React.render(<FormFlyout title={formConfig.title} />, div[0]));
 
         var flyout = new Flyout(div, flyoutConfig, extFlyout);
 
-        flyout.arrow();
+        flyout.body = flyout.element.find('.bd');
+        flyout.footer = flyout.element.find('.ft');
 
-        document.body.appendChild(div[0]);
+        flyout.formBody = React.render(<FormBody
+            fields={formConfig.fields}
+            overload={flyout}
+            inline={formConfig.inline}
+            useLabel={formConfig.useLabel}
+        />, flyout.body[0]);
+
+        flyout.formBtns = React.render(<FormBtns
+            buttons={formConfig.buttons}
+            overload={flyout}
+        />, flyout.footer[0]);
 
         return flyout;
     }

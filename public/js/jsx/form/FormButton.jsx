@@ -17,7 +17,10 @@ function( core, React ){
         },
         render: function () {
             return (
-                <button className={'btn btn-sm ' + this.props.className} onClick={this.props.click.bind(this.props.overload, this)}>{this.props.text}</button>
+                <button
+                    className={'btn btn-sm ' + this.props.className}
+                    onClick={this.props.click.bind(this.props.overload, this)}
+                >{this.props.text}</button>
             )
         }
     });

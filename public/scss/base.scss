@@ -1,5 +1,10 @@
+@import "../components/bootstrap-sass/assets/stylesheets/bootstrap/variables";
+@import "../components/bootstrap-sass/assets/stylesheets/bootstrap/mixins";
+@import "../components/bootstrap-sass/assets/stylesheets/bootstrap/responsive-utilities";
+
 @import "bourbon/bourbon";
 @import "core/core";
 @import "layout/layout";
 @import "page/page";
 @import "ui/ui";
+@import "components/components";

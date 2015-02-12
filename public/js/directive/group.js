@@ -5,11 +5,11 @@ define([
 'components/form/FormFlyout',
 'components/form/FormDialog',
 'ui/confirm',
-'ui/info',
+'ui/tips',
 'service/GroupService',
 'service/ClientService'
 ],
-function( core, ng, directive, FormFlyout, FormDialog, confirm, info){
+function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
 
     directive
         .factory('EditHostDialog', function(ClientService){

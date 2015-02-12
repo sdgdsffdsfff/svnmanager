@@ -1,0 +1,134 @@
+@mixin flyout-arrow-color($color: $flyoutBoxBackground, $borderColor: $flyoutArrowBorderColor){
+  &.top {
+    border-bottom-color: $borderColor;
+    &-left, &-right, &-center {
+      &:before {
+        border-bottom-color: $color;
+      }
+    }
+  }
+  &.bottom {
+    border-top-color: $borderColor;
+    &-left, &-right, &-center {
+      &:before{
+        border-top-color: $color
+      }
+    }
+  }
+  &.left {
+    border-right-color: $borderColor;
+    &-top, &-bottom, &-center {
+      &:before {
+        border-right-color: $color;
+      }
+    }
+  }
+  &.right {
+    border-left-color: $borderColor;
+    &-top, &-bottom, &-center {
+      &:before {
+        border-left-color: $color;
+      }
+    }
+  }
+}
+
+
+.flyout-arrow {
+  z-index: 1;
+  display: block;
+  position: absolute;
+  border: 6px solid transparent;
+  &:before {
+    content: '';
+    position: absolute;
+    border: 6px solid transparent;
+  }
+  @mixin center {
+    left: 50%;
+    margin-left: -6px;
+  }
+  @mixin middle {
+    top: 50%;
+    margin-top: -6px;
+  }
+  @mixin left {
+    left: 15px;
+  }
+  @mixin right {
+    right: 15px;
+  }
+  @mixin top {
+    top: 15px;
+  }
+  @mixin bottom {
+    bottom: 15px;
+  }
+  &.top {
+    top: -13px;
+    &:before {
+      top: -5px;
+      left: -6px;
+    }
+    &-left {
+      @include left;
+    }
+    &-right {
+      @include right;
+    }
+    &-center {
+      @include center;
+    }
+
+  }
+  &.bottom {
+    bottom: -13px;
+    &:before {
+      bottom: -5px;
+      left: -6px;
+    }
+    &-left {
+      @include left;
+    }
+    &-right {
+      @include right;
+    }
+    &-center {
+      @include center;
+    }
+  }
+  &.left {
+    left: -13px;
+    &:before {
+      left: -5px;
+      top: -6px;
+    }
+    &-top {
+      @include top;
+    }
+    &-center {
+      @include middle;
+    }
+    &-bottom {
+      @include bottom;
+    }
+  }
+  &.right {
+    right: -13px;
+    &:before {
+      top: -6px;
+      right: -5px;
+    }
+    &-top {
+      @include top;
+    }
+    &-center {
+      @include middle;
+    }
+    &-bottom {
+      @include bottom;
+    }
+  }
+
+  @include flyout-arrow-color;
+}

@@ -1,0 +1,61 @@
+@include keyframes(checked){
+  0% {
+    @include transform(scale(1) rotateZ(0deg));
+  }
+  50% {
+    @include transform(scale(1.6) rotateZ(6deg));
+  }
+  100% {
+    @include transform(scale(1) rotateZ(0deg));
+  }
+}
+
+.upgrade-dialog {
+  li {
+    cursor: pointer;
+    padding: 5px;
+    @include align-items(stretch);
+    @include display(flex);
+    @include flex-direction(row);
+    @include justify-content(flex-start);
+    &:hover {
+      background: darken($flyoutBoxBackground, 2%);
+    }
+    &:active {
+      @include transform(translateX(1px) translateY(1px));
+    }
+  }
+
+  .checkbox {
+    margin: 0;
+    i {
+      color: #526469;
+      font-size: 1.6rem;
+    }
+  }
+
+  li.checked {
+    .checkbox i {
+      color: #3F9D2F;
+      @include animation(checked 0.3s ease-in);
+    }
+  }
+
+  .path {
+    color: #ccc;
+    @include flex(1);
+  }
+
+  .action {
+    width: 60px;
+    &.delete {
+      color: #666;
+    }
+    &.add {
+      color: #59D259;
+    }
+    &.update {
+      color: #59B6D2;
+    }
+  }
+}

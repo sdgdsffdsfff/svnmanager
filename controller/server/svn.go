@@ -92,7 +92,7 @@ func svnUpCtrl() (JSON.Type, error){
 	}
 
 	if service.SvnService.IsChanged(num) == false {
-		return nil, helper.NewError("not change")
+		return nil, helper.NewError("no change")
 	}
 
 	version := model.Version{

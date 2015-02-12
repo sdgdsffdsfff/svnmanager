@@ -14,16 +14,26 @@ function(core, Flyout){
                 alignment: 'center',
                 destroy : true,
                 stayTime : 800,
+                classStyle: '',
                 onHide: function(){
                     anchor.data('flyout', null);
                 }
             };
 
-            if( $.isPlainObject(options) ){
-                $.extend(setting, options);
+            if( typeof options == 'string' && options.length ){
+                setting.classStyle = 'alert-'+options.classStyle;
             }
 
-            flyout = new Flyout('<div class="info"></div>', setting);
+            if( $.isPlainObject(options) ){
+                $.extend(setting, options);
+                if( setting.classStyle.length ){
+                    setting.classStyle = 'alert-'+setting.classStyle;
+                }
+            }
+
+
+            flyout = new Flyout('<div class="flyout-tips alert"></div>', setting);
+
 
             flyout.element.html(html).mouseenter(function() {
                 anchor.data('flyout', flyout);
@@ -32,7 +42,7 @@ function(core, Flyout){
                 anchor.data('flyout', null);
                 flyout._createStayTimer()
             });
-
+            flyout.arrow();
             flyout.show(anchor);
         }
 

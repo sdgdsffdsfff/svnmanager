@@ -34,8 +34,6 @@ function( core, React, Dialog, formHelper, FormBody, FormBtns ){
             buttons: []
         }, formConfig);
 
-
-
         dialogConfig = $.extend({
             onShow: $.noop,
             onHide: $.noop,

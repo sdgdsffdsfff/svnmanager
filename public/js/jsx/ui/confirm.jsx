@@ -6,7 +6,7 @@ define([
 function(core, React, Confirm){
     return function( opt ){
 
-        var elem = $('<div class="ui-flyout confirm" />');
+        var elem = $('<div class="ui-flyout box confirm" />');
         React.render(<Confirm {...opt} />, elem[0]);
 
         return elem;

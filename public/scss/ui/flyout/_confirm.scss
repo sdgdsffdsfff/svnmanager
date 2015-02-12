@@ -1,0 +1,28 @@
+.ui-flyout.confirm {
+  $bgColor: #282F32;
+  min-width: 150px;
+  background: $bgColor;
+  .text {
+    padding: 15px 8px;
+    line-height: 1.8rem;
+    font-size: 1.4rem;
+    text-align: center;
+    color: #fff;
+  }
+  .flyout-arrow {
+    @include flyout-arrow-color($bgColor);
+  }
+  .buttons {
+    padding: 10px 0;
+    text-align: center;
+    button {
+      margin: 0 5px;
+      &:first-of-type {
+        margin-left: 0;
+      }
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
+  }
+}

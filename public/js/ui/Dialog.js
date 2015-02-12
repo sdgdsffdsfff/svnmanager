@@ -18,6 +18,7 @@ function( core, React, DialogComponent ){
             this.options = $.extend({
                 title: 'Dialog',
                 showClass: 'fade',
+                classStyle: '',
                 onShow: $.noop,
                 onShown: $.noop,
                 onHide: $.noop,
@@ -25,9 +26,11 @@ function( core, React, DialogComponent ){
                 hideClass: ''
             }, options);
 
-            this.element = $('<div class="modal" />').addClass(this.options.showClass);
+            this.element = $('<div class="modal" />')
+                .addClass(this.options.showClass)
+                .addClass(this.options.classStyle);
 
-            this.dom = React.render( React.createElement(DialogComponent, {
+            this._reactElement = React.render( React.createElement(DialogComponent, {
                 title: this.options.title
             }), this.element[0]);
 
@@ -35,8 +38,6 @@ function( core, React, DialogComponent ){
             this.title = this.header.find('.modal-title');
             this.body = this.element.find('.modal-body');
             this.footer = this.element.find('.modal-footer');
-
-            this._reactElement = this.element.data('reactElement');
 
             core.body.append( this.element );
 
@@ -48,6 +49,9 @@ function( core, React, DialogComponent ){
             });
         },
         _reactElement: null,
+        getReact: function(){
+            return this._reactElement;
+        },
         getRef: function( name ){
 
             if( name in this ){

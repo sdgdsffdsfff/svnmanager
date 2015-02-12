@@ -4,7 +4,7 @@ requirejs.config({
     paths: {
         kernel: 'core/kernel',
         jquery: "utils/jquery",
-        react: components + '/react/react-with-addons.min',
+        react: components + '/react/react-with-addons',
         TweenMax: components + '/greensock/src/minified/TweenMax.min',
         angular: components + '/angularjs/angular.min',
         ngSanitize: components + '/angular-sanitize/angular-sanitize.min',

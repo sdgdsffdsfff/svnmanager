@@ -1,12 +1,12 @@
-@include keyframes(deploying){
+@include keyframes(spinner-rotate){
   0%{
-    transform: rotateZ(0deg);
+    @include transform(rotateZ(0deg))
   }
   50%{
-    transform: rotateZ(180deg);
+    @include transform(rotateZ(180deg))
   }
   100%{
-    transform: rotateZ(360deg);
+    @include transform(rotateZ(360deg))
   }
 }
 
@@ -28,8 +28,12 @@
     .page-controls {
       float: right;
       z-index: 2;
+      margin-top: -32px;
       button {
         margin-right: 5px;
+      }
+      .fa-circle-o-notch {
+        @include animation(spinner-rotate 1s linear infinite)
       }
     }
   }
@@ -45,5 +49,12 @@
   }
 }
 
-@import "../components/group-list";
-@import "../components/upfile-list";
+@media (max-width: $screen-xs-max) {
+  .index .version-control-bar {
+    .page-controls {
+      float: none;
+      text-align: right;
+      margin-top: 10px;
+    }
+  }
+}

@@ -8,22 +8,25 @@
     <div class="container-fluid">
         ${template "header"}
         <div class="version-control-bar">
+            <div id="version" class="version">
+                <p class="number">Current Version: {{ version.Version }}</p>
+                <p class="time">Update Time: {{ formatTime(version.Time) }}</p>
+            </div>
             <div class="page-controls">
-                <button class="btn btn-sm btn-default" group-add><span class="glyphicon glyphicon-plus"></span> Add Group
+                <button class="btn btn-sm btn-default" group-add>
+                    <span class="fa fa-plus"></span> Add Group
                 </button>
-                <button class="btn btn-sm btn-primary" svn-update><span class="glyphicon glyphicon-arrow-down"></span> Update
+                <button class="btn btn-sm btn-primary" svn-update>
+                    <i class="fa fa-arrow-down loader"></i> Update
                 </button>
-                <button class="btn btn-sm btn-success" svn-deploy><span class="glyphicon glyphicon-transfer"></span> Deplpy
+                <button class="btn btn-sm btn-success" svn-deploy>
+                    <span class="glyphicon glyphicon-transfer"></span> Deplpy
                 </button>
                 <div class="btn-group" svn-revert>
                     <button class="btn btn-sm btn-warning">
                         <span class="fa fa-history"></span> Revert <span class="caret"></span>
                     </button>
                 </div>
-            </div>
-            <div id="version" class="version">
-                <p class="number">Current Version: {{ version.Version }}</p>
-                <p class="time">Update Time: {{ formatTime(version.Time) }}</p>
             </div>
         </div>
 
@@ -40,24 +43,28 @@
             <li ng-repeat="group in groupList" data-id="{{group.id}}" class="group" ng-class="{ hidden: !group.Clients || !group.Clients.length}">
                 <h3>{{group.Name}}</h3>
                 <p class="desc">{{group.Desc}}</p>
-                <div class="host-list">
-                    <div ng-repeat="host in group.Clients" data-id="{{host.Id}}" ng-class="{ 'online': host.Status == STATUS.Alive }" class="host">
-                        <div class="pie">
-                            <div class="t"></div>
-                            <div class="b"></div>
-                        </div>
-                        <div class="content">
-                            <h5>{{host.Name}}</h5>
-                            <p class="ip">{{host.Ip}}:{{host.Port}}</p>
-                            <p class="internal">{{host.Internal}}</p>
-                        </div>
-                        <div class="control">
-                            <span><i class="fa fa-map-marker" host-move></i></span>
-                            <span><i class="fa fa-ellipsis-h" host-edit></i></span>
+                <div class="host-list row">
+                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 host-col" ng-repeat="host in group.Clients">
+                        <div class="host">
+                            <div class="pie" ng-class="{ 'online': host.Status == STATUS.Alive }">
+                                <div class="t"></div>
+                                <div class="b"></div>
+                            </div>
+                            <div class="content">
+                                <h5>{{host.Name}}</h5>
+                                <p class="ip">{{host.Ip}}:{{host.Port}}</p>
+                                <p class="internal">{{host.Internal}}</p>
+                            </div>
+                            <div class="control">
+                                <span><i class="fa fa-map-marker" host-move></i></span>
+                                <span><i class="fa fa-ellipsis-h" host-edit></i></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="host add-host" host-add>
-                        <i class="fa fa-plus-circle"></i>
+                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 host-col">
+                        <div class="host add-host" host-add>
+                            <i class="fa fa-plus-circle"></i>
+                        </div>
                     </div>
                 </div>
             </li>

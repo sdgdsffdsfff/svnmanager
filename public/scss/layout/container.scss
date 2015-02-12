@@ -16,3 +16,9 @@ ul, li {
   padding: 0 50px;
   position: relative;
 }
+
+@media (max-width: $screen-sm-max) {
+  .container-fluid {
+    padding: 0 15px;
+  }
+}

@@ -1,0 +1,28 @@
+//信息框
+
+.flyout-tips {
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  border-radius: 3px;
+  &.alert-success {
+    .flyout-arrow {
+      @include flyout-arrow-color(#dff0d8, #d6e9c6);
+    }
+  }
+  &.alert-info {
+    .flyout-arrow {
+      @include flyout-arrow-color(#d9edf7, #bce8f1);
+    }
+  }
+  &.alert-warning {
+    .flyout-arrow {
+      @include flyout-arrow-color(#fcf8e3, #faebcc);
+    }
+  }
+  &.alert-danger {
+    .flyout-arrow {
+      @include flyout-arrow-color(#f2dede, #ebccd1);
+    }
+  }
+}
