@@ -60,6 +60,10 @@ function (core, ng, moment, Flyout) {
             })
         })();
 
+        $scope.upgradeVersion = function( version ){
+            $scope.version = version;
+        };
+
         /**
          * 移动主机到其他组并更新UI
          *
@@ -140,27 +144,7 @@ function (core, ng, moment, Flyout) {
             return client;
         };
 
-        $scope.onGroupChange = function () {
-            var callbacks = [], lastValues = [];
-            $scope.$watch('groupList', function (newValue) {
-                var arr = [];
-                $.each(newValue, function(id, g){
-                    arr.push({
-                        value: id,
-                        text: g.Name
-                    })
-                });
-                lastValues = arr;
-                callbacks.map(function (fn) {
-                    fn(arr);
-                })
-            });
 
-            return function (fn) {
-                callbacks.push(fn);
-                fn(lastValues);
-            }
-        }();
 
         SvnService.getLastVersion().then(function( data ){
             $scope.version = data.result;

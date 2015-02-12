@@ -32,7 +32,7 @@ function( core, ng, directive, Dialog, tips, React, upgradeDialog ){
 
                     $scope.svnUpdate = function () {
                         return SvnService.svnup().then(function (data) {
-                            ng.extend($scope.version, data.Version);
+                            $scope.upgradeVersion(data.result.Version);
                         })
                     }
                 },
