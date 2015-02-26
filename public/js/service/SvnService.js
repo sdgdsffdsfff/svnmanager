@@ -18,9 +18,11 @@ function( core, ng, service){
                     $http.get('/aj/svn/lastVersion')
                 );
             },
-            deploy: function(paths){
+            deploy: function( files ){
                 return Helper.result(
-                    $http.get("/aj/svn/deploy")
+                    $http.post("/aj/svn/deploy", {
+                        files: files || []
+                    })
                 )
             }
         }

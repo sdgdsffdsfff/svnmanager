@@ -2,13 +2,14 @@ define([
 'kernel',
 'angular',
 './module',
+'moment',
 'ui/Dialog',
 'ui/tips',
 'react',
 'components/ui/upgradeDialog',
 'service/SvnService'
 ],
-function( core, ng, directive, Dialog, tips, React, upgradeDialog ){
+function( core, ng, directive, moment, Dialog, tips, React, upgradeDialog ){
     directive
         .directive('svnUpdate', function (SvnService) {
             var dialog;
@@ -75,6 +76,8 @@ function( core, ng, directive, Dialog, tips, React, upgradeDialog ){
                 controller: function ($scope) {
                     $scope.deploy = function (ids) {
                         return SvnService.deploy(ids).then(function (data) {
+                            console.log(data)
+                        }, function(data){
                             console.log(data)
                         })
                     }

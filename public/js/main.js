@@ -8,6 +8,7 @@ requirejs.config({
         TweenMax: components + '/greensock/src/minified/TweenMax.min',
         angular: components + '/angularjs/angular.min',
         ngSanitize: components + '/angular-sanitize/angular-sanitize.min',
+        ngWebSocket: components + '/angular-websocket/angular-websocket.min',
         bootstrap: components + '/bootstrap/dist/js/bootstrap.min',
         socket: components + '/socket.io-client/socket.io',
         moment: components + '/moment/min/moment.min',
@@ -23,6 +24,9 @@ requirejs.config({
             exports: 'angular'
         },
         ngSanitize: {
+            deps: ['angular']
+        },
+        ngWebSocket: {
             deps: ['angular']
         },
         moment: {

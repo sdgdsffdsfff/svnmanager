@@ -7,7 +7,6 @@ import (
 	"github.com/martini-contrib/render"
 	"king/config"
 	"king/utils/db"
-	_ "king/controller/common"
 	"king/rpc"
 	"net/http"
 )

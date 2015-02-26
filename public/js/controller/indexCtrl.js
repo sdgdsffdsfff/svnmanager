@@ -4,15 +4,14 @@
 define([
 'kernel',
 'angular',
-'moment',
 'directive/svn',
 'directive/group',
 'service/ClientService',
-'service/WebsocketService',
 'service/SvnService',
+'service/Websocket',
 'ngSanitize'
 ],
-function (core, ng, moment, Flyout) {
+function (core, ng) {
 
     var App = ng.module('App', ['App.services', 'App.directives', 'ngSanitize']);
 
@@ -29,7 +28,27 @@ function (core, ng, moment, Flyout) {
         Alive: 2,
         Busy: 3
     })
-    .controller('svnManagerCtrl', function ($scope, Status, Action, ClientService, SvnService) {
+    .controller('svnManagerCtrl', function ($scope, Status, Action, ClientService, SvnService, Websocket) {
+
+        var socket = Websocket({
+            message: {
+                heartbeat: function( data ){
+                    data.result.map(function( c ){
+                        var client;
+                        if( client = $scope.findClient( c.Id ) ){
+                            client.Status = c.Status
+                        }
+                    });
+                    $scope.$$parse && $scope.$apply();
+                }
+            },
+            error: {
+
+            }
+        });
+
+        //socket.emit('heartbeat');
+
         $scope.version = {
             Version: 0,
             Time: 0
@@ -56,7 +75,7 @@ function (core, ng, moment, Flyout) {
                     }
                 });
                 $scope.$$parse && $scope.$apply();
-                core.delay($scope.heartbeat, 3000)
+                //core.delay($scope.heartbeat, 3000)
             })
         })();
 

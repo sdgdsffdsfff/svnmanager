@@ -1,5 +1,9 @@
-define(['angular'], function(ng){
-    return ng.module('App.services',[])
+define([
+'angular',
+'ngWebSocket'
+],
+function(ng){
+    return ng.module('App.services',['ngWebSocket'])
         .factory('Helper', function($q){
             return {
                 result : function( http ){
