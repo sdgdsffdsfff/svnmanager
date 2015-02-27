@@ -1,4 +1,4 @@
-package server
+package websocket
 
 import (
 	"king/service"
@@ -7,7 +7,7 @@ import (
 )
 
 func init(){
-	Bind("heartbeat", func() JSON.Type {
+	Register("heartbeat", func() JSON.Type {
 		list := service.ClientService.List()
 		result := []JSON.Type{}
 
@@ -20,5 +20,4 @@ func init(){
 
 		return helper.Success(result)
 	})
-
 }

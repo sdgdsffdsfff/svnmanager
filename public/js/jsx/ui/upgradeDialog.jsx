@@ -22,42 +22,49 @@ function( core, React, Dialog, FormBtns ){
                    type == 2 ? 'Update' :
                    type == 3 ? 'Delete' : '';
         },
-        onclick: function( item, e ){
-            $(e.currentTarget).toggleClass('checked');
+        selectAll: function( e ){
+            $(this.getDOMNode()).find('input:checkbox').attr('checked', 'checked');
+            $(e.target).html('Deselect All');
         },
         render: function(){
             return (
-                <ul>
-                    {this.props.list.map(function(item, index){
-                        return (
-                            <li onClick={this.onclick.bind(this, item)}>
-                                <span className={"action " + this.getAction(item.Action).toLowerCase()}>{this.getAction(item.Action)}</span>
-                                <p className="path">{item.Path}</p>
-                                <span className="checkbox">
-                                    <i className="fa fa-check"></i>
-                                </span>
-
-                            </li>
-                        )
-                    }, this)}
-                </ul>
+                <div>
+                    <ul>
+                        {this.props.list.map(function(item, index){
+                            return (
+                                <li key={index}>
+                                    <label>
+                                        <span className={"action " + this.getAction(item.Action).toLowerCase()}>{this.getAction(item.Action)}</span>
+                                        <span className="path">{item.Path}</span>
+                                        <input type="checkbox" className="hidden" />
+                                        <span className="checkbox">
+                                            <i className="fa fa-check"></i>
+                                        </span>
+                                    </label>
+                                </li>
+                            )
+                        }, this)}
+                    </ul>
+                    <p className="control">
+                        <span>Tree View</span>
+                        <span onClick={this.selectAll}>Select All</span>
+                    </p>
+                </div>
             )
         }
     });
 
-
-
-    return function( events ){
+    return function( events, options, extral ){
         var buttons = [{
-            text: 'Confirm',
+            text: 'Deploy Now',
             className: 'btn-primary',
             click: events.confirm
         }];
 
-        var dialog = new Dialog({
-            title: 'Upgrade',
+        var dialog = new Dialog( $.extend(options, {
+            title: 'Undeploy Application',
             classStyle: 'upgrade-dialog'
-        });
+        }), extral);
         dialog.upfileList = React.render(<UpfileList />, dialog.body[0]);
 
         dialog.formBtns = React.render(<FormBtns

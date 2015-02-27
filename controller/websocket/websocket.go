@@ -1,4 +1,4 @@
-package server
+package websocket
 
 import(
 	"github.com/go-martini/martini"
@@ -17,7 +17,7 @@ Websocket register
 
 var callbacks = map[string]func()JSON.Type{}
 
-func Bind(name string, callback func()JSON.Type){
+func Register(name string, callback func()JSON.Type){
 	if _, found := callbacks[name]; found {
 		return
 	}
@@ -39,7 +39,7 @@ type Client struct {
 	done       <-chan bool
 	err        <-chan error
 	disconnect chan<- int
-	message *Message
+	message *Message // 为无限通知预留的调用状态，为最后一次请求内容
 }
 
 type Chat struct {
@@ -51,8 +51,10 @@ type Chat struct {
 func (c *Chat) appendClient(client *Client) {
 	c.Lock()
 	c.clients = append(c.clients, client)
+//  告诉大家我来了
 //	for _, xc := range c.clients {
 //		if xc != client {
+//			xc.ount <- &Message{};
 //		}
 //	}
 	c.Unlock()
@@ -72,9 +74,14 @@ func (c *Chat) removeClient(client *Client) {
 	}
 }
 
-func (c *Chat) whatShouldIDo(client *Client, msg *Message) {
+func (c *Chat) emit(client *Client, msg *Message) {
 	c.Lock()
-	client.message = msg
+	method := msg.Method
+	if _, found := callbacks[method]; method != "" && found {
+		client.out <- &Message{method, callbacks[method]()}
+	} else {
+		client.out <- &Message{method, helper.Error("method undefined")}
+	}
 	c.Unlock()
 }
 
@@ -86,7 +93,10 @@ func (c *Chat) sendMessageToAllClient(msg *Message){
 	defer c.Unlock()
 }
 
-func (c *Chat) listenClient(){
+/*
+主动推送方法，将会根据method不停向客户端推送内容
+ */
+func (c *Chat) loopPushFrame(){
 	for {
 		c.Lock()
 		helper.AsyncMap(c.clients, func(i int) bool{
@@ -121,10 +131,11 @@ func (ctn *WebSocketController) SetRouter(m *martini.ClassicMartini) {
 func MainSocket( params martini.Params, receiver <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string) {
 	client := &Client{receiver, sender, done, err, disconnect, nil}
 	chat.appendClient(client)
-	if chat.loopEnable {
-		go chat.listenClient()
-		chat.loopEnable = false
-	}
+// 暂停使用无限通知，让客户端自己通过循环调用
+//	if chat.loopEnable {
+//		go chat.loopPushFrame()
+//		chat.loopEnable = false
+//	}
 	for {
 		select {
 		case <-client.err:
@@ -133,7 +144,7 @@ func MainSocket( params martini.Params, receiver <-chan *Message, sender chan<- 
 			// The socket connection is already long gone.
 			// Use the error for statistics etc
 		case msg := <-client.in:
-			chat.whatShouldIDo(client, msg)
+			chat.emit(client, msg)
 		case <-client.done:
 			chat.removeClient(client)
 			return 200, "OK"

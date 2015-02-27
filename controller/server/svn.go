@@ -8,22 +8,13 @@ import (
 	"king/utils/JSON"
 	"net/http"
 	"king/service"
+	_ "github.com/antonholmquist/jason"
 )
 
 type SvnCtrl struct{}
 
 func init(){
 	config.AppendValue(config.Controller, &SvnCtrl{})
-}
-
-type Book struct {
-	Name string
-}
-
-type A struct {
-	Name  string
-	Age   int
-	Books []Book
 }
 
 func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
@@ -41,11 +32,16 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 
 	m.Group("/aj/svn", func(r martini.Router){
 		r.Post("/up", func(rend render.Render, req *http.Request) {
+
+			//body, _ := jason.NewObjectFromReader(req.Body)
+			//paths, _ := body.GetStringArray("paths")
+
 			result, err := SvnUpCtrl()
 			if err != nil {
-				rend.JSON(200, helper.Error(err))
+				rend.JSON(200, helper.Error(err, result))
 				return
 			}
+
 			rend.JSON(200, helper.Success(result))
 		})
 
@@ -53,16 +49,6 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 			rend.JSON(200, JSON.Type{
 				"code": params["version"],
 			})
-		})
-
-		r.Get("/deploy", func(rend render.Render, req *http.Request){
-			result, err := DeployCtrl()
-			//报告错误原因
-			if err != nil {
-				rend.JSON(200, helper.Error(err, result))
-				return
-			}
-			rend.JSON(200, helper.Success(result))
 		})
 
 		r.Get("/lastVersion", func(rend render.Render) {
@@ -75,5 +61,26 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 			result["List"] = JSON.Parse(version.List)
 			rend.JSON(200, helper.Success(result))
 		})
+
+		r.Get("/undeploy/files", func(rend render.Render){
+				list, err := service.SvnService.GetUnDeployFileList()
+				if err != nil {
+					rend.JSON(200, helper.Error(err))
+				} else if len(list) == 0 {
+					rend.JSON(200, helper.Error(helper.EmptyError) )
+				}else{
+					rend.JSON(200, helper.Success(list))
+				}
+			})
+	})
+
+	m.Get("/deploy", func(rend render.Render, req *http.Request){
+		result, err := DeployCtrl()
+		//报告错误原因
+		if err != nil {
+			rend.JSON(200, helper.Error(err, result))
+			return
+		}
+		rend.JSON(200, helper.Success(result))
 	})
 }

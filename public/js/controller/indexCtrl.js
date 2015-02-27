@@ -40,14 +40,14 @@ function (core, ng) {
                         }
                     });
                     $scope.$$parse && $scope.$apply();
+                    core.delay(function(){
+                        socket.emit('heartbeat');
+                    }, 5000)
                 }
-            },
-            error: {
-
             }
-        });
+        }).listen();
 
-        //socket.emit('heartbeat');
+        socket.emit('heartbeat');
 
         $scope.version = {
             Version: 0,
@@ -64,19 +64,6 @@ function (core, ng) {
             return ClientService.list().then(function (data) {
                 $scope.groupList = data.result;
             });
-        })();
-
-        ($scope.heartbeat = function(){
-            ClientService.heartbeat().then(function( data ){
-                data.result.map(function( c ){
-                    var client;
-                    if( client = $scope.findClient( c.Id ) ){
-                        client.Status = c.Status
-                    }
-                });
-                $scope.$$parse && $scope.$apply();
-                //core.delay($scope.heartbeat, 3000)
-            })
         })();
 
         $scope.upgradeVersion = function( version ){

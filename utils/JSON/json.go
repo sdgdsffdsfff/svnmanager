@@ -65,12 +65,6 @@ func Parse(data interface{}) Type {
 	return output
 }
 
-func ParseSlice(d interface{}) []Type {
-	var list []Type
-
-	return list
-}
-
 func ParseToStruct(data interface{}, m interface{}) error {
 	real := reflect.Indirect(reflect.ValueOf(data))
 	t := reflect.TypeOf(real.Interface())

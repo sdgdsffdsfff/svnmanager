@@ -9,34 +9,33 @@ import (
 	"time"
 )
 
-func SvnUpCtrl() (JSON.Type, error){
+func SvnUpCtrl() (model.Version, error){
 	now := time.Now()
+	version := model.Version{}
+
 
 	num, list, err := shell.SvnUp()
 	if err != nil {
-		return nil, err
+		return version, err
 	}
 
 	if service.SvnService.IsChanged(num) == false {
-		return nil, helper.NewError("no change")
+		return version, helper.NewError("no change")
 	}
 
-	version := model.Version{
+	version = model.Version{
 		Version: num,
 		Time: now,
 		List: JSON.Stringify(list),
 	}
 
 	if err := service.SvnService.UpdateVersion(&version); err != nil {
-		return nil, err
+		return version, err
 	}
 
 	if err := service.SvnService.SaveUpFile(list); err != nil {
-		return nil, err
+		return version, err
 	}
 
-	return JSON.Type{
-		"Version": version,
-		"List": list,
-	}, nil
+	return version, nil
 }

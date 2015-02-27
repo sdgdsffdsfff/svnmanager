@@ -1,12 +1,12 @@
 @include keyframes(online-clockwise){
   0%{
-    @include transform(rotateZ(0deg))
+    @include transform(rotateZ(0deg) translateZ(0))
   }
   50%{
-    @include transform(rotateZ(180deg))
+    @include transform(rotateZ(180deg) translateZ(0))
   }
   100%{
-    @include transform(rotateZ(360deg))
+    @include transform(rotateZ(360deg) translateZ(0))
   }
 }
 
@@ -20,11 +20,11 @@
     padding-bottom: 20px;
     h3 {
       margin-bottom: 6px;
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       color: #fff;
     }
     .desc {
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       color: #717171;
     }
     > .control {
@@ -43,7 +43,7 @@
     width: 120px;
     height: 120px;
     margin: 0 auto;
-    font-size: 12px;
+    font-size: 1.4rem;
     border-radius: 100%;
     text-align: center;
     .content {
@@ -54,8 +54,7 @@
       @include transition(height 0.5s ease, top 0.5s ease);
       h5 {
         margin: 0 0 5px;
-        font-size: 20px;
-        font-family: Arial;
+        font-size: 2rem;
         color: #fff;
       }
     }
@@ -151,6 +150,7 @@
     @extend .cur-pointer;
   }
 }
+
 
 @media (min-width: $screen-lg) {
   .group-list .host {

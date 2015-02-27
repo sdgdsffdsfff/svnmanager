@@ -11,8 +11,10 @@ function( core, React ){
             }
         },
         setValues: function (values) {
-            this.props.values = values;
-            this.forceUpdate();
+            var html = values.map(function( t ){
+                return '<option value="'+t.value+'">'+t.text+'</option>'
+            }).join('');
+            $(this.getDOMNode()).html(html);
         },
         getValue: function () {
             return this.getDOMNode().value;

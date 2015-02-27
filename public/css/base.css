@@ -261,6 +261,11 @@ input, textarea, select {
   -o-transform: translateY(-50%);
   transform: translateY(-50%); }
 
+@font-face {
+  font-family: "Actor-Regular";
+  font-style: normal;
+  font-weight: normal;
+  src: url("/fonts/actor/Actor-Regular.ttf") format("truetype"); }
 #header {
   position: relative;
   height: 114px; }
@@ -300,8 +305,8 @@ html {
   font-size: 62.5%; }
 
 body {
-  font-size: 1.4rem;
-  font-family: sans-serif;
+  font-size: 1.6rem;
+  font-family: "Actor-Regular";
   background: #283238;
   color: #696969; }
 
@@ -628,37 +633,37 @@ select.form-control {
 
 @-webkit-keyframes online-clockwise {
   0% {
-    -webkit-transform: rotateZ(0deg); }
+    -webkit-transform: rotateZ(0deg) translateZ(0); }
   50% {
-    -webkit-transform: rotateZ(180deg); }
+    -webkit-transform: rotateZ(180deg) translateZ(0); }
   100% {
-    -webkit-transform: rotateZ(360deg); } }
+    -webkit-transform: rotateZ(360deg) translateZ(0); } }
 @-moz-keyframes online-clockwise {
   0% {
-    -moz-transform: rotateZ(0deg); }
+    -moz-transform: rotateZ(0deg) translateZ(0); }
   50% {
-    -moz-transform: rotateZ(180deg); }
+    -moz-transform: rotateZ(180deg) translateZ(0); }
   100% {
-    -moz-transform: rotateZ(360deg); } }
+    -moz-transform: rotateZ(360deg) translateZ(0); } }
 @keyframes online-clockwise {
   0% {
-    -webkit-transform: rotateZ(0deg);
-    -moz-transform: rotateZ(0deg);
-    -ms-transform: rotateZ(0deg);
-    -o-transform: rotateZ(0deg);
-    transform: rotateZ(0deg); }
+    -webkit-transform: rotateZ(0deg) translateZ(0);
+    -moz-transform: rotateZ(0deg) translateZ(0);
+    -ms-transform: rotateZ(0deg) translateZ(0);
+    -o-transform: rotateZ(0deg) translateZ(0);
+    transform: rotateZ(0deg) translateZ(0); }
   50% {
-    -webkit-transform: rotateZ(180deg);
-    -moz-transform: rotateZ(180deg);
-    -ms-transform: rotateZ(180deg);
-    -o-transform: rotateZ(180deg);
-    transform: rotateZ(180deg); }
+    -webkit-transform: rotateZ(180deg) translateZ(0);
+    -moz-transform: rotateZ(180deg) translateZ(0);
+    -ms-transform: rotateZ(180deg) translateZ(0);
+    -o-transform: rotateZ(180deg) translateZ(0);
+    transform: rotateZ(180deg) translateZ(0); }
   100% {
-    -webkit-transform: rotateZ(360deg);
-    -moz-transform: rotateZ(360deg);
-    -ms-transform: rotateZ(360deg);
-    -o-transform: rotateZ(360deg);
-    transform: rotateZ(360deg); } }
+    -webkit-transform: rotateZ(360deg) translateZ(0);
+    -moz-transform: rotateZ(360deg) translateZ(0);
+    -ms-transform: rotateZ(360deg) translateZ(0);
+    -o-transform: rotateZ(360deg) translateZ(0);
+    transform: rotateZ(360deg) translateZ(0); } }
 .group-list {
   position: relative;
   margin-top: 50px; }
@@ -668,10 +673,10 @@ select.form-control {
     padding-bottom: 20px; }
     .group-list li h3 {
       margin-bottom: 6px;
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       color: #fff; }
     .group-list li .desc {
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       color: #717171; }
     .group-list li > .control {
       text-align: right; }
@@ -684,7 +689,7 @@ select.form-control {
     width: 120px;
     height: 120px;
     margin: 0 auto;
-    font-size: 12px;
+    font-size: 1.4rem;
     border-radius: 100%;
     text-align: center; }
     .group-list .host .content {
@@ -701,8 +706,7 @@ select.form-control {
       transition: height 0.5s ease, top 0.5s ease; }
       .group-list .host .content h5 {
         margin: 0 0 5px;
-        font-size: 20px;
-        font-family: Arial;
+        font-size: 2rem;
         color: #fff; }
     .group-list .host .ext-info {
       display: none; }
@@ -819,7 +823,15 @@ select.form-control {
     -ms-transform: scale(1) rotateZ(0deg);
     -o-transform: scale(1) rotateZ(0deg);
     transform: scale(1) rotateZ(0deg); } }
-.upgrade-dialog li {
+.upgrade-dialog li:hover {
+  background: #364044; }
+.upgrade-dialog li:active {
+  -webkit-transform: translateX(1px) translateY(1px);
+  -moz-transform: translateX(1px) translateY(1px);
+  -ms-transform: translateX(1px) translateY(1px);
+  -o-transform: translateX(1px) translateY(1px);
+  transform: translateX(1px) translateY(1px); }
+.upgrade-dialog label {
   cursor: pointer;
   padding: 5px;
   -webkit-box-align: stretch;
@@ -853,25 +865,22 @@ select.form-control {
   -ms-justify-content: flex-start;
   -o-justify-content: flex-start;
   justify-content: flex-start;
-  -ms-flex-pack: start; }
-  .upgrade-dialog li:hover {
-    background: #364044; }
-  .upgrade-dialog li:active {
-    -webkit-transform: translateX(1px) translateY(1px);
-    -moz-transform: translateX(1px) translateY(1px);
-    -ms-transform: translateX(1px) translateY(1px);
-    -o-transform: translateX(1px) translateY(1px);
-    transform: translateX(1px) translateY(1px); }
-.upgrade-dialog .checkbox {
-  margin: 0; }
-  .upgrade-dialog .checkbox i {
-    color: #526469;
-    font-size: 1.6rem; }
-.upgrade-dialog li.checked .checkbox i {
+  -ms-flex-pack: start;
+  font-weight: normal; }
+.upgrade-dialog input:checked + span i {
   color: #3F9D2F;
   -webkit-animation: checked 0.3s ease-in;
   -moz-animation: checked 0.3s ease-in;
   animation: checked 0.3s ease-in; }
+.upgrade-dialog .action {
+  width: 60px;
+  font-weight: bold; }
+  .upgrade-dialog .action.delete {
+    color: #666; }
+  .upgrade-dialog .action.add {
+    color: #59D259; }
+  .upgrade-dialog .action.update {
+    color: #59B6D2; }
 .upgrade-dialog .path {
   color: #ccc;
   -webkit-box-flex: 1;
@@ -881,11 +890,27 @@ select.form-control {
   -moz-flex: 1;
   -ms-flex: 1;
   flex: 1; }
-.upgrade-dialog .action {
-  width: 60px; }
-  .upgrade-dialog .action.delete {
-    color: #666; }
-  .upgrade-dialog .action.add {
-    color: #59D259; }
-  .upgrade-dialog .action.update {
-    color: #59B6D2; }
+.upgrade-dialog .checkbox {
+  margin: 0; }
+  .upgrade-dialog .checkbox i {
+    color: #526469;
+    font-size: 1.6rem; }
+.upgrade-dialog .control {
+  padding: 10px 5px;
+  text-align: right;
+  border-bottom: 1px dotted #4D5356; }
+  .upgrade-dialog .control span {
+    cursor: pointer;
+    color: #ccc;
+    margin-left: 10px; }
+    .upgrade-dialog .control span:hover {
+      color: #fff; }
+    .upgrade-dialog .control span:first-of-type:before {
+      display: none; }
+    .upgrade-dialog .control span:before {
+      content: '';
+      display: inline-block;
+      height: 8px;
+      width: 1px;
+      margin-right: 10px;
+      background: #60686C; }

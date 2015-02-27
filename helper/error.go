@@ -12,6 +12,7 @@ const (
 	ParamsError
 	RequestError
 	DbError
+	EmptyError
 
 )
 

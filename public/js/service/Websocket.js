@@ -9,17 +9,23 @@ function( core, ng, service){
 
         var Socket = core.Class.extend({
             init: function( events, reconnectOnLoss ){
-                this.socket = $websocket('ws://'+location.host+'/socket/');
                 this._reconnectOnLoss = ng.isUndefined(reconnectOnLoss) ? true : reconnectOnLoss;
                 this.events = ng.extend({
                     message: {},
-                    error: {},
-                    close: {}
+                    error: ng.noop,
+                    close: ng.noop
                 }, events);
-                this.listen();
             },
+            _isListen: false,
             listen: function(){
                 var self = this;
+
+                if( this._isListen ){
+                    return;
+                }
+                this._isListen = true;
+
+                this.socket = $websocket('ws://'+location.host+'/socket/');
 
                 this.socket.onMessage(function( message ){
                     var data = JSON.parse(message.data);
@@ -29,17 +35,15 @@ function( core, ng, service){
                 });
 
                 this.socket.onClose(function( e ){
-                    for( var i in self.events.close ){
-                        self.events.close[i](e)
-                    }
+                    self.events.close.call(self, e);
                     self._reconnectOnLoss && self.socket.reconnect();
                 });
 
                 this.socket.onError(function( e ){
-                    for( var i in self.events.error ){
-                        self.events.error[i](e)
-                    }
+                    self.events.error.call(self, e);
                 });
+
+                return this;
             },
             disconnect: function( force ){
                 if( force ){
@@ -52,6 +56,17 @@ function( core, ng, service){
                     method: method,
                     data: data
                 })
+            },
+            on: function( method, fn ){
+                if( typeof method != 'string' ) return;
+
+                if( method == 'error' ){
+                    this.events['error'] = fn;
+                } else if( method == 'close' ){
+                    this.events['close'] = fn;
+                }else{
+                    this.events.message[method] = fn;
+                }
             },
             send: function( data ){
                 return this.socket.send(data)

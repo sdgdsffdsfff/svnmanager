@@ -5,27 +5,42 @@ define([
 'moment',
 'ui/Dialog',
 'ui/tips',
+'ui/confirm',
 'react',
 'components/ui/upgradeDialog',
 'service/SvnService'
 ],
-function( core, ng, directive, moment, Dialog, tips, React, upgradeDialog ){
+function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDialog ){
     directive
-        .directive('svnUpdate', function (SvnService) {
-            var dialog;
+        .factory('DeployDialog', function( SvnService ){
+            var dialog = upgradeDialog({
+                confirm: function( btn ){
+                    confirm(btn.$elem(), function(){
+                        console.log(11)
+                    });
+                }
+            }, null, {
+                deploy: function (ids) {
+                    return SvnService.deploy(ids).then(function (data) {
+                        console.log(data)
+                    }, function(data){
+                        console.log(data)
+                    })
+                },
+                getUndeployFiles: function(){
+                    var self = this;
+                    return SvnService.getUndeployFileList().then(function( data ){
+                        self.upfileList.setList(data.result);
+                        self.show();
+                    })
+                }
+            });
 
-            var list = [{"Action":3,"Path":"/css.js"},{"Action":3,"Path":"/data.js"},{"Action":1,"Path":"/attributes/css.js"},{"Action":1,"Path":"/attributes/data.js"},{"Action":3,"Path":"/core/attr.js"},{"Action":3,"Path":"/core/init.js"},{"Action":3,"Path":"/core/ready.js"},{"Action":2,"Path":"/effects/init.js"},{"Action":1,"Path":"/effects/ready.js"},{"Action":1,"Path":"/effects/attr.js"},{"Action":3,"Path":"/css.js"},{"Action":3,"Path":"/data.js"},{"Action":1,"Path":"/attributes/css.js"},{"Action":1,"Path":"/attributes/data.js"},{"Action":3,"Path":"/core/attr.js"},{"Action":3,"Path":"/core/init.js"},{"Action":3,"Path":"/core/ready.js"},{"Action":1,"Path":"/effects/init.js"},{"Action":1,"Path":"/effects/ready.js"},{"Action":1,"Path":"/effects/attr.js"}];
-
+            return dialog;
+        })
+        .directive('svnUpdate', function (SvnService, DeployDialog) {
             return {
                 controller: function ($scope) {
-
-                    if( !dialog ){
-                        dialog = upgradeDialog({
-                            confirm: function(){
-                                console.log( $scope )
-                            }
-                        })
-                    }
 
                     $scope.formatTime = function (str) {
                         return moment(str).format("YYYY-MM-DD HH:mm:ss")
@@ -33,7 +48,13 @@ function( core, ng, directive, moment, Dialog, tips, React, upgradeDialog ){
 
                     $scope.svnUpdate = function () {
                         return SvnService.svnup().then(function (data) {
-                            $scope.upgradeVersion(data.result.Version);
+                            var version = data.result;
+                            $scope.upgradeVersion({
+                                Version: version.Version,
+                                Time: version.Time
+                            });
+                            DeployDialog.getUndeployFiles();
+                            return data;
                         })
                     }
                 },
@@ -50,13 +71,12 @@ function( core, ng, directive, moment, Dialog, tips, React, upgradeDialog ){
 
                     elem.click(function () {
 
-                        if( !dialog ) return;
-
                         if( !enable() ) return;
                         toggle();
+
                         scope.svnUpdate().then(function(){
                             toggle();
-                            tips(elem, 'Update!', {
+                            tips(elem, 'Update To New Version!', {
                                 placement: 'bottom',
                                 classStyle: 'success'
                             })
@@ -71,20 +91,16 @@ function( core, ng, directive, moment, Dialog, tips, React, upgradeDialog ){
                 }
             }
         })
-        .directive('svnDeploy', function (SvnService) {
+        .directive('svnDeploy', function (SvnService, DeployDialog) {
             return {
-                controller: function ($scope) {
-                    $scope.deploy = function (ids) {
-                        return SvnService.deploy(ids).then(function (data) {
-                            console.log(data)
-                        }, function(data){
-                            console.log(data)
-                        })
-                    }
-                },
                 link: function (scope, elem) {
                     elem.click(function () {
-                        scope.deploy()
+                        DeployDialog.getUndeployFiles().then(null, function(){
+                            tips(elem, 'No files need to be deploy', {
+                                placement: 'bottom',
+                                classStyle: 'warning'
+                            })
+                        })
                     })
                 }
             }

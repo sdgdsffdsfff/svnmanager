@@ -13,7 +13,14 @@ function( core, React ){
             }
         },
         disable: function () {
-            $(this.getDOMNode()).addClass('disable')
+            this.$elem().addClass('disable')
+        },
+        _$el: null,
+        $elem: function(){
+            if( !this._$el ){
+                this._$el = $(this.getDOMNode());
+            }
+            return this._$el;
         },
         render: function () {
             return (

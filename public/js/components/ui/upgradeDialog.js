@@ -22,42 +22,49 @@ function( core, React, Dialog, FormBtns ){
                    type == 2 ? 'Update' :
                    type == 3 ? 'Delete' : '';
         },
-        onclick: function( item, e ){
-            $(e.currentTarget).toggleClass('checked');
+        selectAll: function( e ){
+            $(this.getDOMNode()).find('input:checkbox').attr('checked', 'checked');
+            $(e.target).html('Deselect All');
         },
         render: function(){
             return (
-                React.createElement("ul", null, 
-                    this.props.list.map(function(item, index){
-                        return (
-                            React.createElement("li", {onClick: this.onclick.bind(this, item)}, 
-                                React.createElement("span", {className: "action " + this.getAction(item.Action).toLowerCase()}, this.getAction(item.Action)), 
-                                React.createElement("p", {className: "path"}, item.Path), 
-                                React.createElement("span", {className: "checkbox"}, 
-                                    React.createElement("i", {className: "fa fa-check"})
+                React.createElement("div", null, 
+                    React.createElement("ul", null, 
+                        this.props.list.map(function(item, index){
+                            return (
+                                React.createElement("li", {key: index}, 
+                                    React.createElement("label", null, 
+                                        React.createElement("span", {className: "action " + this.getAction(item.Action).toLowerCase()}, this.getAction(item.Action)), 
+                                        React.createElement("span", {className: "path"}, item.Path), 
+                                        React.createElement("input", {type: "checkbox", className: "hidden"}), 
+                                        React.createElement("span", {className: "checkbox"}, 
+                                            React.createElement("i", {className: "fa fa-check"})
+                                        )
+                                    )
                                 )
-
                             )
-                        )
-                    }, this)
+                        }, this)
+                    ), 
+                    React.createElement("p", {className: "control"}, 
+                        React.createElement("span", null, "Tree View"), 
+                        React.createElement("span", {onClick: this.selectAll}, "Select All")
+                    )
                 )
             )
         }
     });
 
-
-
-    return function( events ){
+    return function( events, options, extral ){
         var buttons = [{
-            text: 'Confirm',
+            text: 'Deploy Now',
             className: 'btn-primary',
             click: events.confirm
         }];
 
-        var dialog = new Dialog({
-            title: 'Upgrade',
+        var dialog = new Dialog( $.extend(options, {
+            title: 'Undeploy Application',
             classStyle: 'upgrade-dialog'
-        });
+        }), extral);
         dialog.upfileList = React.render(React.createElement(UpfileList, null), dialog.body[0]);
 
         dialog.formBtns = React.render(React.createElement(FormBtns, {

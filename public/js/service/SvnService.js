@@ -9,7 +9,7 @@ function( core, ng, service){
             svnup: function () {
                 return Helper.result(
                     $http.post("/aj/svn/up", {
-                        paths: "_res,inc,ruochu/mobile"
+                        paths: ['_res', 'manage']
                     })
                 )
             },
@@ -20,9 +20,14 @@ function( core, ng, service){
             },
             deploy: function( files ){
                 return Helper.result(
-                    $http.post("/aj/svn/deploy", {
+                    $http.post('/aj/deploy', {
                         files: files || []
                     })
+                )
+            },
+            getUndeployFileList: function(){
+                return Helper.result(
+                    $http.get('/aj/svn/undeploy/files')
                 )
             }
         }
