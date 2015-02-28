@@ -8,6 +8,12 @@ function(core, Flyout, confirm){
 
     return function(anchor, ok, options){
 
+        if( typeof options == 'string' ){
+            options = {
+                html: options
+            }
+        }
+
         options = $.extend({
             okText: 'Confirm',
             okClass: 'btn-primary',

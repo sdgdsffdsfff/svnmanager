@@ -8,12 +8,25 @@ function( core, React ){
         getDefaultProps: function () {
             return {
                 text: '',
+                loadingText: 'Loading..',
                 className: 'btn-default',
                 click: $.noop
             }
         },
         disable: function () {
             this.$elem().addClass('disable')
+        },
+        enable: function(){
+            this.$elem().removeClass('disable');
+        },
+        loading: function(){
+            this.$elem().button('loading');
+        },
+        reset: function(){
+            this.$elem().button('reset');
+        },
+        setText: function( text ){
+            this.$elem().html(text);
         },
         _$el: null,
         $elem: function(){
@@ -26,6 +39,7 @@ function( core, React ){
             return (
                 <button
                     className={'btn btn-sm ' + this.props.className}
+                    data-loading-text={this.props.loadingText}
                     onClick={this.props.click.bind(this.props.overload, this)}
                 >{this.props.text}</button>
             )

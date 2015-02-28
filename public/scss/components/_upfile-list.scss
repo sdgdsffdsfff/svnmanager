@@ -11,15 +11,6 @@
 }
 
 .upgrade-dialog {
-  li {
-    &:hover {
-      background: darken($flyoutBoxBackground, 2%);
-    }
-    &:active {
-      @include transform(translateX(1px) translateY(1px));
-    }
-  }
-
   label {
     cursor: pointer;
     padding: 5px;
@@ -28,6 +19,12 @@
     @include flex-direction(row);
     @include justify-content(flex-start);
     font-weight: normal;
+    &:hover {
+      background: darken($flyoutBoxBackground, 2%);
+    }
+    &:active {
+      @include transform(translateX(1px) translateY(1px));
+    }
   }
 
   input:checked + span i {
@@ -35,18 +32,19 @@
     @include animation(checked 0.3s ease-in);
   }
 
+  .delete {
+    color: #666;
+  }
+  .add {
+    color: #59D259;
+  }
+  .update {
+    color: #59B6D2;
+  }
+
   .action {
-    width: 60px;
+    width: 80px;
     font-weight: bold;
-    &.delete {
-      color: #666;
-    }
-    &.add {
-      color: #59D259;
-    }
-    &.update {
-      color: #59B6D2;
-    }
   }
 
   .path {
@@ -62,19 +60,35 @@
     }
   }
 
-
-
   .control {
-    padding: 10px 5px;
-    text-align: right;
+    padding: 10px 5px 6px;
     border-bottom: 1px dotted #4D5356;
-    span {
+    @include display(flex);
+    @include flex-direction(row);
+    > span {
       cursor: pointer;
       color: #ccc;
-      margin-left: 10px;
+      font-size: 1.4rem;
       &:hover {
         color: #fff;
       }
+    }
+    > span:nth-child(1) {
+      width: 80px;
+    }
+    > span:nth-child(2) {
+      @include flex(1);
+    }
+  }
+
+  .info {
+    padding: 10px 5px 0;
+    border-top: 1px dotted #4D5356;
+    text-align: right;
+    font-family: Arial, sans-serif;
+    font-size: 1.4rem;
+    > span {
+      margin-left: 10px;
       &:first-of-type:before {
         display: none;
       }
@@ -86,6 +100,12 @@
         margin-right: 10px;
         background: #60686C;
       }
+    }
+    .delete {
+      color: #999;
+    }
+    b {
+      margin-left: 5px;
     }
   }
 }

@@ -15,8 +15,15 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
         .factory('DeployDialog', function( SvnService ){
             var dialog = upgradeDialog({
                 confirm: function( btn ){
-                    confirm(btn.$elem(), function(){
-                        console.log(11)
+                    btn.loading();
+                    this.check().then(function( data ){
+                        confirm(btn.$elem(), function(){
+
+                        });
+                        //btn.reset();
+                    }, function(){
+                        btn.reset();
+                        tips(btn.$elem(), 'Noting to Deploy!', 'warning')
                     });
                 }
             }, null, {
@@ -26,6 +33,9 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                     }, function(data){
                         console.log(data)
                     })
+                },
+                check: function(){
+                    return this.upfileList.getReadyToDeployFile();
                 },
                 getUndeployFiles: function(){
                     var self = this;
@@ -82,7 +92,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                             })
                         }, function(){
                             toggle();
-                            tips(elem, 'No Change', {
+                            tips(elem, 'No changes Detected!', {
                                 placement: 'bottom',
                                 classStyle: 'warning'
                             })
@@ -102,6 +112,13 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                             })
                         })
                     })
+                }
+            }
+        })
+        .directive('upfileControl', function(){
+            return {
+                link: function(){
+                    console.log(1)
                 }
             }
         })

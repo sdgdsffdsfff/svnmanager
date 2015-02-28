@@ -21,20 +21,15 @@ function(core, Flyout){
             };
 
             if( typeof options == 'string' && options.length ){
-                setting.classStyle = 'alert-'+options.classStyle;
-            }
-
-            if( $.isPlainObject(options) ){
+                setting.classStyle = 'alert-'+options;
+            } else if( $.isPlainObject(options) ){
                 $.extend(setting, options);
                 if( setting.classStyle.length ){
                     setting.classStyle = 'alert-'+setting.classStyle;
                 }
             }
 
-
             flyout = new Flyout('<div class="flyout-tips alert"></div>', setting);
-
-
             flyout.element.html(html).mouseenter(function() {
                 anchor.data('flyout', flyout);
                 flyout._clearStay()

@@ -5,10 +5,13 @@
 添加主机
 编辑主机
 websocket　获取实时状态
+选择部署文件
 
 ## todo:
 部署到指定路径
-　－路径检查
+　－检测在线状态
+　　－不完整部署
+　－路径检查do svns
 　－是否创建路径
 　－部署是实时状态
 　－动态更新界面
@@ -17,7 +20,7 @@ websocket　获取实时状态
 
 reactjs#0.13.0-rc1 [breaking change](http://facebook.github.io/react/blog/2015/02/24/react-v0.13-rc1.html)
 
-选择部署文件
+
 部署状态
 选择分组部署
 选择服务器部署

@@ -64,38 +64,42 @@ import (
 
 	//保存或更新到未部署列表
 	func (r *svnService) SaveUpFile(list []JSON.Type) error {
+
 		oldList, err := r.GetUnDeployFileList();
 		if err != nil {
 			return err
 		}
 		//未部署列表为空，直接把记录整体插入
 		if oldList == nil {
-			if _, err := db.Orm().InsertMulti(100, list); err != nil {
+
+			// http://beego.me/docs/mvc/model/object.md#insertmulti
+			// 并列插入100条，顺序插入改为1
+			bulk := 100
+			if _, err := db.Orm().InsertMulti(bulk, list); err != nil {
 				return helper.NewError("SvnService.SaveUpFile InsertBatch error", err)
 			}
 		}else{
+			//并发更新文件列表
 			helper.AsyncMap(list, func(i int) bool {
 				newPath := list[i]
-				found := 0
+				action := newPath["Action"].(int)
 
+				found := false
 				helper.AsyncMap(oldList, func(index int) bool {
 					//对相同路径下的不同动作进行更新
 					oldPath := oldList[index]
-					if oldPath.Path == newPath["Path"] && oldPath.Action != newPath["Acton"] {
-						oldPath.Action = newPath["Action"].(int)
-						if created, _, err := db.Orm().ReadOrCreate(&oldPath, "Path"); err == nil {
-							if created {
-								db.Orm().Update(&oldPath)
-							}else {
-								found++
-								return true
-							}
-						}
+					if oldPath.Path == newPath["Path"] && oldPath.Action != action {
+						oldPath.Action = action
+						db.Orm().Update(oldPath)
+						found = true
+						//跳出循环
+						return true
 					}
 					return false
 				})
-				//TODO 更改调用方法
-				if found == 0 {
+
+				//未找到相同路径的记录则插入
+				if found == false {
 					up_file := &model.UpFile{}
 					JSON.ParseToStruct(newPath, up_file)
 					db.Orm().Insert(up_file)
