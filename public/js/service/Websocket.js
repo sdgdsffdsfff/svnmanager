@@ -12,11 +12,15 @@ function( core, ng, service){
                 this._reconnectOnLoss = ng.isUndefined(reconnectOnLoss) ? true : reconnectOnLoss;
                 this.events = ng.extend({
                     message: {},
+                    open: ng.noop,
                     error: ng.noop,
-                    close: ng.noop
+                    close: ng.noop,
+                    giveup: ng.noop
                 }, events);
             },
             _isListen: false,
+            _isConnected: false,
+            _retryTimes: 0,
             listen: function(){
                 var self = this;
 
@@ -34,16 +38,37 @@ function( core, ng, service){
                     }
                 });
 
+                this.socket.onOpen(function(e){
+                    self.events.open.call(self, e);
+                    self._retryTimes = 0;
+                    self._isConnected = true;
+                });
+
                 this.socket.onClose(function( e ){
                     self.events.close.call(self, e);
-                    self._reconnectOnLoss && self.socket.reconnect();
+                    self._reconnectOnLoss && self.reconnect();
+                    self._isConnected = false;
                 });
 
                 this.socket.onError(function( e ){
+                    if( !self._isConnected ) return;
+
                     self.events.error.call(self, e);
+                    self._reconnectOnLoss && self.reconnect();
                 });
 
                 return this;
+            },
+            reconnect: function(){
+                if( this._retryTimes >= 3 ){
+                    this.events.giveup();
+                    this.disconnect(true);
+                    this._isListen = false;
+                    return;
+                }
+                this._retryTimes++;
+                console.warn('websocket disconnect, retry', this._retryTimes);
+                this.socket.reconnect();
             },
             disconnect: function( force ){
                 if( force ){
@@ -60,10 +85,8 @@ function( core, ng, service){
             on: function( method, fn ){
                 if( typeof method != 'string' ) return;
 
-                if( method == 'error' ){
-                    this.events['error'] = fn;
-                } else if( method == 'close' ){
-                    this.events['close'] = fn;
+                if( (/^(error|close|open|giveup)$/).test(method) ){
+                    this.events[method] = fn;
                 }else{
                     this.events.message[method] = fn;
                 }

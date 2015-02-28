@@ -30,7 +30,7 @@ function (core, ng) {
     })
     .controller('svnManagerCtrl', function ($scope, Status, Action, ClientService, SvnService, Websocket) {
 
-        var socket = Websocket({
+        $scope.socket = Websocket({
             message: {
                 heartbeat: function( data ){
                     data.result.map(function( c ){
@@ -41,13 +41,17 @@ function (core, ng) {
                     });
                     $scope.$$parse && $scope.$apply();
                     core.delay(function(){
-                        socket.emit('heartbeat');
+                        $scope.socket.emit('heartbeat');
                     }, 5000)
                 }
+            },
+            //严重错误，websocket链接丢失，服务器已挂
+            giveup: function(){
+                //样式响应
             }
         }).listen();
 
-        socket.emit('heartbeat');
+        $scope.socket.emit('heartbeat');
 
         $scope.version = {
             Version: 0,

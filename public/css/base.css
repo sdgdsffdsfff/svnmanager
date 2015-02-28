@@ -895,6 +895,12 @@ select.form-control {
   .upgrade-dialog .checkbox i {
     color: #526469;
     font-size: 1.6rem; }
+.upgrade-dialog .nofity {
+  position: absolute;
+  bottom: -40px;
+  left: 20px;
+  font-size: 1.2rem;
+  color: #fff; }
 .upgrade-dialog .control {
   padding: 10px 5px 6px;
   border-bottom: 1px dotted #4D5356;

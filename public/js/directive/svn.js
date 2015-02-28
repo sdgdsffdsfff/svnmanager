@@ -15,15 +15,16 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
         .factory('DeployDialog', function( SvnService ){
             var dialog = upgradeDialog({
                 confirm: function( btn ){
+                    var self = this;
                     btn.loading();
                     this.check().then(function( data ){
-                        confirm(btn.$elem(), function(){
-
-                        });
+                        //confirm(btn.$elem(), function(){
+                        //
+                        //});
                         //btn.reset();
                     }, function(){
                         btn.reset();
-                        tips(btn.$elem(), 'Noting to Deploy!', 'warning')
+                        self.notify('Noting to Deploy!');
                     });
                 }
             }, null, {
@@ -35,7 +36,14 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                     })
                 },
                 check: function(){
-                    return this.upfileList.getReadyToDeployFile();
+                    var self = this;
+                    this.notify('checking files..');
+                    return this.upfileList.getReadyToDeployFile().then(function(){
+
+                    });
+                },
+                notify: function( text ){
+                    this.upfileList.notify(text);
                 },
                 getUndeployFiles: function(){
                     var self = this;

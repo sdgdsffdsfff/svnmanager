@@ -39,7 +39,8 @@ function( core, React, Dialog, FormBtns ){
                         React.createElement("span", {className: "add"}, "Add:", React.createElement("b", null, "0")), 
                         React.createElement("span", {className: "update"}, "Update:", React.createElement("b", null, "0")), 
                         React.createElement("span", {className: "delete"}, "Delete:", React.createElement("b", null, "0"))
-                    )
+                    ), 
+                    React.createElement("div", {className: "nofity"})
                 )
             )
         },
@@ -55,6 +56,7 @@ function( core, React, Dialog, FormBtns ){
             this.$sortByActionBtn = this.$el.find('#UpFileSortByAction');
             this.$sortByPathBtn = this.$el.find('#UpFileSortByPath');
             this.$info = this.$el.find('.info');
+            this.$nofity = this.$el.find('.nofity');
         },
         getCheckbox: function(){
             this.$items = this.$el.find('li');
@@ -87,6 +89,9 @@ function( core, React, Dialog, FormBtns ){
                 this.$selectAllBtn.data('all', false).html('Select All');
             }
         },
+        notify: function( text ){
+            this.$nofity.html(text);
+        },
         setList: function( list ){
             this.setProps({
                 list: list
@@ -109,7 +114,7 @@ function( core, React, Dialog, FormBtns ){
                         if( len-1 == i ){
                             q.resolve();
                         }
-                    }.bind(this), i*16);
+                    }.bind(this), i*30);
                 });
             }else{
                 this.$checkboxes.each(function(i){
@@ -118,7 +123,7 @@ function( core, React, Dialog, FormBtns ){
                         if( len-1 == i ){
                             q.resolve();
                         }
-                    }.bind(this), i*16);
+                    }.bind(this), i*30);
                 });
             }
             q.then(function(){
