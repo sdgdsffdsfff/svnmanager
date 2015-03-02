@@ -82,6 +82,12 @@ function( core, ng, service){
                     data: data
                 })
             },
+            broadcast: function( method, data ){
+                return this.emit('broadcast', {
+                    method: method,
+                    data: data
+                });
+            },
             on: function( method, fn ){
                 if( typeof method != 'string' ) return;
 

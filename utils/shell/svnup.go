@@ -50,7 +50,7 @@ func SvnUp(paths ...string) (int, []JSON.Type, error){
 				path := match[2]
 				path = path[len(svnDir):]
 				list = append(list, JSON.Type{
-					"Action": service.SvnService.ParseAction(action),
+					"Action": service.Svn.ParseAction(action),
 					"Path": path,
 				})
 			}

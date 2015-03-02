@@ -45,8 +45,6 @@ function(core){
 			});
 		},
 		visible: function(fn){
-			var self = this;
-			
 			this.options.onShow.call(this);
 			core.body.append(this.element);
 			this.winEventName = core.positionFixed(
@@ -60,13 +58,10 @@ function(core){
 				}
 			);
 			
-			core.delay(
-				$.proxy(function(){
-					this.hide();
-					fn();
-				}, this),
-				this.duration
-			)
+			core.delay(function(){
+                this.hide();
+                fn();
+            }.bind(this),this.duration)
 		}
 	},{
 		LENGTH_LONG: 5000,

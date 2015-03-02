@@ -19,7 +19,7 @@ func SvnUpCtrl() (model.Version, error){
 		return version, err
 	}
 
-	if service.SvnService.IsChanged(num) == false {
+	if service.Svn.IsChanged(num) == false {
 		return version, helper.NewError("no change")
 	}
 
@@ -29,13 +29,16 @@ func SvnUpCtrl() (model.Version, error){
 		List: JSON.Stringify(list),
 	}
 
-	if err := service.SvnService.UpdateVersion(&version); err != nil {
+	if err := service.Svn.UpdateVersion(&version); err != nil {
 		return version, err
 	}
 
-	if err := service.SvnService.SaveUpFile(list); err != nil {
+	if err := service.Svn.SaveUpFile(list); err != nil {
 		return version, err
 	}
+
+	msg := &service.Message{"svnup", helper.Success(version)}
+	service.WebSocket.NotifyAll(msg)
 
 	return version, nil
 }

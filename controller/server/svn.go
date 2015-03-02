@@ -11,7 +11,8 @@ import (
 	_ "github.com/antonholmquist/jason"
 )
 
-type SvnCtrl struct{}
+type SvnCtrl struct{
+}
 
 func init(){
 	config.AppendValue(config.Controller, &SvnCtrl{})
@@ -21,7 +22,7 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 
 	m.Group("/server", func(r martini.Router){
 		r.Get("/svn", func (rend render.Render, req *http.Request){
-			result, err := service.SvnService.GetLastVersion()
+			result, err := service.Svn.GetLastVersion()
 			if err != nil {
 				rend.HTML(500, "500", err)
 				return
@@ -52,7 +53,7 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 		})
 
 		r.Get("/lastVersion", func(rend render.Render) {
-			version, err := service.SvnService.GetLastVersion()
+			version, err := service.Svn.GetLastVersion()
 			if err != nil {
 				rend.JSON(200, helper.Error(err))
 				return
@@ -63,7 +64,7 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 		})
 
 		r.Get("/undeploy/files", func(rend render.Render){
-				list, err := service.SvnService.GetUnDeployFileList()
+				list, err := service.Svn.GetUnDeployFileList()
 				if err != nil {
 					rend.JSON(200, helper.Error(err))
 				} else if len(list) == 0 {
@@ -74,13 +75,23 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 			})
 	})
 
-	m.Get("/deploy", func(rend render.Render, req *http.Request){
-		result, err := DeployCtrl()
-		//报告错误原因
-		if err != nil {
-			rend.JSON(200, helper.Error(err, result))
-			return
-		}
-		rend.JSON(200, helper.Success(result))
+	m.Group("/aj/deploy", func(r martini.Router){
+		m.Post("/", func(rend render.Render, req *http.Request){
+			result, err := DeployCtrl()
+			//报告错误原因
+			if err != nil {
+				rend.JSON(200, helper.Error(err, result))
+				return
+			}
+			rend.JSON(200, helper.Success(result))
+		})
+		m.Get("/lock", func(rend render.Render, req *http.Request){
+
+			if yes := service.Svn.GetLock(); yes {
+				rend.JSON(200, helper.Success(true))
+			} else {
+				rend.JSON(200, helper.Error("locking"))
+			}
+		})
 	})
 }

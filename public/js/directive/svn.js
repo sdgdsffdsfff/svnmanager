@@ -18,11 +18,8 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                     var self = this;
                     btn.loading();
                     this.check().then(function( data ){
-                        //confirm(btn.$elem(), function(){
-                        //
-                        //});
-                        //btn.reset();
-                    }, function(){
+                        console.log( data )
+                    }, function( data ){
                         btn.reset();
                         self.notify('Noting to Deploy!');
                     });
@@ -38,8 +35,9 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                 check: function(){
                     var self = this;
                     this.notify('checking files..');
-                    return this.upfileList.getReadyToDeployFile().then(function(){
-
+                    return this.upfileList.getReadyToDeployFile().then(function( files ){
+                        self.notify('geting deploy lock');
+                        return SvnService.getDeployLock();
                     });
                 },
                 notify: function( text ){
@@ -66,11 +64,6 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
 
                     $scope.svnUpdate = function () {
                         return SvnService.svnup().then(function (data) {
-                            var version = data.result;
-                            $scope.upgradeVersion({
-                                Version: version.Version,
-                                Time: version.Time
-                            });
                             DeployDialog.getUndeployFiles();
                             return data;
                         })

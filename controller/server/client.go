@@ -13,7 +13,7 @@ import (
 )
 
 type HostCtrl struct{}
-type clientList []*service.Client
+type clientList []*service.HostClient
 
 func init() {
 	config.AppendValue(config.Controller, &HostCtrl{})
@@ -28,13 +28,13 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 			result := JSON.Type{}
 
 			groupDict := map[int]clientList{}
-			groups, err := service.GroupService.List()
+			groups, err := service.Group.List()
 			for _, group := range groups {
 				groupDict[group.Id] = clientList{}
 			}
 
 			if err == nil {
-				clients := service.ClientService.List()
+				clients := service.Client.List()
 				for _, client := range clients {
 					if _, found := groupDict[client.Group]; found {
 						groupDict[client.Group] = append(groupDict[client.Group], client)
@@ -57,7 +57,7 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 		})
 
 		r.Get("/heartbeat", func(rend render.Render){
-				list := service.ClientService.List()
+				list := service.Client.List()
 				result := []JSON.Type{}
 
 				for _, client := range list {
@@ -81,7 +81,7 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 				client.Group = int(body["group"].(float64))
 				client.Port = body["port"].(string)
 
-				if errType, err := service.ClientService.Add(client); err != nil {
+				if errType, err := service.Client.Add(client); err != nil {
 					rend.JSON(200, helper.Error(errType, err))
 					return
 				}
@@ -102,7 +102,7 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 
 				keys := JSON.GetKeys(body, helper.UpperCaseFirstLetter)
 
-				if err := service.ClientService.Update(client, keys...); err != nil {
+				if err := service.Client.Update(client, keys...); err != nil {
 					rend.JSON(200, helper.Error(err))
 					return
 				}
@@ -115,7 +115,7 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 				gid := helper.Num(params["gid"])
 
 				client := model.WebServer{Id: id, Group: gid}
-				if err := service.ClientService.Update(&client, "Group"); err != nil {
+				if err := service.Client.Update(&client, "Group"); err != nil {
 					rend.JSON(200, helper.Error(err))
 					return
 				}

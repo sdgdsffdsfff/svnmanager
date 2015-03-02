@@ -252,49 +252,13 @@ define(function(){
     core.positionFixed = function(){
         var id = 0, abs = Math.abs, ceil = Math.ceil;
 
-        function getPosition(ele, options){
-            var ew = ele.outerWidth(), eh = ele.outerHeight(),
-                ww = core.win.width(), wh = core.win.height(), st = core.win.scrollTop();
-
-            return {
-                left: getLeft(ew, ww, options),
-                top: getTop(eh, wh, st, options)
-            }
-        }
-
-        function getLeft(ew, ww, options){
-            if( options.centerHorizontal ){
-                return ceil( abs(ww-ew)/2 );
-            }
-            if( options.offset.left ){
-                return options.offset.left;
-            }
-            if( options.offset.right ){
-                return ww - options.offset.right - ew;
-            }
-            return 0;
-        }
-
-        function getTop(eh, wh, st, options){
-            if( options.centerVertical ){
-                return st + ceil( abs(wh-eh)/2 );
-            }
-            if( options.offset.top ){
-                return st + options.offset.top;
-            }
-            if( options.offset.bottom ){
-                return st + wh - eh - options.offset.bottom;
-            }
-            return 0;
-        }
-
         return function(ele, options){
             id++;
             var name = 'scroll.positionFixed' + id +' resize.positionFixed' + id;
 
             ele = ele.jquery ? ele : $(ele);
 
-            var defaultValue = core.browser.ie ? 0 : 'auto', firstRun = false;
+            var defaultValue = 'auto';
 
             options = $.extend({
                 offset: {
@@ -310,37 +274,20 @@ define(function(){
                 before: $.noop
             }, options);
 
-            if( core.browser.ie6 ){
+            ele.css(options.offset);
+            if( options.centerHorizontal ){
                 ele.css({
-                    position: 'absolute'
+                    'left': '50%',
+                    'marginLeft': -ele.outerWidth()/2
                 });
-                core.xresize(name, {
-                    before: options.before,
-                    after: function(e){
-                        ele.css(getPosition(ele, options));
-                        options.after.call(core.win, e);
-                        if( !firstRun ){
-                            firstRun = true;
-                            options.onPosition(ele);
-                        }
-                    }
-                });
-            }else{
-                ele.css(options.offset);
-                if( options.centerHorizontal ){
-                    ele.css({
-                        'left': '50%',
-                        'marginLeft': -ele.outerWidth()/2
-                    });
-                }
-                if( options.centerVertial ){
-                    ele.css({
-                        'top': '50%',
-                        'marginTop': -ele.outerHeight()/2
-                    });
-                }
-                options.onPosition(ele);
             }
+            if( options.centerVertial ){
+                ele.css({
+                    'top': '50%',
+                    'marginTop': -ele.outerHeight()/2
+                });
+            }
+            options.onPosition(ele);
 
             return name;
         }

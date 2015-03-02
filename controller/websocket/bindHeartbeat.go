@@ -7,8 +7,8 @@ import (
 )
 
 func init(){
-	Register("heartbeat", func() JSON.Type {
-		list := service.ClientService.List()
+	service.BindWebSocketMethod("heartbeat", func() JSON.Type {
+		list := service.Client.List()
 		result := []JSON.Type{}
 
 		for _, client := range list {

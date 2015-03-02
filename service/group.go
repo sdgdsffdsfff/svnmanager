@@ -8,6 +8,8 @@ import (
 
 type groupService struct{}
 
+var Group = &groupService{}
+
 func (r *groupService) Add(name string) (*model.Group, error) {
 	var group model.Group;
 	group.Name = name
@@ -24,4 +26,4 @@ func (r *groupService) List() ([]*model.Group, error) {
 	return groups, nil
 }
 
-var GroupService = &groupService{}
+

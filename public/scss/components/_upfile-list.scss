@@ -70,6 +70,7 @@
 
   .control {
     padding: 10px 5px 6px;
+    margin-bottom: 5px;
     border-bottom: 1px dotted #4D5356;
     @include display(flex);
     @include flex-direction(row);

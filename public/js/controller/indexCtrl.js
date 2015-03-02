@@ -8,7 +8,7 @@ define([
 'directive/group',
 'service/ClientService',
 'service/SvnService',
-'service/Websocket',
+'service/SocketInstance',
 'ngSanitize'
 ],
 function (core, ng) {
@@ -28,30 +28,31 @@ function (core, ng) {
         Alive: 2,
         Busy: 3
     })
-    .controller('svnManagerCtrl', function ($scope, Status, Action, ClientService, SvnService, Websocket) {
+    .controller('svnManagerCtrl', function ($scope, Status, Action, ClientService, SvnService, SocketInstance, Helper) {
 
-        $scope.socket = Websocket({
-            message: {
-                heartbeat: function( data ){
-                    data.result.map(function( c ){
-                        var client;
-                        if( client = $scope.findClient( c.Id ) ){
-                            client.Status = c.Status
-                        }
-                    });
-                    $scope.$$parse && $scope.$apply();
-                    core.delay(function(){
-                        $scope.socket.emit('heartbeat');
-                    }, 5000)
+        SocketInstance.setScope( $scope );
+        SocketInstance.on('heartbeat', function( data ){
+            data.result.map(function( c ){
+                var client;
+                if( client = $scope.findClient( c.Id ) ){
+                    client.Status = c.Status
                 }
-            },
-            //严重错误，websocket链接丢失，服务器已挂
-            giveup: function(){
-                //样式响应
-            }
-        }).listen();
-
-        $scope.socket.emit('heartbeat');
+            });
+            $scope.$$parse && $scope.$apply();
+            core.delay(function(){
+                SocketInstance.emit('heartbeat');
+            }, 5000)
+        });
+        SocketInstance.on('svnup', function( data ){
+            Helper.data(data).then(function( data ){
+                var version = data.result;
+                $scope.upgradeVersion({
+                    Version: version.Version,
+                    Time: version.Time
+                });
+            });
+        });
+        SocketInstance.emit('heartbeat');
 
         $scope.version = {
             Version: 0,

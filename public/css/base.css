@@ -631,6 +631,19 @@ select.form-control {
 .modal-footer {
   border-top: none; }
 
+.ui-toast {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: 100px;
+  display: none;
+  font-size: 14px;
+  padding: 8px 20px;
+  border-radius: 3px;
+  box-shadow: 0 1px 6px #272727, inset 0 1px 0px #A8A3A3;
+  color: #fff;
+  background: #414141; }
+
 @-webkit-keyframes online-clockwise {
   0% {
     -webkit-transform: rotateZ(0deg) translateZ(0); }
@@ -903,6 +916,7 @@ select.form-control {
   color: #fff; }
 .upgrade-dialog .control {
   padding: 10px 5px 6px;
+  margin-bottom: 5px;
   border-bottom: 1px dotted #4D5356;
   display: -webkit-box;
   display: -moz-box;

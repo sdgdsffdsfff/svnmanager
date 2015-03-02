@@ -1,6 +1,6 @@
 package service
 
-import(
+import (
 	"king/model"
 	"king/utils/db"
 	"king/utils"
@@ -11,8 +11,6 @@ import(
 	"king/bootstrap"
 )
 
-var RefreshDuration = time.Second * 3
-
 type Status int
 
 const (
@@ -22,22 +20,24 @@ const (
 	Busy
 )
 
-type Client struct{
+type HostClient struct{
 	*model.WebServer
 	Status Status
 }
 
 type clientService struct{
-	list []*Client
+	list []*HostClient
 	heartbeatEnable bool
 }
+
+var Client = &clientService{}
 
 func (r *clientService) DisableHeartbeat() {
 	r.heartbeatEnable = false
 }
 
 //多终端Rpc调用
-func (r *clientService) BatchCall(clients []*Client, method string, params interface{}) []JSON.Type {
+func (r *clientService) BatchCall(clients []*HostClient, method string, params interface{}) []JSON.Type {
 	results := []JSON.Type{}
 	helper.AsyncMap(clients, func(index int) bool {
 		client := clients[index]
@@ -52,19 +52,19 @@ func (r *clientService) BatchCall(clients []*Client, method string, params inter
 	return results
 }
 
-func (r *clientService) Fetch() ([]*Client, error) {
+func (r *clientService) Fetch() ([]*HostClient, error) {
 	var list []*model.WebServer
-	r.list = []*Client{}
+	r.list = []*HostClient{}
 	_, err := db.Orm().QueryTable("web_server").All(&list)
 	if err == nil {
 		for _, webServer := range list {
-			r.list = append(r.list, &Client{webServer, Connecting})
+			r.list = append(r.list, &HostClient{webServer, Connecting})
 		}
 	}
 	return r.list, err
 }
 
-func (r *clientService) List() ([]*Client) {
+func (r *clientService) List() ([]*HostClient) {
 	return r.list
 }
 
@@ -76,7 +76,7 @@ func (r *clientService) Find(client model.WebServer) (*model.WebServer, error) {
 	return &client, nil
 }
 
-func (r *clientService) FindFromCache(id int) *Client {
+func (r *clientService) FindFromCache(id int) *HostClient {
 	for _, client := range r.list {
 		if client.Id == id {
 			return client
@@ -94,7 +94,7 @@ func (r *clientService) FindOrAppend(client *model.WebServer) {
 		}
 	}
 	if !found {
-		r.list = append(r.list , &Client{client, Connecting})
+		r.list = append(r.list , &HostClient{client, Connecting})
 	}
 }
 
@@ -108,13 +108,14 @@ func (r *clientService) Refresh() {
 	}
 }
 
+var refreshDuration = time.Second * 3
 func (r *clientService) Heartbeat() {
 	r.heartbeatEnable = true
 	r.Fetch()
 	for {
 		if r.heartbeatEnable {
 			r.Refresh()
-			time.Sleep( RefreshDuration )
+			time.Sleep( refreshDuration )
 		} else {
 			break
 		}
@@ -162,7 +163,7 @@ func (r *clientService) Del(client *model.WebServer) (error) {
 	return err
 }
 
-func (r *clientService) GetClientStatus(client *Client) Status {
+func (r *clientService) GetClientStatus(client *HostClient) Status {
 	isConnect, _ := utils.Ping( r.GetAvailableIp(client) + ":" + client.Port )
 	if isConnect {
 		return Alive
@@ -170,7 +171,7 @@ func (r *clientService) GetClientStatus(client *Client) Status {
 	return Die
 }
 
-func (r *clientService) GetAvailableIp(client *Client) string {
+func (r *clientService) GetAvailableIp(client *HostClient) string {
 	ip := ""
 	if len(client.InternalIp) > 0 {
 		ip = client.InternalIp
@@ -180,16 +181,14 @@ func (r *clientService) GetAvailableIp(client *Client) string {
 	return ip
 }
 
-func (r *clientService) RpcIp(client *Client) string {
+func (r *clientService) RpcIp(client *HostClient) string {
 	return "http://" + client.InternalIp + ":" + client.Port + "/rpc"
 }
-
-var ClientService = &clientService{}
 
 func init(){
 	bootstrap.Register(func(){
 		if db.IsConnected() {
-			ClientService.Heartbeat()
+			Client.Heartbeat()
 		}
 	})
 }

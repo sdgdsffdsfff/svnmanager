@@ -13,7 +13,7 @@ func DeployCtrl() ([]JSON.Type, error) {
 	results := []JSON.Type{}
 	errorList := []JSON.Type{}
 
-	fileList, err := service.SvnService.GetUnDeployFileList()
+	fileList, err := service.Svn.GetUnDeployFileList()
 	if err != nil {
 		return nil, err
 	}
@@ -21,8 +21,9 @@ func DeployCtrl() ([]JSON.Type, error) {
 		return nil, helper.NewError("no file need update")
 	}
 
-	list := service.ClientService.List()
-	results = service.ClientService.BatchCall(
+	service.Svn.Lock()
+	list := service.Client.List()
+	results = service.Client.BatchCall(
 		list,
 		"RpcDeploy.Deploy",
 		rpc.DeployArgs{fileList},
@@ -43,9 +44,9 @@ func DeployCtrl() ([]JSON.Type, error) {
 			}
 		}
 		if err = res["error"]; err == nil {
-			client.Version = service.SvnService.Version
+			client.Version = service.Svn.Version
 			//更新失败
-			if err = service.ClientService.Update(&client); err != nil {
+			if err = service.Client.Update(&client); err != nil {
 				res["error"] = err.(error).Error()
 			}
 		}
@@ -60,7 +61,7 @@ func DeployCtrl() ([]JSON.Type, error) {
 	//部署没有错误
 	if len(errorList) == 0 {
 		//清空未部署列表
-		if err := service.SvnService.ClearDeployFile(); err != nil {
+		if err := service.Svn.ClearDeployFile(); err != nil {
 			return nil, err
 		}
 	}else {
