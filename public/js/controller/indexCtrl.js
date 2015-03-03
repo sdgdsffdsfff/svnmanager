@@ -157,6 +157,14 @@ function (core, ng, Toast) {
             return client;
         };
 
+        $scope.mapClients = function(fn){
+            $.each($scope.groupList, function(index, group){
+                $.each(group.Clients, function(index, host) {
+                    fn(host)
+                })
+            })
+        };
+
         $scope.onGroupChange = function () {
             var callbacks = [], lastValues = [];
             $scope.$watch('groupList', function (newValue) {

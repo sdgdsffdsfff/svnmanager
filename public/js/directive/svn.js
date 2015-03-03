@@ -17,7 +17,9 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
             var dialog = upgradeDialog({
                 confirm: function( btn ){
                     btn.loading();
-                    this.check().then($.noop, function( data ){
+                    this.check().then(function(){
+                        btn.reset();
+                    }, function( data ){
                         btn.reset();
                         tips(btn.$elem(), data.message, 'warning');
                     });
@@ -34,7 +36,9 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                     var self = this;
                     return this.upfileList.getReadyToDeployFile().then(function( list ){
                         self.hide();
-                        self.scope.selectClient( list );
+                        core.delay(function(){
+                            self.scope.selectClient( list );
+                        }, 500)
                     })
                 },
                 notify: function( text ){
@@ -108,8 +112,25 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                 controller: function( $scope ){
                     $scope.selectClient = function( list ){
                         $scope.setClientSelectable(true);
-                        $scope.$apply();
-                        GlobalControlUI.show('Select the server and click next');
+                        var clients = [];
+                        GlobalControlUI.show('Select the client which you want to deploy.', function(){
+                            $scope.mapClients(function( client ){
+                                if( client._selected ){
+                                    clients.push(client)
+                                }
+                            });
+                            if( clients.length ){
+
+                                console.log( list );
+                                console.log( clients );
+
+                            }else{
+                                tips(GlobalControlUI.$nextBtn, 'No client selected!', 'warning');
+                            }
+                        }, function(){
+                            $scope.setClientSelectable(false);
+                            GlobalControlUI.hide();
+                        });
                     };
 
                     DeployDialog.setScope( $scope );

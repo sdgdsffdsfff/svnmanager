@@ -23,10 +23,10 @@
       }
     }
   }
-  .host-col {
+  .client-col {
     margin-top: 15px;
   }
-  .host {
+  .client {
     position: relative;
     width: 120px;
     height: 120px;
@@ -90,7 +90,7 @@
     }
   }
 
-  .host-list {
+  .client-list {
     @extend .clearfix;
     padding-top: 15px;
     @extend .clearfix;
@@ -146,7 +146,7 @@
     }
   }
 
-  .add-host {
+  .add-client {
     font-size: 6rem;
     line-height: 120px;
     opacity: .2;
@@ -160,14 +160,14 @@
 
 
 @media (min-width: $screen-lg) {
-  .group-list .host {
+  .group-list .client {
     width: 160px;
     height: 160px;
   }
 }
 
 @media (max-width: $screen-lg) {
-  .group-list .host {
+  .group-list .client {
     width: 140px;
     height: 140px;
   }

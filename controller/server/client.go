@@ -57,70 +57,66 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 		})
 
 		r.Get("/heartbeat", func(rend render.Render){
-				list := service.Client.List()
-				result := []JSON.Type{}
+			list := service.Client.List()
+			result := []JSON.Type{}
 
-				for _, client := range list {
-					result = append(result, JSON.Type{
-						"Id": client.Id,
-						"Status": client.Status,
-					})
-				}
+			for _, client := range list {
+				result = append(result, JSON.Type{
+					"Id": client.Id,
+					"Status": client.Status,
+				})
+			}
 
-				rend.JSON(200, helper.Success(result))
-			})
+			rend.JSON(200, helper.Success(result))
+		})
 
 		r.Post("/add", func(rend render.Render, req *http.Request){
-				client := new(model.WebServer)
-				body := JSON.FormRequest(req.Body)
+			client := new(model.WebServer)
+			body := JSON.FormRequest(req.Body)
 
-				client.Name = body["name"].(string)
-				client.Ip = body["ip"].(string)
-				client.InternalIp = body["internalIp"].(string)
-				client.DeployPath = body["deployPath"].(string)
-				client.Group = int(body["group"].(float64))
-				client.Port = body["port"].(string)
+			client.Name = body["name"].(string)
+			client.Ip = body["ip"].(string)
+			client.InternalIp = body["internalIp"].(string)
+			client.DeployPath = body["deployPath"].(string)
+			client.Group = int(body["group"].(float64))
+			client.Port = body["port"].(string)
 
-				if errType, err := service.Client.Add(client); err != nil {
-					rend.JSON(200, helper.Error(errType, err))
-					return
-				}
+			if errType, err := service.Client.Add(client); err != nil {
+				rend.JSON(200, helper.Error(errType, err))
+				return
+			}
 
-				rend.JSON(200, helper.Success(client))
-			})
+			rend.JSON(200, helper.Success(client))
+		})
 
 		r.Post("/:id/update", func(rend render.Render, req *http.Request){
-				client := new(model.WebServer)
-				body := JSON.FormRequest(req.Body)
+			body := JSON.FormRequest(req.Body)
+			client := &model.WebServer{}
+			if err := JSON.ParseToStruct(JSON.Stringify(body), client); err != nil {
+				rend.JSON(200, helper.Error(helper.ParamsError))
+				return
+			}
+			keys := JSON.GetKeys(body)
 
-				client.Id = int(body["id"].(float64))
-				client.Name = body["name"].(string)
-				client.Ip = body["ip"].(string)
-				client.InternalIp = body["internalIp"].(string)
-				client.DeployPath = body["deployPath"].(string)
-				client.Port = body["port"].(string)
+			if err := service.Client.Update(client, keys...); err != nil {
+				rend.JSON(200, helper.Error(err))
+				return
+			}
 
-				keys := JSON.GetKeys(body, helper.UpperCaseFirstLetter)
-
-				if err := service.Client.Update(client, keys...); err != nil {
-					rend.JSON(200, helper.Error(err))
-					return
-				}
-
-				rend.JSON(200, helper.Success(client))
-			})
+			rend.JSON(200, helper.Success(client))
+		})
 
 		r.Post("/:id/change/group/:gid", func(rend render.Render, params martini.Params) {
-				id := helper.Num(params["id"])
-				gid := helper.Num(params["gid"])
+			id := helper.Num(params["id"])
+			gid := helper.Num(params["gid"])
 
-				client := model.WebServer{Id: id, Group: gid}
-				if err := service.Client.Update(&client, "Group"); err != nil {
-					rend.JSON(200, helper.Error(err))
-					return
-				}
+			client := model.WebServer{Id: id, Group: gid}
+			if err := service.Client.Update(&client, "Group"); err != nil {
+				rend.JSON(200, helper.Error(err))
+				return
+			}
 
-				rend.JSON(200, helper.Success())
-			})
+			rend.JSON(200, helper.Success())
+		})
 	})
 }

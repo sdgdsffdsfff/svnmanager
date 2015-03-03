@@ -6,7 +6,6 @@
   right: 0;
   text-align: center;
   padding-bottom: 20px;
-  display: none;
   @include transform(translateY(-100%));
   @include transition(transform 0.5s ease);
   .bg {
@@ -38,7 +37,6 @@
   }
 
   &.show {
-    display: block;
     @include transform(translateY(0));
   }
 }

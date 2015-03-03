@@ -45,30 +45,30 @@
                 data-id="{{group.id}}">
                 <h3>{{group.Name}}</h3>
                 <p class="desc">{{group.Desc}}</p>
-                <div class="host-list row">
-                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 host-col" ng-repeat="host in group.Clients">
-                        <div class="host" ng-class="{ selectable: host.Status == STATUS.Alive && clientSelectable, online: host.Status == STATUS.Alive }">
+                <div class="client-list row">
+                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col" ng-repeat="client in group.Clients">
+                        <div class="client" ng-class="{ selectable: client.Status == STATUS.Alive && clientSelectable, online: client.Status == STATUS.Alive }">
                             <div class="pie">
                                 <div class="t"></div>
                                 <div class="b"></div>
                             </div>
                             <div class="content">
-                                <h5>{{host.Name}}</h5>
-                                <p class="ip">{{host.Ip}}:{{host.Port}}</p>
-                                <p class="internal">{{host.Internal}}</p>
+                                <h5>{{client.Name}}</h5>
+                                <p class="ip">{{client.Ip}}:{{client.Port}}</p>
+                                <p class="internal">{{client.Internal}}</p>
                             </div>
-                            <label host-select>
+                            <label client-select>
                                 <input type="checkbox" class="hidden" />
                                 <i class="fa fa-check"></i>
                             </label>
                             <div class="control">
-                                <span><i class="fa fa-map-marker" host-move></i></span>
-                                <span><i class="fa fa-ellipsis-h" host-edit></i></span>
+                                <span><i class="fa fa-map-marker" client-move></i></span>
+                                <span><i class="fa fa-ellipsis-h" client-edit></i></span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 host-col">
-                        <div class="host add-host" host-add>
+                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col">
+                        <div class="client add-client" client-add>
                             <i class="fa fa-plus-circle"></i>
                         </div>
                     </div>

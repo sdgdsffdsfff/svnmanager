@@ -12,7 +12,7 @@ define([
 function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
 
     directive
-        .factory('EditHostDialog', function(ClientService){
+        .factory('EditClientDialog', function(ClientService){
             var formDialog = FormDialog({
                 useLabel: true,
                 buttons: ['append', {
@@ -26,24 +26,24 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                     }
                 }],
                 fields: [{
-                    name: 'name',
-                    placeholder: 'host name'
+                    name: 'Name',
+                    placeholder: 'client name'
                 }, {
-                    name: 'ip',
+                    name: 'Ip',
                     required: true,
                     placeholder: 'ip address'
                 }, {
-                    name: 'internalIp',
+                    name: 'InternalIp',
                     placeholder: 'intranet ip',
                     require: true
                 }, {
-                    name: 'port',
+                    name: 'Port',
                     placeholder: 'port'
                 }, {
-                    name: 'deployPath',
+                    name: 'DeployPath',
                     placeholder: 'deploy path'
                 },{
-                    name: 'id',
+                    name: 'Id',
                     type: 'hidden'
                 }]
             }, {
@@ -52,9 +52,9 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 onShow: function () {
                     if( this.getState() == 'add' ){
                         this.clearForm();
-                        this.setTitle('Add Host');
+                        this.setTitle('Add Client');
                     }else {
-                        this.setTitle('Edit Host');
+                        this.setTitle('Edit Client');
                     }
                 },
                 onShown: function(){
@@ -84,6 +84,7 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                     var self = this;
                     var scope = this.getScope();
                     this.getFormData().then(function (data) {
+
                         if( self.getState() == 'add' ){
                             delete data.id;
                             data['group'] = scope.group.Id;
@@ -94,11 +95,20 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                                 console.log( data )
                             })
                         }else{
-                            data.id *= 1;
-                            ClientService.update(data.id, data).then(function(data){
-                                scope.host = data.result;
+                            data.Id *= 1;
+                            var same = true;
+                            console.log( scope.client, data);
+                            $.each(data, function(key, value){
+                                if( scope.client[key] != value ){
+                                    same = false;
+                                    return;
+                                }
+                            });
+                            same ? self.hide() : ClientService.update(data.id, data).then(function(data){
+                                scope.client = data.result;
                                 self.hide();
                             })
+
                         }
                     });
                     return this;
@@ -153,27 +163,35 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
             return {
                 controller: function( $scope ){
                     $scope.clientSelectable = false;
+
                     $scope.setClientSelectable = function( enable ){
-                        $scope.clientSelectable = true;
-                    }
+                        $scope.clientSelectable = enable;
+                        $scope.$apply();
+                    };
+
+                    $scope.getSelectedClient = function(){
+                        $scope.mapClients(function( client ){
+
+                        })
+                    }();
                 }
             }
         })
-        .directive('hostSelect', function(){
+        .directive('clientSelect', function(){
             return {
                 link: function( scope, elem ){
-                    var checkbox = elem.find('input'), host = scope.host;
+                    var checkbox = elem.find('input');
                     checkbox.change(function(){
-                        host._selected = checkbox.is(':checked');
+                        scope.client._selected = checkbox.is(':checked');
                     });
                 }
             }
         })
-        .directive('hostMove', function( ClientService ){
+        .directive('clientMove', function( ClientService ){
             var formFlyout = FormFlyout({
                 title: "Change client group",
                 fields: [{
-                    name: 'group',
+                    name: 'Group',
                     type: 'select'
                 }]
             }, null, {
@@ -187,7 +205,7 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                     return this._scope;
                 },
                 selectGroup: function( id ){
-                    this.getRef('formBody').getRef('group').setValue(id);
+                    this.getRef('formBody').getRef('Group').setValue(id);
                     return this;
                 },
                 submitForm: function () {
@@ -195,13 +213,13 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                     this.getFormData().then(function (data) {
                         var scope = self.getScope();
                         var gid = scope.$parent.group.Id,
-                            to = data.group * 1;
+                            to = data.Group * 1;
 
                         if (gid == to ) return;
 
-                        scope.$parent.moveClientToGroup(scope.host.Id, gid, to);
+                        scope.$parent.moveClientToGroup(scope.client.Id, gid, to);
 
-                        ClientService.changeGroup(scope.host.Id, to).then(function () {
+                        ClientService.changeGroup(scope.client.Id, to).then(function () {
                             self.hide();
                         });
                     });
@@ -216,7 +234,7 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                     if( !formFlyout.watched ) {
                         formFlyout.watched = true;
                         $scope.onGroupChange(function( values ){
-                            formFlyout.getRef('formBody').getRef('group').setValues(values);
+                            formFlyout.getRef('formBody').getRef('Group').setValues(values);
                         })
                     }
                 },
@@ -230,11 +248,11 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 }
             }
         })
-        .directive('hostAdd', function ( EditHostDialog ) {
+        .directive('clientAdd', function ( EditClientDialog ) {
             return {
                 link: function (scope, elem) {
                     elem.click(function () {
-                        EditHostDialog
+                        EditClientDialog
                             .setScope(scope)
                             .setState('add')
                             .show('add');
@@ -242,17 +260,17 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 }
             }
         })
-        .directive('hostEdit', function (EditHostDialog) {
+        .directive('clientEdit', function (EditClientDialog) {
 
             return {
                 scope: '=',
                 link: function (scope, elem) {
                     elem.click(function () {
 
-                        EditHostDialog
+                        EditClientDialog
                             .setScope(scope)
                             .setState('edit')
-                            .setFormValue(scope.host)
+                            .setFormValue(scope.client)
                             .show();
                     })
                 }

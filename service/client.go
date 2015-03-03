@@ -131,7 +131,9 @@ func (r *clientService) Update(client *model.WebServer, fields ...string) error 
 		return err
 	}
 
-	//用反射自动填充
+	//TODO
+	//用反射获取field对应字段填充属性
+	//如果只修改某一个属性会把缓存清空
 	if c := r.FindFromCache(client.Id); c != nil {
 		c.Name = client.Name
 		c.Ip = client.Ip
