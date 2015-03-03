@@ -29,11 +29,6 @@ function( core, ng, service){
                 return Helper.result(
                     $http.get('/aj/svn/undeploy/files')
                 )
-            },
-            getDeployLock: function(){
-                return Helper.result(
-                    $http.get('/aj/deploy/lock')
-                )
             }
         }
     }])

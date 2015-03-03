@@ -149,6 +149,26 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 }
             }
         })
+        .directive('groupList', function(){
+            return {
+                controller: function( $scope ){
+                    $scope.clientSelectable = false;
+                    $scope.setClientSelectable = function( enable ){
+                        $scope.clientSelectable = true;
+                    }
+                }
+            }
+        })
+        .directive('hostSelect', function(){
+            return {
+                link: function( scope, elem ){
+                    var checkbox = elem.find('input'), host = scope.host;
+                    checkbox.change(function(){
+                        host._selected = checkbox.is(':checked');
+                    });
+                }
+            }
+        })
         .directive('hostMove', function( ClientService ){
             var formFlyout = FormFlyout({
                 title: "Change client group",

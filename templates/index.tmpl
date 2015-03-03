@@ -12,8 +12,8 @@
                 <p class="number">Current Version: {{ version.Version }}</p>
                 <p class="time">Update Time: {{ formatTime(version.Time) }}</p>
             </div>
-            <div class="page-controls">
-                <button class="btn btn-sm btn-default" group-add>
+            <div class="page-controls" ng-class="{'disable-control' : clientSelectable}">
+                <button class="btn btn-sm btn-default hidden-xs" group-add>
                     <span class="fa fa-plus"></span> Add Group
                 </button>
                 <button class="btn btn-sm btn-primary" svn-update>
@@ -39,14 +39,16 @@
             </ul>
         </div>
 
-        <ul class="group-list" id="GroupList">
-            <li ng-repeat="group in groupList" data-id="{{group.id}}" class="group" ng-class="{ hidden: !group.Clients || !group.Clients.length}">
+        <ul class="group-list" id="GroupList" group-list>
+            <li class="group" ng-class="{ hidden: !group.Clients || !group.Clients.length}"
+                ng-repeat="group in groupList"
+                data-id="{{group.id}}">
                 <h3>{{group.Name}}</h3>
                 <p class="desc">{{group.Desc}}</p>
                 <div class="host-list row">
                     <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 host-col" ng-repeat="host in group.Clients">
-                        <div class="host">
-                            <div class="pie" ng-class="{ 'online': host.Status == STATUS.Alive }">
+                        <div class="host" ng-class="{ selectable: host.Status == STATUS.Alive && clientSelectable, online: host.Status == STATUS.Alive }">
+                            <div class="pie">
                                 <div class="t"></div>
                                 <div class="b"></div>
                             </div>
@@ -55,6 +57,10 @@
                                 <p class="ip">{{host.Ip}}:{{host.Port}}</p>
                                 <p class="internal">{{host.Internal}}</p>
                             </div>
+                            <label host-select>
+                                <input type="checkbox" class="hidden" />
+                                <i class="fa fa-check"></i>
+                            </label>
                             <div class="control">
                                 <span><i class="fa fa-map-marker" host-move></i></span>
                                 <span><i class="fa fa-ellipsis-h" host-edit></i></span>
@@ -69,6 +75,17 @@
                 </div>
             </li>
         </ul>
+
+        <div class="global-control" id="GlobalControl">
+            <div class="bg"></div>
+            <div class="bd">
+                <p></p>
+                <div class="btns">
+                    <button class="btn btn-sm btn-default cancel">Cancel</button>
+                    <button class="btn btn-sm btn-primary next">Next</button>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
         _inlineRun(function(){

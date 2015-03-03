@@ -46,20 +46,10 @@ function(core){
 		},
 		visible: function(fn){
 			this.options.onShow.call(this);
-			core.body.append(this.element);
-			this.winEventName = core.positionFixed(
-				this.element,
-				{
-					centerHorizontal: true,
-					offset: this.options.offset,
-					onPosition: function(ele){
-						ele.fadeIn();
-					}
-				}
-			);
-			
-			core.delay(function(){
-                this.hide();
+			core.body.append( this.element );
+            console.log( this.element.outerWidth(), this.element.outerHeight() );
+            core.delay(function(){
+                //this.hide();
                 fn();
             }.bind(this),this.duration)
 		}
@@ -71,6 +61,7 @@ function(core){
 		primaryId: 0,
 		queue: [],
 		processing: false,
+        container: null,
 		makeText: function(text, duration, options){
 			if( text ){
 				return new Toast(text, duration, options);

@@ -4,6 +4,7 @@
 define([
 'kernel',
 'angular',
+'ui/Toast',
 'directive/svn',
 'directive/group',
 'service/ClientService',
@@ -11,7 +12,7 @@ define([
 'service/SocketInstance',
 'ngSanitize'
 ],
-function (core, ng) {
+function (core, ng, Toast) {
 
     var App = ng.module('App', ['App.services', 'App.directives', 'ngSanitize']);
 
@@ -39,6 +40,7 @@ function (core, ng) {
                 }
             });
             $scope.$$parse && $scope.$apply();
+            //heartbeat digest
             core.delay(function(){
                 SocketInstance.emit('heartbeat');
             }, 5000)

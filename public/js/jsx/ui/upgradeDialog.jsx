@@ -187,7 +187,9 @@ function( core, React, Dialog, FormBtns ){
                 checkedBoxes = this.$checkboxes.filter(':checked');
 
             if( checkedBoxes.length == 0 ){
-                q.reject()
+                q.reject({
+                    message: 'No file selected!'
+                })
             } else {
                 var result = [];
                 checkedBoxes.each(function(){
@@ -201,7 +203,7 @@ function( core, React, Dialog, FormBtns ){
 
     return function( events, options, extral ){
         var buttons = [{
-            text: 'Deploy Now',
+            text: 'Next',
             className: 'btn-primary',
             click: events.confirm
         }];

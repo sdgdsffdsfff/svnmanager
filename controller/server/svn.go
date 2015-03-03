@@ -85,13 +85,5 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 			}
 			rend.JSON(200, helper.Success(result))
 		})
-		m.Get("/lock", func(rend render.Render, req *http.Request){
-
-			if yes := service.Svn.GetLock(); yes {
-				rend.JSON(200, helper.Success(true))
-			} else {
-				rend.JSON(200, helper.Error("locking"))
-			}
-		})
 	})
 }

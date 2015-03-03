@@ -56,3 +56,8 @@
   top: 50%;
   @include transform(translateY(-50%));
 }
+
+.disable-control {
+  opacity: .3;
+  pointer-events: none;
+}

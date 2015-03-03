@@ -8,20 +8,18 @@ define([
 'ui/confirm',
 'react',
 'components/ui/upgradeDialog',
-'service/SvnService'
+'service/SvnService',
+'service/GlobalControlUI'
 ],
 function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDialog ){
     directive
         .factory('DeployDialog', function( SvnService ){
             var dialog = upgradeDialog({
                 confirm: function( btn ){
-                    var self = this;
                     btn.loading();
-                    this.check().then(function( data ){
-                        console.log( data )
-                    }, function( data ){
+                    this.check().then($.noop, function( data ){
                         btn.reset();
-                        self.notify('Noting to Deploy!');
+                        tips(btn.$elem(), data.message, 'warning');
                     });
                 }
             }, null, {
@@ -34,21 +32,24 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                 },
                 check: function(){
                     var self = this;
-                    this.notify('checking files..');
-                    return this.upfileList.getReadyToDeployFile().then(function( files ){
-                        self.notify('geting deploy lock');
-                        return SvnService.getDeployLock();
-                    });
+                    return this.upfileList.getReadyToDeployFile().then(function( list ){
+                        self.hide();
+                        self.scope.selectClient( list );
+                    })
                 },
                 notify: function( text ){
                     this.upfileList.notify(text);
                 },
-                getUndeployFiles: function(){
+                getUnDeployFiles: function(){
                     var self = this;
                     return SvnService.getUndeployFileList().then(function( data ){
                         self.upfileList.setList(data.result);
                         self.show();
                     })
+                },
+                scope: null,
+                setScope: function( s ){
+                    this.scope = s;
                 }
             });
 
@@ -64,7 +65,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
 
                     $scope.svnUpdate = function () {
                         return SvnService.svnup().then(function (data) {
-                            DeployDialog.getUndeployFiles();
+                            DeployDialog.getUnDeployFiles();
                             return data;
                         })
                     }
@@ -102,16 +103,20 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                 }
             }
         })
-        .directive('svnDeploy', function (SvnService, DeployDialog) {
+        .directive('svnDeploy', function (SvnService, DeployDialog, GlobalControlUI) {
             return {
+                controller: function( $scope ){
+                    $scope.selectClient = function( list ){
+                        $scope.setClientSelectable(true);
+                        $scope.$apply();
+                        GlobalControlUI.show('Select the server and click next');
+                    };
+
+                    DeployDialog.setScope( $scope );
+                },
                 link: function (scope, elem) {
                     elem.click(function () {
-                        DeployDialog.getUndeployFiles().then(null, function(){
-                            tips(elem, 'No files need to be deploy', {
-                                placement: 'bottom',
-                                classStyle: 'warning'
-                            })
-                        })
+                        DeployDialog.getUnDeployFiles();
                     })
                 }
             }

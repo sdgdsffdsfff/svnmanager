@@ -1,15 +1,3 @@
-@include keyframes(online-clockwise){
-  0%{
-    @include transform(rotateZ(0deg) translateZ(0))
-  }
-  50%{
-    @include transform(rotateZ(180deg) translateZ(0))
-  }
-  100%{
-    @include transform(rotateZ(360deg) translateZ(0))
-  }
-}
-
 .group-list {
   position: relative;
   margin-top: 50px;
@@ -49,7 +37,7 @@
     .content {
       position: absolute;
       width: 100%;
-      top: 45%;
+      top: 50%;
       @include transform(translateY(-50%));
       @include transition(height 0.5s ease, top 0.5s ease);
       h5 {
@@ -58,8 +46,19 @@
         color: #fff;
       }
     }
-    .ext-info {
-      display: none;
+    label {
+      position: absolute;
+      left: 50%;
+      top: -2rem;
+      opacity: 0;
+      font-size: 2rem;
+      cursor: pointer;
+      color: #666;
+      @include transition(top 0.3s ease, opacity 0.3s ease);
+      @include transform(translateX(-50%));
+      input:checked + i {
+        color: #3F9D2F;
+      }
     }
     .control {
       position: absolute;
@@ -82,7 +81,7 @@
         background: #303030;
       }
       .content {
-        top: 35%;
+        top: 45%;
       }
       .control {
         bottom: 5px;
@@ -90,11 +89,20 @@
       }
     }
   }
+
   .host-list {
     @extend .clearfix;
     padding-top: 15px;
     @extend .clearfix;
   }
+
+  @mixin distance($width: 2px){
+    top: $width;
+    bottom: $width;
+    left: $width;
+    right: $width;
+  }
+
   .pie {
     pointer-events: none;
     z-index: -1;
@@ -107,14 +115,6 @@
       right: 0;
       border-radius: 50%;
     }
-
-    @mixin distance($width: 2px){
-      top: $width;
-      bottom: $width;
-      left: $width;
-      right: $width;
-    }
-
     .t, .b {
       &:before, &:after {
         display: none;
@@ -122,23 +122,30 @@
         border: 2px solid transparent;
         @include transition-duration(0.5s);
         @include transition-timing-function(ease);
-        @include transition-property(background, border-color);
+        @include transition-property(background, border);
       }
     }
-
     .b {
       border: 2px solid #2F3B3C;
     }
+  }
 
-    &.online {
-      .b:before {
-        display: block;
-        border-color: #1f9c1f transparent #1f9c1f transparent;
-        @include distance(-2px);
-        @include animation(online-clockwise 7s linear infinite);
-      }
+  .online {
+    .pie .b:before {
+      display: block;
+      border-color: #1f9c1f transparent #1f9c1f transparent;
+      @include distance(-2px);
+      @include animation(clockwise 7s linear infinite);
     }
   }
+
+  .selectable {
+    label {
+      top: 8%;
+      opacity: 1;
+    }
+  }
+
   .add-host {
     font-size: 6rem;
     line-height: 120px;
