@@ -190,6 +190,9 @@ function( core, React, Dialog, FormBtns ){
                 q.reject({
                     message: 'No file selected!'
                 })
+            } else if( checkedBoxes.length == this.$checkboxes.length) {
+                //表示部署全部文件
+                q.resolve([0])
             } else {
                 var result = [];
                 checkedBoxes.each(function(){

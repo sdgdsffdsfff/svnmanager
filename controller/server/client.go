@@ -27,7 +27,7 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 
 			result := JSON.Type{}
 
-			groupDict := map[int]clientList{}
+			groupDict := map[int64]clientList{}
 			groups, err := service.Group.List()
 			for _, group := range groups {
 				groupDict[group.Id] = clientList{}
@@ -50,7 +50,7 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 			for _, group := range groups {
 				g := JSON.Parse(group)
 				g["Clients"] = groupDict[group.Id]
-				result[strconv.Itoa(group.Id)] = g;
+				result[strconv.FormatInt(group.Id, 10)] = g;
 			}
 
 			rend.JSON(200, helper.Success(result))
@@ -71,15 +71,13 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 		})
 
 		r.Post("/add", func(rend render.Render, req *http.Request){
-			client := new(model.WebServer)
+			client := &model.WebServer{}
 			body := JSON.FormRequest(req.Body)
 
-			client.Name = body["name"].(string)
-			client.Ip = body["ip"].(string)
-			client.InternalIp = body["internalIp"].(string)
-			client.DeployPath = body["deployPath"].(string)
-			client.Group = int(body["group"].(float64))
-			client.Port = body["port"].(string)
+			if err := JSON.ParseToStruct(JSON.Stringify(body), client); err != nil {
+				rend.JSON(200, helper.Error(helper.ParamsError, err))
+				return
+			}
 
 			if errType, err := service.Client.Add(client); err != nil {
 				rend.JSON(200, helper.Error(errType, err))
@@ -107,8 +105,8 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 		})
 
 		r.Post("/:id/change/group/:gid", func(rend render.Render, params martini.Params) {
-			id := helper.Num(params["id"])
-			gid := helper.Num(params["gid"])
+			id := helper.Int64(params["id"])
+			gid := helper.Int64(params["gid"])
 
 			client := model.WebServer{Id: id, Group: gid}
 			if err := service.Client.Update(&client, "Group"); err != nil {

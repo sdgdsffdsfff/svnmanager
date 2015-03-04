@@ -6,6 +6,7 @@ import (
 	"king/utils/JSON"
 	"king/utils/db"
 	"sync"
+	"github.com/astaxie/beego/orm"
 )
 
 const (
@@ -52,10 +53,18 @@ func (r *svnService) UpdateVersion(data *model.Version) error{
 }
 
 //获取未部署列表
-func (r *svnService) GetUnDeployFileList() ([]*model.UpFile, error) {
+//ids == [0] 部署全部文件
+func (r *svnService) GetUnDeployFileList( ids ...[]int64 ) ([]*model.UpFile, error) {
 	var list []*model.UpFile
-	_, err := db.Orm().QueryTable("up_file").All(&list)
-	if err != nil {
+	var qs orm.QuerySeter
+
+	//如果filter不连在QueryTable后面写会无效
+	if len(ids) == 1 && len(ids[0]) > 0 && ids[0][0] != 0 {
+		qs = db.Orm().QueryTable("up_file").Filter("id__in", ids[0])
+	} else {
+		qs = db.Orm().QueryTable("up_file")
+	}
+	if _, err := qs.All(&list); err != nil {
 		return list, err
 	}
 	return list, nil

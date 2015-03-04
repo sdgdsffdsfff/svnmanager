@@ -266,7 +266,6 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 scope: '=',
                 link: function (scope, elem) {
                     elem.click(function () {
-
                         EditClientDialog
                             .setScope(scope)
                             .setState('edit')

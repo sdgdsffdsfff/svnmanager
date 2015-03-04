@@ -25,19 +25,12 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                     });
                 }
             }, null, {
-                deploy: function (ids) {
-                    return SvnService.deploy(ids).then(function (data) {
-                        console.log(data)
-                    }, function(data){
-                        console.log(data)
-                    })
-                },
                 check: function(){
                     var self = this;
                     return this.upfileList.getReadyToDeployFile().then(function( list ){
                         self.hide();
                         core.delay(function(){
-                            self.scope.selectClient( list );
+                            self.scope.selectClientAndDeploy( list );
                         }, 500)
                     })
                 },
@@ -110,19 +103,30 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
         .directive('svnDeploy', function (SvnService, DeployDialog, GlobalControlUI) {
             return {
                 controller: function( $scope ){
-                    $scope.selectClient = function( list ){
+                    $scope.selectClientAndDeploy = function( filesId ){
                         $scope.setClientSelectable(true);
-                        var clients = [];
+                        var clientsId = [];
                         GlobalControlUI.show('Select the client which you want to deploy.', function(){
                             $scope.mapClients(function( client ){
                                 if( client._selected ){
-                                    clients.push(client)
+                                    clientsId.push(client.Id)
                                 }
                             });
-                            if( clients.length ){
 
-                                console.log( list );
-                                console.log( clients );
+                            if( clientsId.length ){
+
+                                if( filesId.length > 0 && filesId[0] !== 0 ) {
+                                    filesId = filesId.map(function( t ){
+                                        return t.Id;
+                                    });
+                                }
+
+                                SvnService.deploy(filesId, clientsId).then(function (data) {
+                                    GlobalControlUI.hide();
+                                    console.log(data)
+                                }, function(data){
+                                    console.log(data)
+                                })
 
                             }else{
                                 tips(GlobalControlUI.$nextBtn, 'No client selected!', 'warning');
@@ -137,7 +141,12 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                 },
                 link: function (scope, elem) {
                     elem.click(function () {
-                        DeployDialog.getUnDeployFiles();
+                        DeployDialog.getUnDeployFiles().then($.noop, function(){
+                            tips(elem, 'Noting to commit!', {
+                                placement: 'bottom',
+                                classStyle: 'warning'
+                            })
+                        });
                     })
                 }
             }

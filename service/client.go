@@ -64,7 +64,19 @@ func (r *clientService) Fetch() ([]*HostClient, error) {
 	return r.list, err
 }
 
-func (r *clientService) List() ([]*HostClient) {
+func (r *clientService) List( ids ...[]int64 ) ([]*HostClient) {
+	if len(ids) == 1 && len(ids[0]) > 0 && ids[0][0] != 0 {
+		list := []*HostClient{}
+		idList := ids[0]
+		helper.AsyncMap(idList, func(i int) bool{
+			if client := r.FindFromCache(idList[i]); client != nil {
+				list = append(list, client)
+			}
+			return false
+		})
+		return list
+	}
+
 	return r.list
 }
 
@@ -76,7 +88,7 @@ func (r *clientService) Find(client model.WebServer) (*model.WebServer, error) {
 	return &client, nil
 }
 
-func (r *clientService) FindFromCache(id int) *HostClient {
+func (r *clientService) FindFromCache(id int64) *HostClient {
 	for _, client := range r.list {
 		if client.Id == id {
 			return client

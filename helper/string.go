@@ -63,6 +63,10 @@ func Num(arg interface{}) int {
 	return 0
 }
 
+func Int64(arg interface{}) int64{
+	return int64(Num(arg))
+}
+
 func UpperCaseFirstLetter(str string) string {
 	return strings.ToUpper(string(str[0])) + str[1:]
 }

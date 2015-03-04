@@ -32,9 +32,6 @@ define(['kernel'], function(core){
             var formBody = this.getRef('formBody');
             $.each( formData, function(key, value){
                 var field;
-                key = key.replace(/^([A-Z]?)/, function(a){
-                    return a.toLowerCase();
-                });
                 if( field = formBody.getRef(key) ){
                     field.setValue(value);
                 }

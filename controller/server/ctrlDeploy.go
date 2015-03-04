@@ -9,25 +9,28 @@ import (
 	"reflect"
 )
 
-func DeployCtrl() ([]JSON.Type, error) {
+func DeployCtrl(filesId []int64, clientsId []int64) ([]JSON.Type, error) {
 	results := []JSON.Type{}
 	errorList := []JSON.Type{}
 
-	fileList, err := service.Svn.GetUnDeployFileList()
+//	if len(filesId) == 0 || len(clientsId) == 0 {
+//		return nil, helper.NewError("no file need update")
+//	}
+
+	fileList, err := service.Svn.GetUnDeployFileList(filesId)
 	if err != nil {
-		return nil, err
-	}
-	if len(fileList) == 0 {
-		return nil, helper.NewError("no file need update")
+		return results, err
 	}
 
 	service.Svn.Lock()
-	list := service.Client.List()
+	clientList := service.Client.List(clientsId)
+
 	results = service.Client.BatchCall(
-		list,
+		clientList,
 		"RpcDeploy.Deploy",
 		rpc.DeployArgs{fileList},
 	)
+
 	helper.AsyncMap(results, func(index int) bool {
 		var client model.WebServer
 		var err interface{}
@@ -58,6 +61,10 @@ func DeployCtrl() ([]JSON.Type, error) {
 		return false
 	})
 
+	service.Svn.Release()
+
+	//TODO
+	//版本同步确认后再清空
 	//部署没有错误
 	if len(errorList) == 0 {
 		//清空未部署列表

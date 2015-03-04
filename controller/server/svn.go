@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"king/service"
 	_ "github.com/antonholmquist/jason"
+	"github.com/antonholmquist/jason"
 )
 
 type SvnCtrl struct{
@@ -75,15 +76,30 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 			})
 	})
 
-	m.Group("/aj/deploy", func(r martini.Router){
-		m.Post("/", func(rend render.Render, req *http.Request){
-			result, err := DeployCtrl()
-			//报告错误原因
-			if err != nil {
-				rend.JSON(200, helper.Error(err, result))
-				return
-			}
-			rend.JSON(200, helper.Success(result))
-		})
+	m.Post("/aj/deploy", func(rend render.Render, req *http.Request){
+		body, err := jason.NewObjectFromReader(req.Body)
+		if err != nil {
+			rend.JSON(200, helper.Error(helper.ParamsError))
+			return
+		}
+		//如果数据为[0]则表示up_file表中的全部文件
+		filesId, err := body.GetInt64Array("filesId")
+		if err != nil {
+			rend.JSON(200, helper.Error(helper.ParamsError))
+			return
+		}
+		clientsId, err := body.GetInt64Array("clientsId")
+		if err != nil {
+			rend.JSON(200, helper.Error(helper.ParamsError))
+			return
+		}
+
+		result, err := DeployCtrl( filesId, clientsId )
+		//报告错误原因
+		if err != nil {
+			rend.JSON(200, helper.Error(err, result))
+			return
+		}
+		rend.JSON(200, helper.Success(result))
 	})
 }
