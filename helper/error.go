@@ -7,7 +7,8 @@ import (
 type ErrorType int
 
 const (
-	DefaultError ErrorType = iota
+	NoError ErrorType = iota
+	DefaultError
 	ExistsError
 	ParamsError
 	RequestError

@@ -4,4 +4,5 @@ import "king/model"
 
 type DeployArgs struct {
 	FileUrl []*model.UpFile
+	DeployPath string
 }

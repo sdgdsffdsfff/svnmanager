@@ -11,19 +11,14 @@ import (
 	"net/url"
 	"king/config"
 	"king/helper"
-	"fmt"
 )
 
 //rpc method
 type RpcDeploy struct {}
 
 func (h *RpcDeploy) Deploy(r *http.Request, args *rpc.DeployArgs, reply *rpc.RpcReply) error {
-	errors := deployFileList(args.FileUrl)
-	if len(errors) > 0 {
-		reply.Response = errors
-	}else {
-		reply.Response = true
-	}
+	results := deployFileList(args.FileUrl, args.DeployPath)
+	reply.Response = results
 	return nil
 }
 
@@ -46,43 +41,41 @@ func init(){
 	rpc.AddCtrl(new(RpcDeploy))
 }
 
-func deployFileList(list []*model.UpFile) []JSON.Type {
-	deployDir := config.Get("deployDir").(string)
-	length := len(list)
-	errors := []JSON.Type{}
-
-	if length == 0 {
-		return errors
+func deployFileList(list []*model.UpFile, deployPath string) []JSON.Type {
+	results := []JSON.Type{}
+	if len(list) == 0 {
+		return results
 	}
 
 	helper.AsyncMap(list, func(index int) bool{
 		var err error
 		file := list[index]
+
+		//添加和更新直接下载覆盖
 		if file.Action == service.Add || file.Action == service.Update{
 			fileUrl := config.ResServer() + file.Path
+
 			//解析URL错误
 			Url, err := url.Parse(fileUrl)
 			if err == nil {
 				dir, name := filepath.Split(Url.Path)
-				path := deployDir + dir
+				path := deployPath + dir
+
 				//下载错误
-				fmt.Println(path)
 				err = utils.Download(fileUrl, path, name)
 			}
 		}else if file.Action == service.Del {
+
 			//删除文件错误
-			err = utils.RemovePath(file.Path)
+			err = utils.RemovePath(file.Path, deployPath)
 		}
 
-		if err != nil {
-			errors = append(errors, JSON.Type{
-				"UpFile": file,
-				"error": err,
-			})
-		}
+		results = append(results, JSON.Type{
+			"UpFile": file,
+			"error": err,
+		})
 		return false
 	})
 
-
-	return errors
+	return results
 }

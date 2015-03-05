@@ -123,6 +123,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
 
                                 SvnService.deploy(filesId, clientsId).then(function (data) {
                                     GlobalControlUI.hide();
+                                    $scope.setClientSelectable(false);
                                     console.log(data)
                                 }, function(data){
                                     console.log(data)

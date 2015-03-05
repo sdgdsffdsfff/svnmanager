@@ -70,3 +70,7 @@ func Int64(arg interface{}) int64{
 func UpperCaseFirstLetter(str string) string {
 	return strings.ToUpper(string(str[0])) + str[1:]
 }
+
+func Itoa64(i int64) string {
+	return strconv.FormatInt(i, 10)
+}

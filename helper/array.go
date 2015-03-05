@@ -1,6 +1,8 @@
 package helper
 
-import "reflect"
+import (
+	"reflect"
+)
 
 func Map(list interface{}, do func(int) bool) {
 	t := reflect.TypeOf(list)
@@ -41,4 +43,27 @@ func AsyncMap(list interface{}, do func(int) bool) {
 		}
 		<-end
 	}
+}
+
+//TODO
+//添加所有类型
+//目前指支持int, string
+func ExtendStruct(d, s interface{}, fields ...string ) error {
+
+	dst := reflect.ValueOf(d).Elem()
+	src := reflect.ValueOf(s).Elem()
+
+	for _, key := range fields {
+		srcField := src.FieldByName(key)
+		dstField := dst.FieldByName(key)
+
+		switch srcField.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			dstField.SetInt(srcField.Int())
+			break
+		case reflect.String:
+			dstField.SetString(srcField.String())
+		}
+	}
+	return nil
 }

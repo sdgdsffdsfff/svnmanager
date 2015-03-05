@@ -49,11 +49,12 @@ func (r *svnService) UpdateVersion(data *model.Version) error{
 	if _, err := db.Orm().Insert(data); err != nil {
 		return helper.NewError("save version error", err)
 	}
+	r.Version = data.Version
 	return nil
 }
 
 //获取未部署列表
-//ids == [0] 部署全部文件
+//参数为空或者是[0]代表获取所有文件
 func (r *svnService) GetUnDeployFileList( ids ...[]int64 ) ([]*model.UpFile, error) {
 	var list []*model.UpFile
 	var qs orm.QuerySeter

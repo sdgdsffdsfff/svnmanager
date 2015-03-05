@@ -2,14 +2,12 @@ package rpc
 
 import(
 	"bytes"
-	"fmt"
 	"github.com/gorilla/rpc"
 	rpcJSON "github.com/gorilla/rpc/json"
 	"io/ioutil"
 	"king/utils/JSON"
 	"net"
 	"net/http"
-	"reflect"
 	"time"
 	"king/helper"
 )
@@ -35,10 +33,8 @@ func GetServer() *rpc.Server{
 	s.RegisterCodec(rpcJSON.NewCodec(), "application/json")
 
 	for _, v := range rpcCtrlList {
-		fmt.Println("register: ", reflect.TypeOf(v))
 		s.RegisterService(v, "")
 	}
-
 	return s
 }
 
@@ -53,8 +49,7 @@ func Send(url string, method string, params interface{}) (interface{}, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(contentBody))
 
 	if err != nil {
-		fmt.Println("create request error:", err)
-		return nil, err
+		return nil, helper.NewError("create request error:", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -77,8 +72,12 @@ func Send(url string, method string, params interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	result := JSON.Parse(string(body))
 
-	result := JSON.Parse(body)
+	if result == nil {
+		return nil, nil
+	}
+
 	if result["error"] != nil {
 		return nil, helper.NewError(method+":"+result["error"].(string))
 	}

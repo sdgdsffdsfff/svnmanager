@@ -100,8 +100,7 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 				rend.JSON(200, helper.Error(err))
 				return
 			}
-
-			rend.JSON(200, helper.Success(client))
+			rend.JSON(200, helper.Success(service.Client.FindFromCache(client.Id)))
 		})
 
 		r.Post("/:id/change/group/:gid", func(rend render.Render, params martini.Params) {

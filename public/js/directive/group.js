@@ -97,7 +97,6 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                         }else{
                             data.Id *= 1;
                             var same = true;
-                            console.log( scope.client, data);
                             $.each(data, function(key, value){
                                 if( scope.client[key] != value ){
                                     same = false;
@@ -166,7 +165,6 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
 
                     $scope.setClientSelectable = function( enable ){
                         $scope.clientSelectable = enable;
-                        $scope.$apply();
                     };
 
                     $scope.getSelectedClient = function(){

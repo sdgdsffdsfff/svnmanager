@@ -7,8 +7,6 @@ import(
 	"io/ioutil"
 )
 
-var deployDir string = "/home/languid/svn/download"
-
 //fileUrl, where, [name]
 func Download(fileUrl, where string, args ...string) error {
 
@@ -53,11 +51,11 @@ func Download(fileUrl, where string, args ...string) error {
 	return nil
 }
 
-func RemovePath(path string) error {
-	if _, err := os.Stat(deployDir+path); os.IsNotExist(err) {
-		return nil
+func RemovePath(path string, where string) error {
+	if _, err := os.Stat(where+path); os.IsNotExist(err) {
+		return err
 	}
-	err := os.Remove(deployDir+path)
+	err := os.Remove(where+path)
 	if err != nil {
 		return err
 	}

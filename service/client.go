@@ -5,7 +5,6 @@ import (
 	"king/utils/db"
 	"king/utils"
 	"king/rpc"
-	"king/utils/JSON"
 	"king/helper"
 	"time"
 	"king/bootstrap"
@@ -37,19 +36,23 @@ func (r *clientService) DisableHeartbeat() {
 }
 
 //多终端Rpc调用
-func (r *clientService) BatchCall(clients []*HostClient, method string, params interface{}) []JSON.Type {
-	results := []JSON.Type{}
+//TODO
+//队列调用，最大同时调用数
+func (r *clientService) BatchCallRpc(clients []*HostClient, method string, params interface{}) []interface{} {
+	var results []interface{}
 	helper.AsyncMap(clients, func(index int) bool {
 		client := clients[index]
-		res, err := rpc.Send(r.RpcIp(client), method, params)
-		result := JSON.Type{"client": client, "result": res, "error": nil}
+		result, err := r.CallRpc(client, method, params)
 		if err != nil {
-			result["error"] = err.Error()
+			results = append(results, result)
 		}
-		results = append(results, result)
 		return false
 	})
 	return results
+}
+
+func (r *clientService) CallRpc(client *HostClient, method string, params interface{})(interface{}, error) {
+	return rpc.Send(r.RpcIp(client), method, params)
 }
 
 func (r *clientService) Fetch() ([]*HostClient, error) {
@@ -64,6 +67,7 @@ func (r *clientService) Fetch() ([]*HostClient, error) {
 	return r.list, err
 }
 
+//参数为空或者是[0]代表获取所有主机
 func (r *clientService) List( ids ...[]int64 ) ([]*HostClient) {
 	if len(ids) == 1 && len(ids[0]) > 0 && ids[0][0] != 0 {
 		list := []*HostClient{}
@@ -88,6 +92,7 @@ func (r *clientService) Find(client model.WebServer) (*model.WebServer, error) {
 	return &client, nil
 }
 
+//仅从缓存中查找
 func (r *clientService) FindFromCache(id int64) *HostClient {
 	for _, client := range r.list {
 		if client.Id == id {
@@ -97,6 +102,7 @@ func (r *clientService) FindFromCache(id int64) *HostClient {
 	return nil
 }
 
+//仅向缓存列表里添加，ip与port不能重复
 func (r *clientService) FindOrAppend(client *model.WebServer) {
 	found := false
 	for _, c := range r.list {
@@ -143,27 +149,20 @@ func (r *clientService) Update(client *model.WebServer, fields ...string) error 
 		return err
 	}
 
-	//TODO
-	//用反射获取field对应字段填充属性
-	//如果只修改某一个属性会把缓存清空
 	if c := r.FindFromCache(client.Id); c != nil {
-		c.Name = client.Name
-		c.Ip = client.Ip
-		c.InternalIp = client.InternalIp
-		c.DeployPath = client.DeployPath
-		c.Port = client.Port
+		helper.ExtendStruct(c, client, fields...)
 	}
 
 	return nil
 }
 
 func (r *clientService) Active(client *model.WebServer) (helper.ErrorType, error) {
+
 	created, id, err := db.Orm().ReadOrCreate(client, "Ip", "Port");
 	if  err != nil {
 		return helper.DefaultError, err
 	}
-
-	if created {
+	if created || id > 0 {
 		r.FindOrAppend(client)
 	} else {
 		return helper.ExistsError, helper.NewError( helper.AppendString("already exisits client, id: ", id))
