@@ -22,6 +22,10 @@ func DeployCtrl(filesId []int64, clientsId []int64) (JSON.Type, error) {
 
 	service.Svn.Lock()
 	clientList := service.Client.List(clientsId)
+	msg := service.Message{
+		"broadcast"
+	}
+	service.WebSocket.NotifyAll(&service.Message{})
 
 	helper.AsyncMap(clientList, func(i int) bool {
 		client := clientList[i]
