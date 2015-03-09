@@ -1,11 +1,10 @@
-package service
+package svn
 
 import (
 	"king/model"
 	"king/helper"
 	"king/utils/JSON"
 	"king/utils/db"
-	"sync"
 	"github.com/astaxie/beego/orm"
 )
 
@@ -17,45 +16,39 @@ const (
 	Wait
 )
 
-type svnService struct {
-	sync.Mutex
-	Version int
-	isBusy bool
-	isLock bool
-}
-
-var Svn = &svnService{sync.Mutex{}, 0, false, false}
+var Version int
+var isLock bool
 
 //获取最新版本
-func (r *svnService) GetLastVersion() (model.Version, error) {
+func GetLastVersion() (model.Version, error) {
 	var data model.Version
 	if err := db.Orm().QueryTable("version").OrderBy("-id").Limit(1).One(&data); err != nil {
 		return data, helper.NewError("SvnService.GetLastVersion", err)
 	}
-	r.Version = data.Version
+	Version = data.Version
 	return data, nil
 }
 
 //是否更新
-func (r *svnService) IsChanged(v int) bool {
-	if version, err := r.GetLastVersion(); version.Id == 0 || err == nil && v > version.Version {
+func IsChanged(v int) bool {
+	if version, err := GetLastVersion(); version.Id == 0 || err == nil && v > version.Version {
 		return true
 	}
 	return false
 }
 
 //添加更新记录
-func (r *svnService) UpdateVersion(data *model.Version) error{
+func UpdateVersion(data *model.Version) error{
 	if _, err := db.Orm().Insert(data); err != nil {
 		return helper.NewError("save version error", err)
 	}
-	r.Version = data.Version
+	Version = data.Version
 	return nil
 }
 
 //获取未部署列表
 //参数为空或者是[0]代表获取所有文件
-func (r *svnService) GetUnDeployFileList( ids ...[]int64 ) ([]*model.UpFile, error) {
+func GetUnDeployFileList( ids ...[]int64 ) ([]*model.UpFile, error) {
 	var list []*model.UpFile
 	var qs orm.QuerySeter
 
@@ -71,32 +64,30 @@ func (r *svnService) GetUnDeployFileList( ids ...[]int64 ) ([]*model.UpFile, err
 	return list, nil
 }
 
-func (r *svnService) ClearDeployFile() error {
+func ClearDeployFile() error {
 	return db.Truncate("up_file");
 }
 
-func (r *svnService) GetLock() bool {
-	if r.IsLock() {
+func GetLock() bool {
+	if IsLock() {
 		return false
 	}
-	r.Lock()
-	r.isLock = true;
+	isLock = true;
 	return true
 }
 
-func (r *svnService) Release(){
-	r.Unlock()
-	r.isLock = false
+func Release(){
+	isLock = false
 }
 
-func (r* svnService) IsLock() bool{
-	return r.isLock
+func IsLock() bool{
+	return isLock
 }
 
 //保存或更新到未部署列表
-func (r *svnService) SaveUpFile(list []JSON.Type) error {
+func SaveUpFile(list []JSON.Type) error {
 
-	oldList, err := r.GetUnDeployFileList();
+	oldList, err := GetUnDeployFileList();
 	if err != nil {
 		return err
 	}
@@ -141,7 +132,7 @@ func (r *svnService) SaveUpFile(list []JSON.Type) error {
 	return nil
 }
 
-func (r *svnService) ParseAction(t string) int {
+func ParseAction(t string) int {
 	switch t {
 	case "A":
 		return Add

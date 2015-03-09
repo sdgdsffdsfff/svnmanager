@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"king/helper"
 	"github.com/antonholmquist/jason"
-	"king/service"
+	"king/service/group"
 )
 
 type GroupCtrl struct{}
@@ -20,7 +20,7 @@ func (ctn *GroupCtrl) SetRouter(m *martini.ClassicMartini) {
 	m.Post("/aj/group/add", func(rend render.Render, req *http.Request) {
 			params, _ := jason.NewObjectFromReader(req.Body)
 			name, _ := params.GetString("name")
-			result, err := service.Group.Add(name)
+			result, err := group.Add(name)
 			if err != nil {
 				rend.JSON(200, helper.Error(err))
 				return

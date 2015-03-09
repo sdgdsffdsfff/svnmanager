@@ -86,7 +86,7 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                     this.getFormData().then(function (data) {
 
                         if( self.getState() == 'add' ){
-                            delete data.id;
+                            delete data.Id;
                             data['group'] = scope.group.Id;
                             ClientService.add(data).then(function(data){
                                 scope.addClientToGroup(data.result, data.result.Group);

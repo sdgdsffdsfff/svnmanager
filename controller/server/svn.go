@@ -7,7 +7,7 @@ import (
 	"king/helper"
 	"king/utils/JSON"
 	"net/http"
-	"king/service"
+	"king/service/svn"
 	_ "github.com/antonholmquist/jason"
 	"github.com/antonholmquist/jason"
 )
@@ -23,7 +23,7 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 
 	m.Group("/server", func(r martini.Router){
 		r.Get("/svn", func (rend render.Render, req *http.Request){
-			result, err := service.Svn.GetLastVersion()
+			result, err := svn.GetLastVersion()
 			if err != nil {
 				rend.HTML(500, "500", err)
 				return
@@ -54,7 +54,7 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 		})
 
 		r.Get("/lastVersion", func(rend render.Render) {
-			version, err := service.Svn.GetLastVersion()
+			version, err := svn.GetLastVersion()
 			if err != nil {
 				rend.JSON(200, helper.Error(err))
 				return
@@ -65,7 +65,7 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 		})
 
 		r.Get("/undeploy/files", func(rend render.Render){
-				list, err := service.Svn.GetUnDeployFileList()
+				list, err := svn.GetUnDeployFileList()
 				if err != nil {
 					rend.JSON(200, helper.Error(err))
 				} else if len(list) == 0 {

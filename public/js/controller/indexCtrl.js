@@ -4,7 +4,6 @@
 define([
 'kernel',
 'angular',
-'ui/Toast',
 'directive/svn',
 'directive/group',
 'service/ClientService',
@@ -12,7 +11,7 @@ define([
 'service/SocketInstance',
 'ngSanitize'
 ],
-function (core, ng, Toast) {
+function (core, ng) {
 
     var App = ng.module('App', ['App.services', 'App.directives', 'ngSanitize']);
 
@@ -55,6 +54,12 @@ function (core, ng, Toast) {
             });
         });
         SocketInstance.emit('heartbeat');
+
+        [1,2,3,4,5].map(function(){
+            core.delay(function(){
+                SocketInstance.brow
+            })
+        })
 
         $scope.version = {
             Version: 0,

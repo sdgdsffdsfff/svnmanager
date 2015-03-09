@@ -1,16 +1,24 @@
 .ui-toast {
   position: fixed;
-  right: 30px;
-  bottom: 30px;
+  left: 50%;
+  bottom: -30px;
+  max-width: 80%;
   display: inline-block;
   border: 1px solid #ededed;
   padding: 8px 20px;
   font-family: Arial, sans-serif;
   font-size: 1.2rem;
   border-radius: 6px;
-  color: #2d2d2d;
-  background: #CAE8B4;
+  color: #fff;
+  background: #308FB8;
+  opacity: 0;
+  @include transform(translateX(-50%));
+  @include transition(all 0.3s ease-out);
   .head {
     border-radius: 50%;
+  }
+  &.show-toast {
+    bottom: 30px;
+    opacity: 1;
   }
 }

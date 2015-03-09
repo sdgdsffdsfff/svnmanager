@@ -1,20 +1,21 @@
 package websocket
 
 import (
-	"king/service"
+	"king/service/webSocket"
+	"king/service/client"
 	"king/utils/JSON"
 	"king/helper"
 )
 
 func init(){
-	service.BindWebSocketMethod("heartbeat", func() JSON.Type {
-		list := service.Client.List()
+	webSocket.BindWebSocketMethod("heartbeat", func() JSON.Type {
+		list := client.List()
 		result := []JSON.Type{}
 
-		for _, client := range list {
+		for _, c := range list {
 			result = append(result, JSON.Type{
-				"Id": client.Id,
-				"Status": client.Status,
+				"Id": c.Id,
+				"Status": c.Status,
 			})
 		}
 

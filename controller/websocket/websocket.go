@@ -3,7 +3,7 @@ package websocket
 import(
 	"github.com/go-martini/martini"
 	sockets "github.com/beatrichartz/martini-sockets"
-	"king/service"
+	"king/service/webSocket"
 	"king/config"
 )
 
@@ -14,9 +14,9 @@ func init() {
 }
 
 func (ctn *WebSocketController) SetRouter(m *martini.ClassicMartini) {
-	m.Get("/socket", sockets.JSON(service.Message{}), MainSocket)
+	m.Get("/socket", sockets.JSON(webSocket.Message{}), MainSocket)
 }
 
-func MainSocket( params martini.Params, receiver <-chan *service.Message, sender chan<- *service.Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string) {
-	return service.WebSocket.Listen(params, receiver, sender, done, disconnect, err)
+func MainSocket( params martini.Params, receiver <-chan *webSocket.Message, sender chan<- *webSocket.Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string) {
+	return webSocket.Listen(params, receiver, sender, done, disconnect, err)
 }

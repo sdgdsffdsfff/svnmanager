@@ -245,53 +245,21 @@ define(function(){
         })
     };
 
-    /**
-     * 固定布局
-     * @param {jQuery object, object}  ele, options
-     */
-    core.positionFixed = function(){
-        var id = 0, abs = Math.abs, ceil = Math.ceil;
-
-        return function(ele, options){
-            id++;
-            var name = 'scroll.positionFixed' + id +' resize.positionFixed' + id;
-
-            ele = ele.jquery ? ele : $(ele);
-
-            var defaultValue = 'auto';
-
-            options = $.extend({
-                offset: {
-                    left: defaultValue,
-                    right: defaultValue,
-                    top: defaultValue,
-                    bottom: defaultValue
-                },
-                centerHorizontal: false,
-                centerVertical: false,
-                onPosition: $.noop,
-                after: $.noop,
-                before: $.noop
-            }, options);
-
-            ele.css(options.offset);
-            if( options.centerHorizontal ){
-                ele.css({
-                    'left': '50%',
-                    'marginLeft': -ele.outerWidth()/2
-                });
-            }
-            if( options.centerVertial ){
-                ele.css({
-                    'top': '50%',
-                    'marginTop': -ele.outerHeight()/2
-                });
-            }
-            options.onPosition(ele);
-
-            return name;
+    core.animationEnd = function( elem, fn ){
+        var name = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+        elem.one(name, fn);
+        return function(){
+            elem.unbind(name)
         }
-    }();
+    };
+
+    core.transitionEnd = function(elem, fn){
+        var name = 'webkitTransitionEnd oTransitionEnd transitionend';
+        elem.one(name, fn);
+        return function(){
+            elem.unbind(name);
+        }
+    }
 
     /**
      * 除了内容与触发手柄，点击其他位置都隐藏

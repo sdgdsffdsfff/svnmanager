@@ -5,7 +5,7 @@ import (
 	"king/utils/JSON"
 	"king/rpc"
 	"king/model"
-	"king/service"
+	"king/service/client"
 	"king/helper"
 )
 
@@ -23,7 +23,7 @@ func (h *RpcReport) Status(r *http.Request, args *JSON.Type, reply *rpc.RpcReply
 //客户端启动通知，保存客户端入库
 func (h *RpcReport) Active(r *http.Request, args *model.WebServer, reply *rpc.RpcReply) error {
 
-	if _, err := service.Client.Active(args); err != nil {
+	if _, err := client.Active(args); err != nil {
 		return helper.NewError("add client error", err)
 	}
 	reply.Response = true

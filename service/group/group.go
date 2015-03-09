@@ -1,4 +1,4 @@
-package service
+package group
 
 import (
 	"king/model"
@@ -6,18 +6,14 @@ import (
 	"king/helper"
 )
 
-type groupService struct{}
-
-var Group = &groupService{}
-
-func (r *groupService) Add(name string) (*model.Group, error) {
+func Add(name string) (*model.Group, error) {
 	var group model.Group;
 	group.Name = name
 	_, err := db.Orm().Insert(&group)
 	return &group, err
 }
 
-func (r *groupService) List() ([]*model.Group, error) {
+func List() ([]*model.Group, error) {
 	var groups []*model.Group
 	if _, err := db.Orm().QueryTable("group").All(&groups); err != nil {
 		return groups, helper.NewError("GroupService.List", err)

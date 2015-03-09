@@ -703,18 +703,31 @@ select.form-control {
 
 .ui-toast {
   position: fixed;
-  right: 30px;
-  bottom: 30px;
+  left: 50%;
+  bottom: -30px;
+  max-width: 80%;
   display: inline-block;
   border: 1px solid #ededed;
   padding: 8px 20px;
   font-family: Arial, sans-serif;
   font-size: 1.2rem;
   border-radius: 6px;
-  color: #2d2d2d;
-  background: #CAE8B4; }
+  color: #fff;
+  background: #308FB8;
+  opacity: 0;
+  -webkit-transform: translateX(-50%);
+  -moz-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  -o-transform: translateX(-50%);
+  transform: translateX(-50%);
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out; }
   .ui-toast .head {
     border-radius: 50%; }
+  .ui-toast.show-toast {
+    bottom: 30px;
+    opacity: 1; }
 
 .group-list {
   position: relative;

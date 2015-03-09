@@ -39,19 +39,21 @@ function(core){
 		},
 		hide: function(){
 			this.options.onHide.call(this);
-			core.xresize.unbind(this.winEventName);
-			this.element.fadeOut('slow', function(){
-				$(this).remove();
-			});
+			this.element.removeClass('show-toast');
+            core.transitionEnd(this.element, function(){
+                this.element.remove();
+            }.bind(this));
 		},
 		visible: function(fn){
 			this.options.onShow.call(this);
 			core.body.append( this.element );
-            console.log( this.element.outerWidth(), this.element.outerHeight() );
             core.delay(function(){
-                //this.hide();
+                this.element.addClass('show-toast');
+            }.bind(this), 50);
+            core.delay(function(){
+                this.hide();
                 fn();
-            }.bind(this),this.duration)
+            }.bind(this), this.duration)
 		}
 	},{
 		LENGTH_LONG: 5000,
@@ -63,10 +65,7 @@ function(core){
 		processing: false,
         container: null,
 		makeText: function(text, duration, options){
-			if( text ){
-				return new Toast(text, duration, options);
-			}
-			return null;
+            return new Toast(text, duration, options);
 		},
 		next: function(){
 			

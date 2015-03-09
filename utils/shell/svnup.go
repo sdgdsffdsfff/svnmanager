@@ -6,7 +6,7 @@ import (
 	"strings"
 	"king/helper"
 	"strconv"
-	"king/service"
+	"king/service/svn"
 )
 
 var svnDir string = "/home/languid/svn/project/king"
@@ -50,7 +50,7 @@ func SvnUp(paths ...string) (int, []JSON.Type, error){
 				path := match[2]
 				path = path[len(svnDir):]
 				list = append(list, JSON.Type{
-					"Action": service.Svn.ParseAction(action),
+					"Action": svn.ParseAction(action),
 					"Path": path,
 				})
 			}

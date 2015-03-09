@@ -3,7 +3,9 @@ package server
 import (
 	"king/helper"
 	"king/utils/JSON"
-	"king/service"
+	"king/service/svn"
+	"king/service/client"
+	"king/service/webSocket"
 	"king/rpc"
 )
 
@@ -11,47 +13,40 @@ func DeployCtrl(filesId []int64, clientsId []int64) (JSON.Type, error) {
 	results := JSON.Type{}
 	errorCount := 0
 
-//	if len(filesId) == 0 || len(clientsId) == 0 {
-//		return nil, helper.NewError("no file need update")
-//	}
-
-	fileList, err := service.Svn.GetUnDeployFileList(filesId)
+	fileList, err := svn.GetUnDeployFileList(filesId)
 	if err != nil {
 		return results, err
 	}
 
-	service.Svn.Lock()
-	clientList := service.Client.List(clientsId)
-	msg := service.Message{
-		"broadcast"
-	}
-	service.WebSocket.NotifyAll(&service.Message{})
+	svn.GetLock()
+	clientList := client.List(clientsId)
+	webSocket.Notify("Locking control!")
 
 	helper.AsyncMap(clientList, func(i int) bool {
-		client := clientList[i]
-		result, err := service.Client.CallRpc(client, "RpcDeploy.Deploy", rpc.DeployArgs{fileList, client.DeployPath})
+		c := clientList[i]
+		result, err := client.CallRpc(c, "RpcDeploy.Deploy", rpc.DeployArgs{fileList, c.DeployPath})
 		if err != nil {
 			errorCount++
 			return false
 		}
-		client.Version = service.Svn.Version
-		err = service.Client.Update(client.WebServer, "Version")
-		results[helper.Itoa64(client.Id)] = JSON.Type{
-			"Version": client.Version,
+		c.Version = svn.Version
+		err = client.Update(c.WebServer, "Version")
+		results[helper.Itoa64(c.Id)] = JSON.Type{
+			"Version": c.Version,
 			"result": result,
 			"error": err,
 		}
 		return false
 	})
 
-	service.Svn.Release()
+	svn.Release()
 
 	//TODO
 	//版本同步确认后再清空
 	//部署没有错误
 	if errorCount == 0 {
 		//清空未部署列表
-		if err := service.Svn.ClearDeployFile(); err != nil {
+		if err := svn.ClearDeployFile(); err != nil {
 			return nil, err
 		}
 	}else {

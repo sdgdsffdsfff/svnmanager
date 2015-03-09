@@ -1,4 +1,4 @@
-package service
+package webSocket
 
 import(
 	"time"
@@ -30,68 +30,75 @@ type socketClient struct {
 	message *Message // 为无限通知预留的调用状态，为最后一次请求内容
 }
 
-type webSocket struct {
-	sync.Mutex
-	clients []*socketClient
-	loopEnable bool
+var syncLock = sync.Mutex{}
+var clients []*socketClient
+
+func AppendClient(client *socketClient) {
+	syncLock.Lock()
+	clients = append(clients, client)
+	BroadCast(client, &Message{"online", client})
+	syncLock.Unlock()
 }
 
-var WebSocket = &webSocket{sync.Mutex{}, make([]*socketClient, 0), true}
+func removeClient(client *socketClient) {
+	syncLock.Lock()
+	defer syncLock.Unlock()
 
-func (r *webSocket) AppendClient(client *socketClient) {
-	r.Lock()
-	r.clients = append(r.clients, client)
-	r.BroadCast(client, &Message{"online", client})
-	r.Unlock()
-}
-
-func (r *webSocket) removeClient(client *socketClient) {
-	r.Lock()
-	defer r.Unlock()
-
-	for index, xc := range r.clients {
+	for index, xc := range clients {
 		if xc == client {
-			r.clients = append(r.clients[:index], r.clients[(index+1):]...)
+			clients = append(clients[:index], clients[(index+1):]...)
 		}
 	}
 }
 
-func (r *webSocket) Emit(client *socketClient, msg *Message) {
-	r.Lock()
+func Emit(client *socketClient, msg *Message) {
+	syncLock.Lock()
 	method := msg.Method
 
 	if method == "broadcast" {
-		r.BroadCast(client, msg)
+		BroadCast(client, msg)
 	} else if _, found := callbacks[method]; method != "" && found {
 		client.out <- &Message{method, callbacks[method]()}
 	} else {
 		client.out <- &Message{method, helper.Error("method undefined")}
 	}
-	r.Unlock()
+	syncLock.Unlock()
 }
 
-func (r *webSocket) NotifyAll(msg *Message){
-	for _, xc := range r.clients {
+//服务器调用客户端方法
+func BroadCastAll(msg *Message){
+	for _, xc := range clients {
 		xc.out <- msg
 	}
 }
 
-func (r *webSocket) BroadCast(client *socketClient, msg *Message){
-	for _, xc := range r.clients {
+//客户端调用其他客户端方法
+func BroadCast(client *socketClient, msg *Message){
+	for _, xc := range clients {
 		if xc != client {
 			xc.out <- msg
 		}
 	}
 }
 
+func Notify(text string) {
+	BroadCastAll(&Message{"notify", text})
+}
+
+func NotifyOther(client *socketClient,text string) {
+	Emit(client, &Message{
+		"notify", text,
+	})
+}
+
 /*
 主动推送方法，将会根据method不停向客户端推送内容
  */
-func (r *webSocket) loopPushFrame(){
+func loopPushFrame(){
 	for {
-		r.Lock()
-		helper.AsyncMap(r.clients, func(i int) bool{
-			client := r.clients[i]
+		syncLock.Lock()
+		helper.AsyncMap(clients, func(i int) bool{
+			client := clients[i]
 			if client != nil && client.message != nil {
 				if method := client.message.Method; method != "" {
 					client.out <- &Message{method, callbacks[method]()}
@@ -99,14 +106,14 @@ func (r *webSocket) loopPushFrame(){
 			}
 			return false
 		})
-		r.Unlock()
+		syncLock.Unlock()
 		time.Sleep(3*time.Second)
 	}
 }
 
-func (c *webSocket) Listen( params martini.Params, receiver <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string){
+func Listen( params martini.Params, receiver <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string){
 	client := &socketClient{receiver, sender, done, err, disconnect, nil}
-	c.AppendClient(client)
+	AppendClient(client)
 	// 暂停使用无限通知，让客户端自己通过循环调用
 	//	if chat.loopEnable {
 	//		go chat.loopPushFrame()
@@ -120,9 +127,9 @@ func (c *webSocket) Listen( params martini.Params, receiver <-chan *Message, sen
 			// The socket connection is already long gone.
 			// Use the error for statistics etc
 		case msg := <-client.in:
-			c.Emit(client, msg)
+			Emit(client, msg)
 		case <-client.done:
-			c.removeClient(client)
+			removeClient(client)
 			return 200, "OK"
 		}
 	}
