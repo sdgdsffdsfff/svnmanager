@@ -8,12 +8,12 @@ import (
 )
 
 func init(){
-	webSocket.BindWebSocketMethod("heartbeat", func() JSON.Type {
-		list := client.List()
+	webSocket.BindWebSocketMethod("procstat", func() JSON.Type {
+		list := client.GetAliveList()
 		result := JSON.Type{}
 
 		for _, c := range list {
-			result[helper.Itoa64(c.Id)] = c.Status
+			result[helper.Itoa64(c.Id)] = JSON.Parse(c.Proc)
 		}
 
 		return helper.Success(result)

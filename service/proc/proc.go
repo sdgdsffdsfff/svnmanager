@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-func CPUPercent() (float64, error){
+func CPUPercent() float64 {
 	percent, err := cpu.CPUPercent(time.Second * 2, false)
-	if err != nil && len(percent) > 0 {
-		return math.Floor(percent[0]), nil
+	if err == nil && len(percent) > 0 {
+		return math.Floor(percent[0])
 	}
-	return 0, err
+	return 0
 }
 
 func MEMPercent() float64{

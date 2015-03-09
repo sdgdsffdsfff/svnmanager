@@ -7,6 +7,7 @@ import (
 	"king/rpc"
 	"king/helper"
 	"time"
+	"king/utils/JSON"
 	"king/bootstrap"
 )
 
@@ -19,13 +20,21 @@ const (
 	Busy
 )
 
+type ProcStat struct {
+	CPUPercent float64
+	MEMPercent float64
+}
+
 type HostClient struct{
 	*model.WebServer
 	Status Status
+	Proc *ProcStat
 }
 
 var heartbeatEnable bool
+var procMonitorEnable bool
 var hostList []*HostClient
+var refreshDuration = time.Second * 3
 
 func DisableHeartbeat() {
 	heartbeatEnable = false
@@ -34,13 +43,15 @@ func DisableHeartbeat() {
 //多终端Rpc调用
 //TODO
 //队列调用，最大同时调用数
-func BatchCallRpc(clients []*HostClient, method string, params interface{}) []interface{} {
-	var results []interface{}
+func BatchCallRpc(clients []*HostClient, method string, params interface{}) JSON.Type {
+	results := JSON.Type{}
 	helper.AsyncMap(clients, func(index int) bool {
-		client := clients[index]
-		result, err := CallRpc(client, method, params)
+		c := clients[index]
+		result, err := CallRpc(c, method, params)
 		if err != nil {
-			results = append(results, result)
+			results[ helper.Itoa64(c.Id) ] = helper.Error(err)
+		} else {
+			results[ helper.Itoa64(c.Id) ] = result
 		}
 		return false
 	})
@@ -57,7 +68,7 @@ func Fetch() ([]*HostClient, error) {
 	_, err := db.Orm().QueryTable("web_server").All(&list)
 	if err == nil {
 		for _, webServer := range list {
-			hostList = append(hostList, &HostClient{webServer, Connecting})
+			hostList = append(hostList, &HostClient{webServer, Connecting, &ProcStat{}})
 		}
 	}
 	return hostList, err
@@ -108,8 +119,20 @@ func FindOrAppend(client *model.WebServer) {
 		}
 	}
 	if !found {
-		hostList = append(hostList , &HostClient{client, Connecting})
+		hostList = append(hostList , &HostClient{client, Connecting, &ProcStat{}})
 	}
+}
+
+func GetAliveList() []*HostClient {
+	aliveList := []*HostClient{}
+	helper.Map(hostList, func(i int) bool{
+		host := hostList[i]
+		if host.Status == Alive {
+			aliveList = append( aliveList, host )
+		}
+		return false
+	})
+	return aliveList
 }
 
 func Refresh() {
@@ -122,15 +145,34 @@ func Refresh() {
 	}
 }
 
-var refreshDuration = time.Second * 3
 func Heartbeat() {
 	heartbeatEnable = true
-	Fetch()
 	for {
 		if heartbeatEnable {
 			Refresh()
 			time.Sleep( refreshDuration )
 		} else {
+			break
+		}
+	}
+}
+
+//获取cpu与内存使用状况
+func GetProcStat() {
+	procMonitorEnable = true
+	for {
+		if procMonitorEnable {
+			aliveList := GetAliveList()
+			results := BatchCallRpc(aliveList, "RpcProcstat.Stat", nil)
+			for key, value := range results {
+				if c := FindFromCache(helper.Int64(key)); c != nil {
+					proc := &ProcStat{}
+					JSON.ParseToStruct(value, proc)
+					c.Proc = proc
+				}
+			}
+			time.Sleep( refreshDuration )
+		}else{
 			break
 		}
 	}
@@ -197,6 +239,8 @@ func RpcIp(client *HostClient) string {
 func init(){
 	bootstrap.Register(func(){
 		if db.IsConnected() {
+			Fetch()
+			go GetProcStat()
 			Heartbeat()
 		}
 	})

@@ -56,6 +56,8 @@
                                 <h5>{{client.Name}}</h5>
                                 <p class="ip">{{client.Ip}}:{{client.Port}}</p>
                                 <p class="internal">{{client.Internal}}</p>
+                                <p class="cpu">cpu:{{client.Proc.CPUPercent}}%</p>
+                                <p class="mem">mem:{{client.Proc.MEMPercent}}%</p>
                             </div>
                             <label client-select>
                                 <input type="checkbox" class="hidden" />

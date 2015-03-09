@@ -3,7 +3,7 @@ package client
 import (
 	"net/http"
 	"king/utils/JSON"
-	"king/service"
+	"king/service/svn"
 	"king/rpc"
 	"king/utils"
 	"king/model"
@@ -52,7 +52,7 @@ func deployFileList(list []*model.UpFile, deployPath string) []JSON.Type {
 		file := list[index]
 
 		//添加和更新直接下载覆盖
-		if file.Action == service.Add || file.Action == service.Update{
+		if file.Action == svn.Add || file.Action == svn.Update{
 			fileUrl := config.ResServer() + file.Path
 
 			//解析URL错误
@@ -64,7 +64,7 @@ func deployFileList(list []*model.UpFile, deployPath string) []JSON.Type {
 				//下载错误
 				err = utils.Download(fileUrl, path, name)
 			}
-		}else if file.Action == service.Del {
+		}else if file.Action == svn.Del {
 
 			//删除文件错误
 			err = utils.RemovePath(file.Path, deployPath)

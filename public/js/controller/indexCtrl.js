@@ -32,18 +32,30 @@ function (core, ng) {
 
         SocketInstance.setScope( $scope );
         SocketInstance.on('heartbeat', function( data ){
-            data.result.map(function( c ){
-                var client;
-                if( client = $scope.findClient( c.Id ) ){
-                    client.Status = c.Status
+            var client;
+            for(var i in data.result) {
+                if( client = $scope.findClient( i ) ){
+                    client.Status = data.result[i]
                 }
-            });
+            }
             $scope.$$parse && $scope.$apply();
-            //heartbeat digest
             core.delay(function(){
                 SocketInstance.emit('heartbeat');
             }, 5000)
         });
+
+        SocketInstance.on('procstat', function( data ){
+            for(var i in data.result) {
+                if( client = $scope.findClient( i ) ){
+                    client.Proc = data.result[i]
+                }
+            }
+            $scope.$$parse && $scope.$apply();
+            core.delay(function(){
+                SocketInstance.emit('procstat');
+            }, 5000)
+        });
+
         SocketInstance.on('svnup', function( data ){
             Helper.data(data).then(function( data ){
                 var version = data.result;
@@ -54,12 +66,8 @@ function (core, ng) {
             });
         });
         SocketInstance.emit('heartbeat');
+        SocketInstance.emit('procstat');
 
-        [1,2,3,4,5].map(function(){
-            core.delay(function(){
-                SocketInstance.brow
-            })
-        })
 
         $scope.version = {
             Version: 0,
