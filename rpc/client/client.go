@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"king/utils"
+	"king/model"
 )
 
 
@@ -38,9 +39,9 @@ func (h *RpcClient) Deploy(r *http.Request, args *rpc.DeployArgs, reply *rpc.Rpc
 	deployPath := args.DeployPath
 
 	if len(args.FileUrl) > 0 {
-		helper.AsyncMap(fileList, func(index int) bool{
+		helper.AsyncMap(fileList, func(key, value interface{}) bool{
 			var err error
-			file := fileList[index]
+			file := value.(*model.UpFile)
 
 			//添加和更新直接下载覆盖
 			if file.Action == svn.Add || file.Action == svn.Update{
