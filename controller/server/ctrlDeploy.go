@@ -22,9 +22,9 @@ func DeployCtrl(filesId []int64, clientsId []int64) (JSON.Type, error) {
 	clientList := client.List(clientsId)
 	webSocket.Notify("Locking control!")
 
-	helper.AsyncMap(clientList, func(i int) bool {
-		c := clientList[i]
-		result, err := client.CallRpc(c, "RpcDeploy.Deploy", rpc.DeployArgs{fileList, c.DeployPath})
+	helper.AsyncMap(clientList, func(key, value interface{}) bool {
+		c := value.(*client.HostClient)
+		result, err := client.CallRpc(c, "RpcClient.Deploy", rpc.DeployArgs{fileList, c.DeployPath})
 		if err != nil {
 			errorCount++
 			return false

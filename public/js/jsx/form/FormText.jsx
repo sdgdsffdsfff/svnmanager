@@ -37,7 +37,7 @@ function( core, React ){
                 <input
                     type={this.props.type}
                     name={this.props.name}
-                    className="form-control input-sm"
+                    className="form-control"
                     onKeyup={this.props.keyup.bind(this.props.overload, this)}
                     placeholder={this.props.useLabel ? '' : this.props.placeholder}
                     defaultValue={this.props.value} />

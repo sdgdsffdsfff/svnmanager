@@ -4,42 +4,79 @@ import (
 	"reflect"
 )
 
-func Map(list interface{}, do func(int) bool) {
+func Map(list interface{}, do func(key, value interface{}) bool) {
 	t := reflect.TypeOf(list)
+	v := reflect.ValueOf(list)
 	kind := t.Kind()
 	if kind == reflect.Slice || kind == reflect.Array {
-		data := reflect.ValueOf(list)
-		for count, length := 0, data.Len(); count < length; count++ {
-			if do(count) == true {
+		len := v.Len()
+		if len == 0 {
+			return
+		}
+		for i := 0; i < len; i++ {
+			if do(i, v.Index(i).Interface()) == true {
+				return
+			}
+		}
+	} else if kind == reflect.Map {
+		keys := v.MapKeys()
+		len := len(keys)
+
+		if len == 0 {
+			return
+		}
+		for _, key := range keys {
+			if do(key.Interface(), v.MapIndex(key).Interface()) == true {
 				return
 			}
 		}
 	}
 }
 
-func AsyncMap(list interface{}, do func(int) bool) {
+//并发调用slice或者map
+func AsyncMap(list interface{}, do func(key, value interface{}) bool) {
 	t := reflect.TypeOf(list)
+	v := reflect.ValueOf(list)
 	kind := t.Kind()
-	if kind == reflect.Slice || kind == reflect.Array {
-		data := reflect.ValueOf(list)
-		length := data.Len()
-		if length == 0 {
+	count := 0
+	if kind == reflect.Array || kind == reflect.Slice {
+		len := v.Len()
+		if len == 0 {
 			return
 		}
 		end := make(chan int)
-		count := 0
-		for i := 0; i < length; i++ {
+		for i := 0; i < len; i++ {
 			go func(i int) {
-				//break
-				if do(i) == true {
-					end <-1
+				if do(i, v.Index(i).Interface()) == true {
+					end <- 1
 					return
 				}
 				count++
-				if count == length {
-					end <-1
+				if count == len {
+					end <- 1
 				}
 			}(i)
+		}
+		<-end
+	} else if kind == reflect.Map {
+		keys := v.MapKeys()
+		len := len(keys)
+
+		if len == 0 {
+			return
+		}
+		end := make(chan int)
+		for _, key := range keys {
+			go func(key reflect.Value) {
+				if do(key.Interface(), v.MapIndex(key).Interface()) == true {
+					end <- 1
+					return
+				}
+				count++
+				if count == len {
+					end <- 1
+				}
+			}(key)
 		}
 		<-end
 	}

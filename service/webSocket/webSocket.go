@@ -97,8 +97,8 @@ func NotifyOther(client *socketClient,text string) {
 func loopPushFrame(){
 	for {
 		syncLock.Lock()
-		helper.AsyncMap(clients, func(i int) bool{
-			client := clients[i]
+		helper.AsyncMap(clients, func(key, value interface{}) bool{
+			client := value.(*socketClient)
 			if client != nil && client.message != nil {
 				if method := client.message.Method; method != "" {
 					client.out <- &Message{method, callbacks[method]()}

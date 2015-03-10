@@ -165,6 +165,7 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
 
                     $scope.setClientSelectable = function( enable ){
                         $scope.clientSelectable = enable;
+                        $scope.$digest();
                     };
 
                     $scope.getSelectedClient = function(){

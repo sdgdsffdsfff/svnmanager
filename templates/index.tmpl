@@ -39,7 +39,7 @@
             </ul>
         </div>
 
-        <ul class="group-list" id="GroupList" group-list>
+        <ul id="GroupList" group-list class="group-list"  ng-class="{selectable : clientSelectable}">
             <li class="group" ng-class="{ hidden: !group.Clients || !group.Clients.length}"
                 ng-repeat="group in groupList"
                 data-id="{{group.id}}">
@@ -47,7 +47,7 @@
                 <p class="desc">{{group.Desc}}</p>
                 <div class="client-list row">
                     <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col" ng-repeat="client in group.Clients">
-                        <div class="client" ng-class="{ selectable: client.Status == STATUS.Alive && clientSelectable, online: client.Status == STATUS.Alive }">
+                        <div class="client" ng-class="{ online: client.Status == STATUS.Alive }">
                             <div class="pie">
                                 <div class="t"></div>
                                 <div class="b"></div>
@@ -56,8 +56,8 @@
                                 <h5>{{client.Name}}</h5>
                                 <p class="ip">{{client.Ip}}:{{client.Port}}</p>
                                 <p class="internal">{{client.Internal}}</p>
-                                <p class="cpu">cpu:{{client.Proc.CPUPercent}}%</p>
-                                <p class="mem">mem:{{client.Proc.MEMPercent}}%</p>
+                                <p class="cpu" ng-if="client.Status == STATUS.Alive">cpu: <span ng-class="{ warning: client.Proc.CPUPercent >= 80 && client.Proc.CPUPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.CPUPercent}}%</span></p>
+                                <p class="mem" ng-if="client.Status == STATUS.Alive">mem: <span ng-class="{ warning: client.Proc.MEMPercent >= 80 && client.Proc.MEMPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.MEMPercent}}%</span></p>
                             </div>
                             <label client-select>
                                 <input type="checkbox" class="hidden" />
@@ -67,6 +67,7 @@
                                 <span><i class="fa fa-map-marker" client-move></i></span>
                                 <span><i class="fa fa-ellipsis-h" client-edit></i></span>
                             </div>
+
                         </div>
                     </div>
                     <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col">

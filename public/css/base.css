@@ -753,6 +753,7 @@ select.form-control {
     position: relative;
     width: 120px;
     height: 120px;
+    overflow: hidden;
     margin: 0 auto;
     font-size: 1.4rem;
     border-radius: 100%;
@@ -769,28 +770,24 @@ select.form-control {
       -webkit-transition: height 0.5s ease, top 0.5s ease;
       -moz-transition: height 0.5s ease, top 0.5s ease;
       transition: height 0.5s ease, top 0.5s ease; }
-      .group-list .client .content h5 {
-        margin: 0 0 5px;
-        font-size: 2rem;
-        color: #fff; }
+    .group-list .client h5 {
+      margin: 0 0 5px;
+      font-size: 2rem;
+      color: #fff; }
     .group-list .client label {
       position: absolute;
-      left: 50%;
-      top: -2rem;
-      opacity: 0;
+      top: -30px;
+      left: 2px;
+      right: 2px;
+      padding-bottom: 10px;
       font-size: 2rem;
       cursor: pointer;
       color: #666;
       -webkit-transition: top 0.3s ease, opacity 0.3s ease;
       -moz-transition: top 0.3s ease, opacity 0.3s ease;
-      transition: top 0.3s ease, opacity 0.3s ease;
-      -webkit-transform: translateX(-50%);
-      -moz-transform: translateX(-50%);
-      -ms-transform: translateX(-50%);
-      -o-transform: translateX(-50%);
-      transform: translateX(-50%); }
+      transition: top 0.3s ease, opacity 0.3s ease; }
       .group-list .client label input:checked + i {
-        color: #3F9D2F; }
+        color: #FFF200; }
     .group-list .client .control {
       position: absolute;
       bottom: 0;
@@ -821,7 +818,7 @@ select.form-control {
     padding-top: 15px; }
   .group-list .pie {
     pointer-events: none;
-    z-index: -1; }
+    z-index: 0; }
     .group-list .pie, .group-list .pie .t, .group-list .pie .b, .group-list .pie .t:before, .group-list .pie .b:before, .group-list .pie .b:after {
       display: block;
       position: absolute;
@@ -855,9 +852,12 @@ select.form-control {
     -webkit-animation: clockwise 7s linear infinite;
     -moz-animation: clockwise 7s linear infinite;
     animation: clockwise 7s linear infinite; }
-  .group-list .selectable label {
-    top: 8%;
-    opacity: 1; }
+  .group-list.selectable .online label {
+    top: 2px; }
+  .group-list .warning {
+    color: #DBD930; }
+  .group-list .danger {
+    color: #eb4942; }
   .group-list .add-client {
     font-size: 6rem;
     line-height: 120px;
@@ -873,7 +873,10 @@ select.form-control {
 @media (max-width: 1200px) {
   .group-list .client {
     width: 140px;
-    height: 140px; } }
+    height: 140px;
+    font-size: 1.2rem; }
+    .group-list .client h5 {
+      font-size: 1.6rem; } }
 .upgrade-dialog label {
   cursor: pointer;
   padding: 5px;

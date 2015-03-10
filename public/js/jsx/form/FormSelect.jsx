@@ -31,7 +31,7 @@ function( core, React ){
                 <select
                     name={this.props.name}
                     onChange={this.props.change.bind(this.props.overload, this)}
-                    className="form-control input-sm"
+                    className="form-control"
                     defaultValue={this.props.value}>
                     <option value="null">please select</option>
                     {this.props.values.map(function (result) {

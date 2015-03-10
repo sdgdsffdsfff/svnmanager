@@ -16,7 +16,7 @@ import (
 func active(port string) error{
 	_, err := rpc.Send(
 		config.MasterRpc(),
-		"RpcReport.Active",
+		"RpcServer.Active",
 		model.WebServer{
 			Ip: "127.0.0.1",
 			Port: port,

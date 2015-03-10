@@ -102,14 +102,14 @@ func SaveUpFile(list []JSON.Type) error {
 		}
 	}else{
 		//并发更新文件列表
-		helper.AsyncMap(list, func(i int) bool {
-			newPath := list[i]
+		helper.AsyncMap(list, func(key, value interface{}) bool {
+			newPath := value.(JSON.Type)
 			action := newPath["Action"].(int)
 
 			found := false
-			helper.AsyncMap(oldList, func(index int) bool {
+			helper.AsyncMap(oldList, func(ikey, ivalue interface{}) bool {
 				//对相同路径下的不同动作进行更新
-				oldPath := oldList[index]
+				oldPath := ivalue.(*model.UpFile)
 				if oldPath.Path == newPath["Path"] && oldPath.Action != action {
 					oldPath.Action = action
 					db.Orm().Update(oldPath)

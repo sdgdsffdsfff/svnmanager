@@ -31,7 +31,7 @@ function( core, React ){
                 React.createElement("select", {
                     name: this.props.name, 
                     onChange: this.props.change.bind(this.props.overload, this), 
-                    className: "form-control input-sm", 
+                    className: "form-control", 
                     defaultValue: this.props.value}, 
                     React.createElement("option", {value: "null"}, "please select"), 
                     this.props.values.map(function (result) {

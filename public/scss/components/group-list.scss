@@ -30,6 +30,7 @@
     position: relative;
     width: 120px;
     height: 120px;
+    overflow: hidden;
     margin: 0 auto;
     font-size: 1.4rem;
     border-radius: 100%;
@@ -40,24 +41,24 @@
       top: 50%;
       @include transform(translateY(-50%));
       @include transition(height 0.5s ease, top 0.5s ease);
-      h5 {
-        margin: 0 0 5px;
-        font-size: 2rem;
-        color: #fff;
-      }
+    }
+    h5 {
+      margin: 0 0 5px;
+      font-size: 2rem;
+      color: #fff;
     }
     label {
       position: absolute;
-      left: 50%;
-      top: -2rem;
-      opacity: 0;
+      top: -30px;
+      left: 2px;
+      right: 2px;
+      padding-bottom: 10px;
       font-size: 2rem;
       cursor: pointer;
       color: #666;
       @include transition(top 0.3s ease, opacity 0.3s ease);
-      @include transform(translateX(-50%));
       input:checked + i {
-        color: #3F9D2F;
+        color: #FFF200;
       }
     }
     .control {
@@ -105,7 +106,7 @@
 
   .pie {
     pointer-events: none;
-    z-index: -1;
+    z-index: 0;
     &, .t, .b, .t:before, .b:before, .b:after {
       display: block;
       position: absolute;
@@ -139,11 +140,17 @@
     }
   }
 
-  .selectable {
-    label {
-      top: 8%;
-      opacity: 1;
+  &.selectable {
+    .online label {
+      top: 2px;
     }
+  }
+
+  .warning {
+    color: #DBD930;
+  }
+  .danger {
+    color: #eb4942;
   }
 
   .add-client {
@@ -170,5 +177,9 @@
   .group-list .client {
     width: 140px;
     height: 140px;
+    font-size: 1.2rem;
+    h5 {
+      font-size: 1.6rem;
+    }
   }
 }

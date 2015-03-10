@@ -35,6 +35,13 @@ define(['kernel', 'angular', './module'],
                     return Helper.result(
                         $http.post('/aj/client/' + cid + '/change/group/' + gid)
                     )
+                },
+                checkClientDeployable: function( ids ){
+                    return Helper.result(
+                        $http.post('/aj/client/check', {
+                            ids: ids
+                        })
+                    )
                 }
             }
         }])

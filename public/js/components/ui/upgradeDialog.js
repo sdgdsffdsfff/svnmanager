@@ -104,10 +104,11 @@ function( core, React, Dialog, FormBtns ){
             this.getCheckbox();
             this.getActionCount(list);
             this.sortBy('action', 1);
+            this.selectAll( false );
         },
-        selectAll: function(){
+        selectAll: function( deselect ){
             var q = $.Deferred(), len = this.$checkboxes.length;
-            if( !this.$selectAllBtn.data('all') ){
+            if( !!deselect && !this.$selectAllBtn.data('all') ){
                 this.$checkboxes.each(function(i){
                     core.delay(function(){
                         this.checked = true;

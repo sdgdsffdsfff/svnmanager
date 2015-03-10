@@ -38,7 +38,6 @@ func SvnUpCtrl() (model.Version, error){
 		return version, err
 	}
 
-	webSocket.Notify(helper.AppendString("Update Version:", version.Version))
 	webSocket.BroadCastAll(&webSocket.Message{
 		"svnup",
 		helper.Success(version),

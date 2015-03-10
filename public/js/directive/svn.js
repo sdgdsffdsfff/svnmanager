@@ -6,12 +6,13 @@ define([
 'ui/Dialog',
 'ui/tips',
 'ui/confirm',
+'ui/Toast',
 'react',
 'components/ui/upgradeDialog',
 'service/SvnService',
 'service/GlobalControlUI'
 ],
-function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDialog ){
+function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgradeDialog ){
     directive
         .factory('DeployDialog', function( SvnService ){
             var dialog = upgradeDialog({
@@ -30,7 +31,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
                     return this.upfileList.getReadyToDeployFile().then(function( list ){
                         self.hide();
                         core.delay(function(){
-                            self.scope.selectClientAndDeploy( list );
+                            self.scope.readyToDeploy( list );
                         }, 500)
                     })
                 },
@@ -103,9 +104,11 @@ function( core, ng, directive, moment, Dialog, tips, confirm, React, upgradeDial
         .directive('svnDeploy', function (SvnService, DeployDialog, GlobalControlUI) {
             return {
                 controller: function( $scope ){
-                    $scope.selectClientAndDeploy = function( filesId ){
+                    $scope.readyToDeploy = function( filesId ){
                         $scope.setClientSelectable(true);
+
                         var clientsId = [];
+                        //选择在线的主机
                         GlobalControlUI.show('Select the client which you want to deploy.', function(){
                             $scope.mapClients(function( client ){
                                 if( client._selected ){

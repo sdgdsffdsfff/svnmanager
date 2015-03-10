@@ -12,8 +12,8 @@ func Error(args ...interface{}) JSON.Type {
 
 	length := len(args)
 
-	Map(args, func(index int) bool {
-		msg := args[index]
+	Map(args, func(key, msg interface{}) bool {
+		index := key.(int)
 		if msg == nil {
 			return false
 		}

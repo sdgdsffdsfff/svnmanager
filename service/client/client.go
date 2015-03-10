@@ -31,9 +31,11 @@ type HostClient struct{
 	Proc *ProcStat
 }
 
+type HostMap map[int64]*HostClient
+
 var heartbeatEnable bool
 var procMonitorEnable bool
-var hostList []*HostClient
+var hostMap HostMap
 var refreshDuration = time.Second * 3
 
 func DisableHeartbeat() {
@@ -43,10 +45,10 @@ func DisableHeartbeat() {
 //多终端Rpc调用
 //TODO
 //队列调用，最大同时调用数
-func BatchCallRpc(clients []*HostClient, method string, params interface{}) JSON.Type {
+func BatchCallRpc(clients HostMap, method string, params interface{}) JSON.Type {
 	results := JSON.Type{}
-	helper.AsyncMap(clients, func(index int) bool {
-		c := clients[index]
+	helper.AsyncMap(clients, func(key, value interface{}) bool {
+		c := value.(*HostClient)
 		result, err := CallRpc(c, method, params)
 		if err != nil {
 			results[ helper.Itoa64(c.Id) ] = helper.Error(err)
@@ -62,33 +64,33 @@ func CallRpc(client *HostClient, method string, params interface{})(interface{},
 	return rpc.Send(RpcIp(client), method, params)
 }
 
-func Fetch() ([]*HostClient, error) {
+func Fetch() (HostMap, error) {
 	var list []*model.WebServer
-	hostList = []*HostClient{}
+	hostMap = HostMap{}
 	_, err := db.Orm().QueryTable("web_server").All(&list)
 	if err == nil {
 		for _, webServer := range list {
-			hostList = append(hostList, &HostClient{webServer, Connecting, &ProcStat{}})
+			hostMap[webServer.Id] = &HostClient{webServer, Connecting, &ProcStat{}}
 		}
 	}
-	return hostList, err
+	return hostMap, err
 }
 
 //参数为空或者是[0]代表获取所有主机
-func List( ids ...[]int64 ) ([]*HostClient) {
+func List( ids ...[]int64 ) (HostMap) {
 	if len(ids) == 1 && len(ids[0]) > 0 && ids[0][0] != 0 {
-		list := []*HostClient{}
+		list := HostMap{}
 		idList := ids[0]
-		helper.AsyncMap(idList, func(i int) bool{
-			if client := FindFromCache(idList[i]); client != nil {
-				list = append(list, client)
+		helper.AsyncMap(idList, func(key, value interface{}) bool{
+			if c := FindFromCache(value.(int64)); c != nil {
+				list[c.Id] = c
 			}
 			return false
 		})
 		return list
 	}
 
-	return hostList
+	return hostMap
 }
 
 func Find(client model.WebServer) (*model.WebServer, error) {
@@ -101,10 +103,8 @@ func Find(client model.WebServer) (*model.WebServer, error) {
 
 //仅从缓存中查找
 func FindFromCache(id int64) *HostClient {
-	for _, client := range hostList {
-		if client.Id == id {
-			return client
-		}
+	if c, found := hostMap[id]; found {
+		return c
 	}
 	return nil
 }
@@ -112,36 +112,33 @@ func FindFromCache(id int64) *HostClient {
 //仅向缓存列表里添加，ip与port不能重复
 func FindOrAppend(client *model.WebServer) {
 	found := false
-	for _, c := range hostList {
+	for _, c := range hostMap {
 		if c.Ip == client.Ip && c.Port == client.Port {
 			c.Status = Alive
 			found = true
+			break
 		}
 	}
 	if !found {
-		hostList = append(hostList , &HostClient{client, Connecting, &ProcStat{}})
+		hostMap[client.Id] = &HostClient{client, Connecting, &ProcStat{}}
 	}
 }
 
-func GetAliveList() []*HostClient {
-	aliveList := []*HostClient{}
-	helper.Map(hostList, func(i int) bool{
-		host := hostList[i]
-		if host.Status == Alive {
-			aliveList = append( aliveList, host )
+func GetAliveList() HostMap {
+	aliveHostMap := HostMap{}
+	for id, c := range hostMap {
+		if c.Status == Alive {
+			aliveHostMap[id] = c
 		}
-		return false
-	})
-	return aliveList
+	}
+	return aliveHostMap
 }
 
 func Refresh() {
 	if list := List(); len(list) > 0 {
-		helper.AsyncMap(list, func(index int) bool {
-			client := list[index]
-			client.Status = GetClientStatus(client)
-			return false
-		})
+		for _, c := range hostMap {
+			c.Status = GetClientStatus(c)
+		}
 	}
 }
 
@@ -163,9 +160,9 @@ func GetProcStat() {
 	for {
 		if procMonitorEnable {
 			aliveList := GetAliveList()
-			results := BatchCallRpc(aliveList, "RpcProcstat.Stat", nil)
+			results := BatchCallRpc(aliveList, "RpcClient.ProcStat", nil)
 			for key, value := range results {
-				if c := FindFromCache(helper.Int64(key)); c != nil {
+				if c := FindFromCache(helper.Int64(key)); c != nil && value != nil {
 					proc := &ProcStat{}
 					JSON.ParseToStruct(value, proc)
 					c.Proc = proc

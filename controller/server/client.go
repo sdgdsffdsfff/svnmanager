@@ -11,6 +11,7 @@ import (
 	"king/model"
 	"net/http"
 	"strconv"
+	"github.com/antonholmquist/jason"
 )
 
 type HostCtrl struct{}
@@ -69,6 +70,24 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 			}
 
 			rend.JSON(200, helper.Success(result))
+		})
+
+		r.Post("/check", func(rend render.Render, req *http.Request){
+			body, _ := jason.NewObjectFromReader(req.Body)
+			clientsId, _ := body.GetInt64Array("clientsId")
+			clientList := client.List(clientsId)
+			results := JSON.Type{}
+			for _, c := range clientList {
+				result, err := client.CallRpc(c, "RpcClient.CheckDeployPath", JSON.Type{
+					"DeployPath": c.DeployPath,
+				})
+				if err != nil {
+					results[ helper.Itoa64(c.Id) ] = helper.Error(err)
+				} else {
+					results[ helper.Itoa64(c.Id) ] = result
+				}
+			}
+			rend.JSON(200, helper.Success(results))
 		})
 
 		r.Post("/add", func(rend render.Render, req *http.Request){
