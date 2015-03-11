@@ -40,13 +40,13 @@
         </div>
 
         <ul id="GroupList" group-list class="group-list"  ng-class="{selectable : clientSelectable}">
-            <li class="group" ng-class="{ hidden: !group.Clients || !group.Clients.length}"
-                ng-repeat="group in groupList"
-                data-id="{{group.id}}">
+            <li class="group" ng-class="{ hidden: !group.Clients || isEmptyObject(group.Clients) }"
+                ng-repeat="(gid, group) in groupList | orderBy:'-Id'"
+                data-id="{{gid}}">
                 <h3>{{group.Name}}</h3>
                 <p class="desc">{{group.Desc}}</p>
                 <div class="client-list row">
-                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col" ng-repeat="client in group.Clients">
+                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col" ng-repeat="(cid, client) in group.Clients | orderBy:'Id'">
                         <div class="client" ng-class="{ online: client.Status == STATUS.Alive }">
                             <div class="pie">
                                 <div class="t"></div>
@@ -59,8 +59,8 @@
                                 <p class="cpu" ng-if="client.Status == STATUS.Alive">cpu: <span ng-class="{ warning: client.Proc.CPUPercent >= 80 && client.Proc.CPUPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.CPUPercent}}%</span></p>
                                 <p class="mem" ng-if="client.Status == STATUS.Alive">mem: <span ng-class="{ warning: client.Proc.MEMPercent >= 80 && client.Proc.MEMPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.MEMPercent}}%</span></p>
                             </div>
-                            <label client-select>
-                                <input type="checkbox" class="hidden" />
+                            <label>
+                                <input type="checkbox" class="hidden" ng-model="client.selected" />
                                 <i class="fa fa-check"></i>
                             </label>
                             <div class="control">

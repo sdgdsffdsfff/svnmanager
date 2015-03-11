@@ -10,12 +10,13 @@ import (
 	"king/utils/JSON"
 	"king/model"
 	"net/http"
-	"strconv"
 	"github.com/antonholmquist/jason"
+	"king/rpc"
 )
 
 type HostCtrl struct{}
-type clientList []*client.HostClient
+
+type listmap map[string]JSON.Type
 
 func init() {
 	config.AppendValue(config.Controller, &HostCtrl{})
@@ -26,33 +27,25 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 	m.Group("/aj/client", func(r martini.Router) {
 
 		r.Get("/list", func(rend render.Render) {
+			result := map[string]JSON.Type{}
+			clientsDict := map[string]JSON.Type{}
 
-			result := JSON.Type{}
+			groups := group.List()
+			clients := client.List()
 
-			groupDict := map[int64]clientList{}
-			groups, err := group.List()
-			for _, g := range groups {
-				groupDict[g.Id] = clientList{}
+			for id, g := range groups {
+				result[helper.Itoa64(id)] = JSON.Parse(g)
+				clientsDict[helper.Itoa64(id)] = JSON.Type{}
 			}
 
-			if err == nil {
-				clients := client.List()
-				for _, c := range clients {
-					if _, found := groupDict[c.Group]; found {
-						groupDict[c.Group] = append(groupDict[c.Group], c)
-					}
+			for id, c := range clients {
+				if list, found := clientsDict[helper.Itoa64(c.Group)]; found {
+					list[helper.Itoa64(id)] = c
 				}
 			}
 
-			if err != nil {
-				rend.JSON(200, helper.Error(err))
-				return
-			}
-
-			for _, g := range groups {
-				gdata := JSON.Parse(g)
-				gdata["Clients"] = groupDict[g.Id]
-				result[strconv.FormatInt(g.Id, 10)] = gdata;
+			for id, g := range result {
+				g["Clients"] = clientsDict[id]
 			}
 
 			rend.JSON(200, helper.Success(result))
@@ -78,9 +71,7 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 			clientList := client.List(clientsId)
 			results := JSON.Type{}
 			for _, c := range clientList {
-				result, err := client.CallRpc(c, "RpcClient.CheckDeployPath", JSON.Type{
-					"DeployPath": c.DeployPath,
-				})
+				result, err := client.CallRpc(c, "RpcClient.CheckDeployPath", rpc.CheckDeployPathArgs{c.DeployPath})
 				if err != nil {
 					results[ helper.Itoa64(c.Id) ] = helper.Error(err)
 				} else {
@@ -121,6 +112,16 @@ func (ctn *HostCtrl) SetRouter(m *martini.ClassicMartini) {
 				return
 			}
 			rend.JSON(200, helper.Success(client.FindFromCache(c.Id)))
+		})
+
+		r.Post("/:id/del", func(rend render.Render, params martini.Params){
+			id :=helper.Int64(params["id"])
+			c := model.WebServer{Id: id}
+			if err := client.Del(&c); err != nil {
+				rend.JSON(200, helper.Error(err))
+				return
+			}
+			rend.JSON(200, helper.Success())
 		})
 
 		r.Post("/:id/change/group/:gid", func(rend render.Render, params martini.Params) {

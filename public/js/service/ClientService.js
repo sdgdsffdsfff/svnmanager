@@ -21,6 +21,11 @@ define(['kernel', 'angular', './module'],
                         $http.post('/aj/client/add', data)
                     )
                 },
+                del: function( id ){
+                    return Helper.result(
+                        $http.post('/aj/client/'+id+'/del')
+                    )
+                },
                 list: function () {
                     return Helper.result(
                         $http.get('/aj/client/list')
@@ -39,7 +44,7 @@ define(['kernel', 'angular', './module'],
                 checkClientDeployable: function( ids ){
                     return Helper.result(
                         $http.post('/aj/client/check', {
-                            ids: ids
+                            clientsId: ids
                         })
                     )
                 }

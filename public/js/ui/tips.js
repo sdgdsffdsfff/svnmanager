@@ -14,7 +14,7 @@ function(core, Flyout){
                 alignment: 'center',
                 destroy : true,
                 stayTime : 800,
-                classStyle: '',
+                classStyle: 'info',
                 onHide: function(){
                     anchor.data('flyout', null);
                 }
@@ -22,7 +22,7 @@ function(core, Flyout){
 
             if( typeof options == 'string' && options.length ){
                 setting.classStyle = 'alert-'+options;
-            } else if( $.isPlainObject(options) ){
+            } else if( $.isPlainObject(options) || typeof options == 'undefined' ){
                 $.extend(setting, options);
                 if( setting.classStyle.length ){
                     setting.classStyle = 'alert-'+setting.classStyle;

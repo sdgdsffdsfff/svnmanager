@@ -6,6 +6,15 @@ define([
 function( core, React, FormButton ){
 
     var FormBtns = React.createClass({
+        getRef: function( name ){
+            if( name in this.refs ){
+                return this.refs[name]
+            }
+            if( typeof name === 'undefined' ){
+                return this.refs;
+            }
+            return null;
+        },
         render: function(){
             return (
                 <div className="form-buttons">

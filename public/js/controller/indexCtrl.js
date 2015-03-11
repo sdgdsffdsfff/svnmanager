@@ -68,11 +68,11 @@ function (core, ng) {
         SocketInstance.emit('heartbeat');
         SocketInstance.emit('procstat');
 
-
         $scope.version = {
             Version: 0,
             Time: 0
         };
+
         $scope.deployEnable = false;
         $scope.upFileList = [];
         $scope.groupList = [];
@@ -104,8 +104,8 @@ function (core, ng) {
             if( org && target ){
                 $.each(org.Clients, function(index, client ){
                     if( client.Id == id ){
-                        org.Clients.splice(index, 1);
-                        target.Clients.push(client);
+                        delete org.Clients[id];
+                        target.Clients[id] = client;
                         $scope.$apply();
                         return false;
                     }
@@ -116,58 +116,41 @@ function (core, ng) {
         $scope.addClientToGroup = function( client, gid ){
             var group;
             if( group = $scope.findGroup(gid) ){
-                group.Clients.push(client);
+                group.Clients[client.Id] = client;
                 return true;
             }
             return false;
         };
 
         $scope.findGroup = function( gid ){
-            var result = null;
             if( !ng.isUndefined(gid) ){
-                $.each($scope.groupList, function(index, group){
-                    if( ng.isNumber(gid) ){
-                        if( group.Id == gid ){
-                            result = group;
-                            return false;
+                if( ng.isNumber(gid) && gid in $scope.groupList ){
+                    return $scope.groupList[gid]
+                } else if( ng.isFunction(gid) ){
+                    for( var i in $scope.groupList ){
+                        if( gid(i, $scope.groupList[i] ) ){
+                            return $scope.groupList[i]
                         }
-                    }else if( ng.isFunction(gid) ){
-                        if( gid(index, group) ){
-                            result = group;
-                            return false;
-                        }
+                    }
+                }
+            }
+            return null;
+        };
+
+        $scope.findClient = function( id ){
+            var result = null;
+            $.each($scope.groupList, function(gid, group){
+                var notFound = true;
+                $.each(group.Clients, function(cid, host) {
+                    if( cid == id ) {
+                        result = host;
+                        notFound = false;
+                        return false
                     }
                 });
-            }
-            return result;
-        };
-
-        $scope.findClientFromGroup = function( cid, gid ){
-            var client = null,
-                group = ng.isNumber(gid) ? $scope.findGroup(gid) :
-                    ng.isObject(gid) ? gid : null;
-
-            if( group ){
-                $.each(group.Clients, function(index, host) {
-                    if( host.Id == cid){
-                        client = host;
-                        return false;
-                    }
-                })
-            }
-
-            return client;
-        };
-
-        $scope.findClient = function( cid ){
-            var client = null, host;
-            $scope.findGroup(function(index, group){
-                if( host = $scope.findClientFromGroup( cid, group ) ){
-                    client = host;
-                    return true;
-                }
+                return notFound;
             });
-            return client;
+            return result;
         };
 
         $scope.mapClients = function(fn){
@@ -176,6 +159,17 @@ function (core, ng) {
                     fn(host)
                 })
             })
+        };
+
+        $scope.mapGroup = function( fn ){
+            $.each($scope.groupList, function(id, group){
+                fn(id, group)
+            });
+        };
+
+        $scope.delClient = function(id) {
+            var client = $scope.findClient(id);
+            delete $scope.groupList[client.Group]["Clients"][client.Id];
         };
 
         $scope.onGroupChange = function () {
@@ -202,7 +196,11 @@ function (core, ng) {
 
         SvnService.getLastVersion().then(function( data ){
             $scope.version = data.result;
-        })
+        });
+
+        $scope.isEmptyObject = function( obj ){
+            return $.isEmptyObject(obj)
+        }
     });
 
 

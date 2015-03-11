@@ -101,22 +101,20 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                 }
             }
         })
-        .directive('svnDeploy', function (SvnService, DeployDialog, GlobalControlUI) {
+        .directive('svnDeploy', function (ClientService, SvnService, DeployDialog, GlobalControlUI) {
             return {
                 controller: function( $scope ){
                     $scope.readyToDeploy = function( filesId ){
                         $scope.setClientSelectable(true);
 
-                        var clientsId = [];
                         //选择在线的主机
                         GlobalControlUI.show('Select the client which you want to deploy.', function(){
-                            $scope.mapClients(function( client ){
-                                if( client._selected ){
-                                    clientsId.push(client.Id)
-                                }
+
+                            var ids = $scope.getSelectedClient().map(function( client ){
+                                return client.Id
                             });
 
-                            if( clientsId.length ){
+                            if( ids.length ){
 
                                 if( filesId.length > 0 && filesId[0] !== 0 ) {
                                     filesId = filesId.map(function( t ){
@@ -124,14 +122,21 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                                     });
                                 }
 
-                                SvnService.deploy(filesId, clientsId).then(function (data) {
-                                    GlobalControlUI.hide();
-                                    $scope.setClientSelectable(false);
-                                    console.log(data)
-                                }, function(data){
-                                    console.log(data)
-                                })
+                                ClientService.checkClientDeployable(ids).then(function( data ){
 
+                                    console.log( data )
+
+                                    if( true ){
+                                        return;
+                                    }
+                                    return SvnService.deploy(filesId, ids).then(function (data) {
+                                        GlobalControlUI.hide();
+                                        $scope.setClientSelectable(false);
+                                        console.log(data)
+                                    }, function(data){
+                                        console.log(data)
+                                    })
+                                });
                             }else{
                                 tips(GlobalControlUI.$nextBtn, 'No client selected!', 'warning');
                             }

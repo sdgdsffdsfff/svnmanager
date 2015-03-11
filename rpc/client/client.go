@@ -18,8 +18,12 @@ import (
 //rpc method
 type RpcClient struct{}
 
-func (h *RpcClient) CheckDeployPath(r *http.Request, args *JSON.Type, reply *rpc.RpcReply) error {
-	reply.Response = true
+func (h *RpcClient) CheckDeployPath(r *http.Request, args *rpc.CheckDeployPathArgs, reply *rpc.RpcReply) error {
+	if err := utils.PathEnable(args.Path); err != nil {
+		reply.Response = err.Error()
+	} else {
+		reply.Response = true
+	}
 	return nil
 }
 

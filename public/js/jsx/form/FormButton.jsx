@@ -19,7 +19,10 @@ function( core, React ){
         enable: function(){
             this.$elem().removeClass('disable');
         },
-        loading: function(){
+        loading: function(text){
+            if ( text ){
+                this.$elem().data('loading-text', text);
+            }
             this.$elem().button('loading');
         },
         reset: function(){

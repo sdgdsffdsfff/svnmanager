@@ -3,8 +3,12 @@ package group
 import (
 	"king/model"
 	"king/utils/db"
-	"king/helper"
+	"king/bootstrap"
 )
+
+type GroupMap map[int64]*model.Group
+
+var groupMap GroupMap
 
 func Add(name string) (*model.Group, error) {
 	var group model.Group;
@@ -13,13 +17,27 @@ func Add(name string) (*model.Group, error) {
 	return &group, err
 }
 
-func List() ([]*model.Group, error) {
-	var groups []*model.Group
-	if _, err := db.Orm().QueryTable("group").All(&groups); err != nil {
-		return groups, helper.NewError("GroupService.List", err)
+func Fetch() (GroupMap, error) {
+	var list []*model.Group
+	groupMap = GroupMap{}
+	_, err := db.Orm().QueryTable("group").All(&list)
+	if err == nil {
+		for _, group := range list {
+			groupMap[group.Id] = group
+		}
 	}
-	groups = append(groups, &model.Group{ 0, "Ungrouped", "" })
-	return groups, nil
+	groupMap[0] = &model.Group{0, "Ungrouped", "" }
+	return groupMap, err
 }
 
+func List() GroupMap {
+	return groupMap
+}
 
+func init(){
+	bootstrap.Register(func(){
+		if db.IsConnected() {
+			Fetch()
+		}
+	})
+}

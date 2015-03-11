@@ -207,8 +207,12 @@ func Active(client *model.WebServer) (helper.ErrorType, error) {
 }
 
 func Del(client *model.WebServer) (error) {
-	_, err := db.Orm().Delete(client);
-	return err
+	id := client.Id
+	if _, err := db.Orm().Delete(client); err != nil {
+		return err
+	}
+	delete(hostMap, id)
+	return nil
 }
 
 func GetClientStatus(client *HostClient) Status {

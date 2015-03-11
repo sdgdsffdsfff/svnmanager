@@ -17,11 +17,21 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 useLabel: true,
                 buttons: ['append', {
                     text: 'Delete',
+                    name: 'Delete',
                     className: 'btn-danger',
-                    click: function ( comp, e ) {
-                        var anchor = e.target;
-                        confirm(anchor, function(){
-                            info(anchor, 'upload complete')
+                    loadingText: 'Deleting',
+                    click: function ( btn ) {
+                        var self = this;
+                        var scope = this.getScope(), id = scope.client.Id;
+                        confirm(btn.$elem(), function(){
+                            btn.loading();
+                            ClientService.del(id).then(function(){
+                                scope.delClient(id);
+                                self.hide();
+                                btn.reset();
+                            }, function(){
+                                btn.reset();
+                            });
                         })
                     }
                 }],
@@ -53,8 +63,10 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                     if( this.getState() == 'add' ){
                         this.clearForm();
                         this.setTitle('Add Client');
+                        this.getRef('formBtns').getRef('Delete').$elem().hide();
                     }else {
                         this.setTitle('Edit Client');
+                        this.getRef('formBtns').getRef('Delete').$elem().show();
                     }
                 },
                 onShown: function(){
@@ -100,10 +112,11 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                             $.each(data, function(key, value){
                                 if( scope.client[key] != value ){
                                     same = false;
-                                    return;
+                                    return false;
                                 }
                             });
-                            same ? self.hide() : ClientService.update(data.id, data).then(function(data){
+                            same ? self.hide() : ClientService.update(data.Id, data).then(function(data){
+                                //直接更新对象引用
                                 scope.client = data.result;
                                 self.hide();
                             })
@@ -165,24 +178,23 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
 
                     $scope.setClientSelectable = function( enable ){
                         $scope.clientSelectable = enable;
+                        if( !enable ) {
+                            $scope.mapClients(function( client ){
+                                client.selected = false;
+                            })
+                        }
                         $scope.$digest();
                     };
 
                     $scope.getSelectedClient = function(){
+                        var clients = [];
                         $scope.mapClients(function( client ){
-
-                        })
-                    }();
-                }
-            }
-        })
-        .directive('clientSelect', function(){
-            return {
-                link: function( scope, elem ){
-                    var checkbox = elem.find('input');
-                    checkbox.change(function(){
-                        scope.client._selected = checkbox.is(':checked');
-                    });
+                            if( client.selected ){
+                                clients.push(client)
+                            }
+                        });
+                        return clients;
+                    };
                 }
             }
         })

@@ -104,3 +104,17 @@ func ExtendStruct(d, s interface{}, fields ...string ) error {
 	}
 	return nil
 }
+
+func Cap(d interface{}) int {
+	cap := 0
+	t := reflect.TypeOf(d)
+	v := reflect.ValueOf(d)
+	k := t.Kind()
+
+	if k == reflect.Slice || k == reflect.Array || k == reflect.Chan {
+		cap = v.Len()
+	} else if k == reflect.Map {
+		cap = len(v.MapKeys())
+	}
+	return cap
+}
