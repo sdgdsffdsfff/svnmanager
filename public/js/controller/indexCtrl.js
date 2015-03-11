@@ -4,6 +4,7 @@
 define([
 'kernel',
 'angular',
+'ui/Toast',
 'directive/svn',
 'directive/group',
 'service/ClientService',
@@ -11,7 +12,7 @@ define([
 'service/SocketInstance',
 'ngSanitize'
 ],
-function (core, ng) {
+function (core, ng, Toast){
 
     var App = ng.module('App', ['App.services', 'App.directives', 'ngSanitize']);
 
@@ -54,6 +55,16 @@ function (core, ng) {
             core.delay(function(){
                 SocketInstance.emit('procstat');
             }, 5000)
+        });
+
+        SocketInstance.on('lock', function(){
+            Toast.makeText('Lock control!').show();
+            $scope.setLockControl(true);
+        });
+
+        SocketInstance.on('unlock', function(){
+            Toast.makeText('Unlock control!').show();
+            $scope.setLockControl(false);
         });
 
         SocketInstance.on('svnup', function( data ){
@@ -200,6 +211,12 @@ function (core, ng) {
 
         $scope.isEmptyObject = function( obj ){
             return $.isEmptyObject(obj)
+        };
+
+        $scope.lockControl = false;
+        $scope.setLockControl = function( enable ){
+            $scope.lockControl = enable;
+            $scope.$digest();
         }
     });
 

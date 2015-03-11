@@ -65,15 +65,15 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 		})
 
 		r.Get("/undeploy/files", func(rend render.Render){
-				list, err := svn.GetUnDeployFileList()
-				if err != nil {
-					rend.JSON(200, helper.Error(err))
-				} else if len(list) == 0 {
-					rend.JSON(200, helper.Error(helper.EmptyError) )
-				}else{
-					rend.JSON(200, helper.Success(list))
-				}
-			})
+			list, err := svn.GetUnDeployFileList()
+			if err != nil {
+				rend.JSON(200, helper.Error(err))
+			} else if len(list) == 0 {
+				rend.JSON(200, helper.Error(helper.EmptyError) )
+			}else{
+				rend.JSON(200, helper.Success(list))
+			}
+		})
 	})
 
 	m.Post("/aj/deploy", func(rend render.Render, req *http.Request){

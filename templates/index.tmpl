@@ -12,7 +12,7 @@
                 <p class="number">Current Version: {{ version.Version }}</p>
                 <p class="time">Update Time: {{ formatTime(version.Time) }}</p>
             </div>
-            <div class="page-controls" ng-class="{'disable-control' : clientSelectable}">
+            <div class="page-controls" ng-class="{'disable-control' : lockControl || clientSelectable }">
                 <button class="btn btn-sm btn-default hidden-xs" group-add>
                     <span class="fa fa-plus"></span> Add Group
                 </button>
@@ -39,7 +39,7 @@
             </ul>
         </div>
 
-        <ul id="GroupList" group-list class="group-list"  ng-class="{selectable : clientSelectable}">
+        <ul id="GroupList" group-list class="group-list" ng-class="{selectable : clientSelectable, controllable: !lockControl}">
             <li class="group" ng-class="{ hidden: !group.Clients || isEmptyObject(group.Clients) }"
                 ng-repeat="(gid, group) in groupList | orderBy:'-Id'"
                 data-id="{{gid}}">
@@ -53,8 +53,8 @@
                                 <div class="b"></div>
                             </div>
                             <div class="content">
-                                <h5>{{client.Name}}</h5>
-                                <p class="ip">{{client.Ip}}:{{client.Port}}</p>
+                                <h5>{{client.Name}} / {{client.Version}}</h5>
+                                <p class="ip">{{client.Ip}}/{{client.InternalIp}}</p>
                                 <p class="internal">{{client.Internal}}</p>
                                 <p class="cpu" ng-if="client.Status == STATUS.Alive">cpu: <span ng-class="{ warning: client.Proc.CPUPercent >= 80 && client.Proc.CPUPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.CPUPercent}}%</span></p>
                                 <p class="mem" ng-if="client.Status == STATUS.Alive">mem: <span ng-class="{ warning: client.Proc.MEMPercent >= 80 && client.Proc.MEMPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.MEMPercent}}%</span></p>
@@ -67,12 +67,11 @@
                                 <span><i class="fa fa-map-marker" client-move></i></span>
                                 <span><i class="fa fa-ellipsis-h" client-edit></i></span>
                             </div>
-
                         </div>
                     </div>
                     <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col">
-                        <div class="client add-client" client-add>
-                            <i class="fa fa-plus-circle"></i>
+                        <div class="client add-client">
+                            <i class="fa fa-plus-circle" client-add></i>
                         </div>
                     </div>
                 </div>

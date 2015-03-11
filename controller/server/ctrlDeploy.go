@@ -19,10 +19,10 @@ func DeployCtrl(filesId []int64, clientsId []int64) (JSON.Type, error) {
 	}
 
 	svn.GetLock()
-	clientList := client.List(clientsId)
-	webSocket.Notify("Locking control!")
+	webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
 
-	helper.AsyncMap(clientList, func(key, value interface{}) bool {
+	clients := client.List(clientsId)
+	helper.AsyncMap(clients, func(key, value interface{}) bool {
 		c := value.(*client.HostClient)
 		result, err := client.CallRpc(c, "RpcClient.Deploy", rpc.DeployArgs{fileList, c.DeployPath})
 		if err != nil {
@@ -40,14 +40,14 @@ func DeployCtrl(filesId []int64, clientsId []int64) (JSON.Type, error) {
 	})
 
 	svn.Release()
+	webSocket.BroadCastAll(&webSocket.Message{"unlock", nil})
 
-	//TODO
-	//版本同步确认后再清空
-	//部署没有错误
+	//假设所有主机必须版本一致
 	if errorCount == 0 {
-		//清空未部署列表
-		if err := svn.ClearDeployFile(); err != nil {
-			return nil, err
+		if len(clients) == client.Count() {
+			if err := svn.ClearDeployFile(); err != nil {
+				return nil, err
+			}
 		}
 	}else {
 		return results, helper.NewError("deplpy error")

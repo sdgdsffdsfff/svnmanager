@@ -115,28 +115,18 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                             });
 
                             if( ids.length ){
-
                                 if( filesId.length > 0 && filesId[0] !== 0 ) {
                                     filesId = filesId.map(function( t ){
                                         return t.Id;
                                     });
                                 }
-
-                                ClientService.checkClientDeployable(ids).then(function( data ){
-
-                                    console.log( data )
-
-                                    if( true ){
-                                        return;
-                                    }
-                                    return SvnService.deploy(filesId, ids).then(function (data) {
-                                        GlobalControlUI.hide();
-                                        $scope.setClientSelectable(false);
-                                        console.log(data)
-                                    }, function(data){
-                                        console.log(data)
-                                    })
-                                });
+                                SvnService.deploy(filesId, ids).then(function (data) {
+                                    GlobalControlUI.hide();
+                                    $scope.setClientSelectable(false);
+                                    console.log(data)
+                                }, function(data){
+                                    console.log(data)
+                                })
                             }else{
                                 tips(GlobalControlUI.$nextBtn, 'No client selected!', 'warning');
                             }

@@ -134,6 +134,10 @@ func GetAliveList() HostMap {
 	return aliveHostMap
 }
 
+func Count() int {
+	return helper.Cap(hostMap)
+}
+
 func Refresh() {
 	if list := List(); len(list) > 0 {
 		for _, c := range hostMap {
