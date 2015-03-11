@@ -868,10 +868,10 @@ select.form-control {
     -webkit-transition: opacity 0.2s ease, color 0.2s ease;
     -moz-transition: opacity 0.2s ease, color 0.2s ease;
     transition: opacity 0.2s ease, color 0.2s ease; }
-  .group-list.controllable.selectable .online label {
-    top: 2px; }
   .group-list.controllable .client {
     opacity: 1; }
+    .group-list.controllable .client.selectable.online label {
+      top: 2px; }
     .group-list.controllable .client:hover .pie .t {
       border-color: #4c4c4c;
       background: #303030; }

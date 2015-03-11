@@ -21,10 +21,11 @@ websocket　获取实时状态
 
 -部署状态
 
-
 部署分类
   文件部署
   整体部署
+
+修改运行中的动画，部署动画，锁定状态图标
 
 reactjs#0.13.0-rc1 [breaking change](http://facebook.github.io/react/blog/2015/02/24/react-v0.13-rc1.html)
 

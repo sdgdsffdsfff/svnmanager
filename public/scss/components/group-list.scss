@@ -150,13 +150,13 @@
   }
 
   &.controllable {
-    &.selectable {
-      .online label {
-        top: 2px;
-      }
-    }
     .client {
       opacity: 1;
+      &.selectable.online {
+        label {
+          top: 2px;
+        }
+      }
       &:hover {
         .pie .t {
           border-color: #4c4c4c;

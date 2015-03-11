@@ -39,7 +39,7 @@
             </ul>
         </div>
 
-        <ul id="GroupList" group-list class="group-list" ng-class="{selectable : clientSelectable, controllable: !lockControl}">
+        <ul id="GroupList" group-list class="group-list" ng-class="{controllable: !lockControl}">
             <li class="group" ng-class="{ hidden: !group.Clients || isEmptyObject(group.Clients) }"
                 ng-repeat="(gid, group) in groupList | orderBy:'-Id'"
                 data-id="{{gid}}">
@@ -47,7 +47,7 @@
                 <p class="desc">{{group.Desc}}</p>
                 <div class="client-list row">
                     <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col" ng-repeat="(cid, client) in group.Clients | orderBy:'Id'">
-                        <div class="client" ng-class="{ online: client.Status == STATUS.Alive }">
+                        <div class="client" ng-class="{ selectable : clientSelectable && client.Version < version.Version, online: client.Status == STATUS.Alive }">
                             <div class="pie">
                                 <div class="t"></div>
                                 <div class="b"></div>
