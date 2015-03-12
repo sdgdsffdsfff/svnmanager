@@ -41,8 +41,14 @@
     @include flex(1);
   }
 
+  .version {
+    width: 80px;
+  }
+
   .checkbox {
     margin: 0;
+    width: 80px;
+    text-align: center;
     i {
       color: #526469;
       font-size: 1.6rem;
@@ -71,12 +77,19 @@
         color: #fff;
       }
     }
-    > span:nth-child(1) {
+    > span:nth-child(1), > span:nth-child(3), > span:nth-child(4) {
       width: 80px;
     }
     > span:nth-child(2) {
       @include flex(1);
     }
+    > span:nth-child(4) {
+      text-align: center;
+    }
+  }
+
+  .message {
+    margin-top: 15px;
   }
 
   .info {

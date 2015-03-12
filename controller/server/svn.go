@@ -94,7 +94,9 @@ func (ctn *SvnCtrl) SetRouter(m *martini.ClassicMartini) {
 			return
 		}
 
-		result, err := DeployCtrl( filesId, clientsId )
+		message, err := body.GetString("message")
+
+		result, err := DeployCtrl( filesId, clientsId, message )
 		//报告错误原因
 		if err != nil {
 			rend.JSON(200, helper.Error(err, result))

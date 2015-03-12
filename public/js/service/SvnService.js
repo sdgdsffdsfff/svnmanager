@@ -18,12 +18,13 @@ function( core, ng, service){
                     $http.get('/aj/svn/lastVersion')
                 );
             },
-            deploy: function( filesId, clientsId ){
+            deploy: function( filesId, clientsId, msg ){
 
                 return Helper.result(
                     $http.post('/aj/deploy', {
                         filesId: filesId,
-                        clientsId: clientsId
+                        clientsId: clientsId,
+                        message: msg
                     })
                 )
             },

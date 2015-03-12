@@ -1,0 +1,23 @@
+.btn {
+  border-radius: 0!important;
+}
+
+.btn-default {
+  @include button-variant(#fff, #767676, transparent);
+}
+
+.btn-primary {
+  @include button-variant(#fff, #396ca3, transparent);
+}
+
+.btn-danger {
+  @include button-variant(#fff, #C3645F, transparent);
+}
+
+.btn-success {
+  @include button-variant(#fff, #49993d, transparent);
+}
+
+.btn-warning {
+  @include button-variant(#fff, #E48E3B, transparent);
+}

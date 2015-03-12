@@ -13,10 +13,11 @@ function( core, React, Dialog, FormBtns ){
         },
         render: function(){
             return (
-                React.createElement("div", {"upfile-control": true}, 
+                React.createElement("div", null, 
                     React.createElement("div", {className: "control"}, 
                         React.createElement("span", {onClick: this.sortByAction, id: "UpFileSortByAction", "data-sortby": "0"}, "Action ", React.createElement("i", {className: "fa fa-sort"})), 
                         React.createElement("span", {onClick: this.sortByPath, id: "UpFileSortByPath", "data-sortby": "0"}, "Path ", React.createElement("i", {className: "fa fa-sort"})), 
+                        React.createElement("span", null, "Version"), 
                         React.createElement("span", {onClick: this.selectAll, "data-all": "false", id: "UpFileSelectAllBtn"}, "Select All")
                     ), 
                     React.createElement("ul", null, 
@@ -26,6 +27,7 @@ function( core, React, Dialog, FormBtns ){
                                     React.createElement("label", null, 
                                         React.createElement("span", {className: "action " + this.getAction(item.Action).toLowerCase()}, this.getAction(item.Action)), 
                                         React.createElement("span", {className: "path"}, item.Path), 
+                                        React.createElement("span", {className: "version"}, item.Version), 
                                         React.createElement("input", {type: "checkbox", className: "hidden", value: item.Id, onChange: this.check}), 
                                         React.createElement("span", {className: "checkbox"}, 
                                             React.createElement("i", {className: "fa fa-check"})
@@ -39,6 +41,9 @@ function( core, React, Dialog, FormBtns ){
                         React.createElement("span", {className: "add"}, "Add:", React.createElement("b", null, "0")), 
                         React.createElement("span", {className: "update"}, "Update:", React.createElement("b", null, "0")), 
                         React.createElement("span", {className: "delete"}, "Delete:", React.createElement("b", null, "0"))
+                    ), 
+                    React.createElement("div", {className: "message"}, 
+                        React.createElement("textarea", {className: "form-control", placeholder: "Deploy Message"})
                     ), 
                     React.createElement("div", {className: "nofity"})
                 )
@@ -55,8 +60,10 @@ function( core, React, Dialog, FormBtns ){
             this.$selectAllBtn = this.$el.find('#UpFileSelectAllBtn');
             this.$sortByActionBtn = this.$el.find('#UpFileSortByAction');
             this.$sortByPathBtn = this.$el.find('#UpFileSortByPath');
+            this.$sortByVersionBtn = this.$el.find('#UpFileSortByVersion');
             this.$info = this.$el.find('.info');
             this.$nofity = this.$el.find('.nofity');
+            this.$message = this.$el.find('textarea');
         },
         getCheckbox: function(){
             this.$items = this.$el.find('li');
@@ -88,6 +95,18 @@ function( core, React, Dialog, FormBtns ){
             } else if( this.$selectAllBtn.data('all') ) {
                 this.$selectAllBtn.data('all', false).html('Select All');
             }
+        },
+        message: function(){
+            var q = $.Deferred(), value = this.$message.val().trim();
+            if( value.length ) {
+                q.resolve(value)
+            }else{
+                this.$message.focus();
+                q.reject({
+                    message: 'please enter deploy message'
+                });
+            }
+            return q;
         },
         notify: function( text ){
             this.$nofity.html(text);

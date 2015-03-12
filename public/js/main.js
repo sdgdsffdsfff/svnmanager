@@ -35,4 +35,4 @@ requirejs.config({
     }
 });
 
-require(['init']);
+require(['init', 'ui/bootstrap']);

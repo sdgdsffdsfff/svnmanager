@@ -48,19 +48,8 @@ func (r report) Data() interface {} {
 	return r.List;
 }
 
-func (r *report) updateClientStatus(c *JSON.Type){
-	//	for k, v := range r.List {
-	//		if v.Ip == c.Ip {
-	//			r.List[k] = c
-	//			return
-	//		}
-	//	}
-	//	r.List = append(r.List, c)
-}
-
 var ReportService *report = &report{}
 
 func init(){
 	rpc.AddCtrl(new(RpcServer))
-	//WebSocketService.Exports("ClientStatus", ReportService)
 }

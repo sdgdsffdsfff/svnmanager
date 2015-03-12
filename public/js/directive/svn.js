@@ -28,12 +28,14 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
             }, null, {
                 check: function(){
                     var self = this;
-                    return this.upfileList.getReadyToDeployFile().then(function( list ){
-                        self.hide();
-                        core.delay(function(){
-                            self.scope.readyToDeploy( list );
-                        }, 500)
-                    })
+                    return this.upfileList.message().then(function( msg ){
+                        return self.upfileList.getReadyToDeployFile().then(function( list ){
+                            self.hide();
+                            core.delay(function(){
+                                self.scope.readyToDeploy( msg, list );
+                            }, 500)
+                        })
+                    });
                 },
                 notify: function( text ){
                     this.upfileList.notify(text);
@@ -104,8 +106,8 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
         .directive('svnDeploy', function (ClientService, SvnService, DeployDialog, GlobalControlUI) {
             return {
                 controller: function( $scope ){
-                    $scope.readyToDeploy = function( filesId ){
-                        $scope.setClientSelectable(true);
+                    $scope.readyToDeploy = function( msg, filesId ){
+                        $scope.clientSelectable = true;
 
                         //选择在线的主机
                         GlobalControlUI.show('Select the client which you want to deploy.', function(){
@@ -120,18 +122,19 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                                         return t.Id;
                                     });
                                 }
-                                SvnService.deploy(filesId, ids).then(function (data) {
+                                SvnService.deploy(filesId, ids, msg).then(function (data) {
                                     GlobalControlUI.hide();
-                                    $scope.setClientSelectable(false);
-                                    console.log(data)
-                                }, function(data){
-                                    console.log(data)
+                                    $scope.clientSelectable = false;
+                                    //$scope.setClientSelectable(false);
+                                    $.each(data.result, function( id, value ){
+                                        $scope.findClient(id).Version = value.Version;
+                                    })
                                 })
                             }else{
                                 tips(GlobalControlUI.$nextBtn, 'No client selected!', 'warning');
                             }
                         }, function(){
-                            $scope.setClientSelectable(false);
+                            $scope.clientSelectable = false;
                             GlobalControlUI.hide();
                         });
                     };
@@ -150,10 +153,28 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                 }
             }
         })
-        .directive('upfileControl', function(){
+        .directive('svnBackup', function(){
             return {
-                link: function(){
-                    console.log(1)
+                controller: function($scope){
+
+                },
+                link: function( scope, elem ){
+                    elem.click(function(){
+
+                    })
+                }
+            }
+        })
+        .directive('svnRevert', function( SvnService ){
+
+            return {
+                controller: function( $scope ){
+
+                },
+                link: function( scope, elem ){
+                    elem.click(function(){
+
+                    })
                 }
             }
         })

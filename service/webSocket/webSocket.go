@@ -8,12 +8,17 @@ import(
 	"king/utils/JSON"
 )
 
-var callbacks = map[string]func()JSON.Type{}
-func BindWebSocketMethod(name string, callback func()JSON.Type){
-	if _, found := callbacks[name]; found {
+var onEmitCallback = map[string]func()JSON.Type{}
+func OnEmit(name string, callback func()JSON.Type){
+	if _, found := onEmitCallback[name]; found {
 		return
 	}
-	callbacks[name] = callback
+	onEmitCallback[name] = callback
+}
+
+var onOutCallback = []func(int){}
+func OnOut(callback func(int)) {
+	onOutCallback = append( onOutCallback, callback)
 }
 
 type Message struct {
@@ -49,6 +54,12 @@ func removeClient(client *socketClient) {
 			clients = append(clients[:index], clients[(index+1):]...)
 		}
 	}
+
+	clientLength := len( clients )
+
+	for _, callback := range onOutCallback {
+		callback(clientLength)
+	}
 }
 
 func Emit(client *socketClient, msg *Message) {
@@ -57,8 +68,8 @@ func Emit(client *socketClient, msg *Message) {
 
 	if method == "broadcast" {
 		BroadCast(client, msg)
-	} else if _, found := callbacks[method]; method != "" && found {
-		client.out <- &Message{method, callbacks[method]()}
+	} else if _, found := onEmitCallback[method]; method != "" && found {
+		client.out <- &Message{method, onEmitCallback[method]()}
 	} else {
 		client.out <- &Message{method, helper.Error("method undefined")}
 	}
@@ -101,7 +112,7 @@ func loopPushFrame(){
 			client := value.(*socketClient)
 			if client != nil && client.message != nil {
 				if method := client.message.Method; method != "" {
-					client.out <- &Message{method, callbacks[method]()}
+					client.out <- &Message{method, onEmitCallback[method]()}
 				}
 			}
 			return false

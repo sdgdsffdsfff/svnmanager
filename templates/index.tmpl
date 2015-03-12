@@ -13,20 +13,18 @@
                 <p class="time">Update Time: {{ formatTime(version.Time) }}</p>
             </div>
             <div class="page-controls" ng-class="{'disable-control' : lockControl || clientSelectable }">
-                <button class="btn btn-sm btn-default hidden-xs" group-add>
-                    <span class="fa fa-plus"></span> Add Group
-                </button>
                 <button class="btn btn-sm btn-primary" svn-update>
                     <i class="fa fa-arrow-down loader"></i> Update
                 </button>
                 <button class="btn btn-sm btn-success" svn-deploy>
-                    <span class="glyphicon glyphicon-transfer"></span> Deplpy
+                    <i class="glyphicon glyphicon-transfer"></i> Deplpy
                 </button>
-                <div class="btn-group" svn-revert>
-                    <button class="btn btn-sm btn-warning">
-                        <span class="fa fa-history"></span> Revert <span class="caret"></span>
-                    </button>
-                </div>
+                <button class="btn btn-sm btn-default" svn-backup>
+                    <i class="fa fa-database"></i> Backup
+                </button>
+                <button class="btn btn-sm btn-danger" svn-revert>
+                    <i class="fa fa-history"></i> Revert
+                </button>
             </div>
         </div>
 
@@ -53,9 +51,9 @@
                                 <div class="b"></div>
                             </div>
                             <div class="content">
-                                <h5>{{client.Name}} / {{client.Version}}</h5>
+                                <h5>{{client.Name}} <span>{{client.Version}}</span></h5>
                                 <p class="ip">{{client.Ip}}/{{client.InternalIp}}</p>
-                                <p class="internal">{{client.Internal}}</p>
+                                <p class="internal">port: {{client.Port}}</p>
                                 <p class="cpu" ng-if="client.Status == STATUS.Alive">cpu: <span ng-class="{ warning: client.Proc.CPUPercent >= 80 && client.Proc.CPUPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.CPUPercent}}%</span></p>
                                 <p class="mem" ng-if="client.Status == STATUS.Alive">mem: <span ng-class="{ warning: client.Proc.MEMPercent >= 80 && client.Proc.MEMPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.MEMPercent}}%</span></p>
                             </div>

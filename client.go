@@ -18,6 +18,7 @@ func active(port string) error{
 		config.MasterRpc(),
 		"RpcServer.Active",
 		model.WebServer{
+			Name: "Unknown",
 			Ip: "127.0.0.1",
 			Port: port,
 		},

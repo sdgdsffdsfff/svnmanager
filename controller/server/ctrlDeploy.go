@@ -9,7 +9,7 @@ import (
 	"king/rpc"
 )
 
-func DeployCtrl(filesId []int64, clientsId []int64) (JSON.Type, error) {
+func DeployCtrl(filesId []int64, clientsId []int64, message string) (JSON.Type, error) {
 	results := JSON.Type{}
 	errorCount := 0
 
@@ -20,6 +20,8 @@ func DeployCtrl(filesId []int64, clientsId []int64) (JSON.Type, error) {
 
 	svn.GetLock()
 	webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
+
+	svn.DeployMessage(message)
 
 	clients := client.List(clientsId)
 	helper.AsyncMap(clients, func(key, value interface{}) bool {

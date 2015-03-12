@@ -1,3 +1,33 @@
-@import "clockwise";
-@import "scale";
-@import "fade";
+@include keyframes(clockwise){
+  0%{
+    @include transform(rotateZ(0deg) translateZ(0))
+  }
+  100%{
+    @include transform(rotateZ(360deg) translateZ(0))
+  }
+}
+
+@include keyframes(littleScale){
+  0% {
+    @include transform(scale(1) rotateZ(0deg));
+  }
+  50% {
+    @include transform(scale(1.6) rotateZ(6deg));
+  }
+  100% {
+    @include transform(scale(1) rotateZ(0deg));
+  }
+}
+
+@include keyframes(spinner) {
+  0% {
+    @include transform(rotateZ(0deg))
+  }
+  100% {
+    @include transform(rotateZ(360deg))
+  }
+}
+
+.fx-spinner {
+  @include animation(spinner 1s linear infinite)
+}

@@ -29,8 +29,8 @@
       float: right;
       z-index: 2;
       margin-top: -32px;
-      button {
-        margin-right: 5px;
+      .btn {
+        margin-left: 5px;
       }
       .fa-circle-o-notch {
         @include animation(spinner-rotate 1s linear infinite)

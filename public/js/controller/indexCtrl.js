@@ -31,7 +31,27 @@ function (core, ng, Toast){
     })
     .controller('svnManagerCtrl', function ($scope, Status, Action, ClientService, SvnService, SocketInstance, Helper) {
 
+        $scope.version = {
+            Version: 0,
+            Time: 0
+        };
+
+        $scope.deployEnable = false;
+        $scope.upFileList = [];
+        $scope.groupList = [];
+
+        $scope.ACTION = Action;
+        $scope.STATUS = Status;
+
         SocketInstance.setScope( $scope );
+
+        SocketInstance.on('getClientList', function(data){
+            Helper.data(data).then(function( data ){
+                $scope.groupList = data.result;
+                $scope.$apply();
+            })
+        });
+
         SocketInstance.on('heartbeat', function( data ){
             var client;
             for(var i in data.result) {
@@ -76,26 +96,10 @@ function (core, ng, Toast){
                 });
             });
         });
+
         SocketInstance.emit('heartbeat');
         SocketInstance.emit('procstat');
-
-        $scope.version = {
-            Version: 0,
-            Time: 0
-        };
-
-        $scope.deployEnable = false;
-        $scope.upFileList = [];
-        $scope.groupList = [];
-
-        $scope.ACTION = Action;
-        $scope.STATUS = Status;
-
-        ($scope.refresh = function(){
-            return ClientService.list().then(function (data) {
-                $scope.groupList = data.result;
-            });
-        })();
+        SocketInstance.emit('getClientList');
 
         $scope.upgradeVersion = function( version ){
             $scope.version = version;
@@ -180,7 +184,9 @@ function (core, ng, Toast){
 
         $scope.delClient = function(id) {
             var client = $scope.findClient(id);
-            delete $scope.groupList[client.Group]["Clients"][client.Id];
+            if( client ){
+                delete $scope.groupList[client.Group]["Clients"][client.Id];
+            }
         };
 
         $scope.onGroupChange = function () {
@@ -218,7 +224,7 @@ function (core, ng, Toast){
             $scope.lockControl = enable;
             $scope.$digest();
         }
-    });
+    })
 
 
     ng.bootstrap(document, ['App']);

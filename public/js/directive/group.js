@@ -176,16 +176,6 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 controller: function( $scope ){
                     $scope.clientSelectable = false;
 
-                    $scope.setClientSelectable = function( enable ){
-                        $scope.clientSelectable = enable;
-                        if( !enable ) {
-                            $scope.mapClients(function( client ){
-                                client.selected = false;
-                            })
-                        }
-                        $scope.$digest();
-                    };
-
                     $scope.getSelectedClient = function(){
                         var clients = [];
                         $scope.mapClients(function( client ){

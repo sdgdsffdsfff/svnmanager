@@ -13,10 +13,11 @@ function( core, React, Dialog, FormBtns ){
         },
         render: function(){
             return (
-                <div upfile-control>
+                <div>
                     <div className="control">
                         <span onClick={this.sortByAction} id="UpFileSortByAction" data-sortby="0">Action <i className="fa fa-sort"></i></span>
                         <span onClick={this.sortByPath} id="UpFileSortByPath" data-sortby="0">Path <i className="fa fa-sort"></i></span>
+                        <span>Version</span>
                         <span onClick={this.selectAll} data-all="false" id="UpFileSelectAllBtn">Select All</span>
                     </div>
                     <ul>
@@ -26,6 +27,7 @@ function( core, React, Dialog, FormBtns ){
                                     <label>
                                         <span className={"action " + this.getAction(item.Action).toLowerCase()}>{this.getAction(item.Action)}</span>
                                         <span className="path">{item.Path}</span>
+                                        <span className="version">{item.Version}</span>
                                         <input type="checkbox" className="hidden" value={item.Id} onChange={this.check} />
                                         <span className="checkbox">
                                             <i className="fa fa-check"></i>
@@ -39,6 +41,9 @@ function( core, React, Dialog, FormBtns ){
                         <span className="add">Add:<b>0</b></span>
                         <span className="update">Update:<b>0</b></span>
                         <span className="delete">Delete:<b>0</b></span>
+                    </div>
+                    <div className="message">
+                        <textarea className="form-control" placeholder="Deploy Message"></textarea>
                     </div>
                     <div className="nofity"></div>
                 </div>
@@ -55,8 +60,10 @@ function( core, React, Dialog, FormBtns ){
             this.$selectAllBtn = this.$el.find('#UpFileSelectAllBtn');
             this.$sortByActionBtn = this.$el.find('#UpFileSortByAction');
             this.$sortByPathBtn = this.$el.find('#UpFileSortByPath');
+            this.$sortByVersionBtn = this.$el.find('#UpFileSortByVersion');
             this.$info = this.$el.find('.info');
             this.$nofity = this.$el.find('.nofity');
+            this.$message = this.$el.find('textarea');
         },
         getCheckbox: function(){
             this.$items = this.$el.find('li');
@@ -88,6 +95,18 @@ function( core, React, Dialog, FormBtns ){
             } else if( this.$selectAllBtn.data('all') ) {
                 this.$selectAllBtn.data('all', false).html('Select All');
             }
+        },
+        message: function(){
+            var q = $.Deferred(), value = this.$message.val().trim();
+            if( value.length ) {
+                q.resolve(value)
+            }else{
+                this.$message.focus();
+                q.reject({
+                    message: 'please enter deploy message'
+                });
+            }
+            return q;
         },
         notify: function( text ){
             this.$nofity.html(text);

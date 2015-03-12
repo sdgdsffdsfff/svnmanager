@@ -9,6 +9,7 @@ import (
 	"time"
 	"king/utils/JSON"
 	"king/bootstrap"
+	"sync"
 )
 
 type Status int
@@ -37,10 +38,7 @@ var heartbeatEnable bool
 var procMonitorEnable bool
 var hostMap HostMap
 var refreshDuration = time.Second * 3
-
-func DisableHeartbeat() {
-	heartbeatEnable = false
-}
+var lockProcStat = sync.Mutex{}
 
 //多终端Rpc调用
 //TODO
@@ -146,36 +144,47 @@ func Refresh() {
 	}
 }
 
+func SetHeartEnable( enable bool ){
+	heartbeatEnable = enable
+}
+
 func Heartbeat() {
-	heartbeatEnable = true
 	for {
 		if heartbeatEnable {
 			Refresh()
-			time.Sleep( refreshDuration )
-		} else {
-			break
+
+		}
+		time.Sleep( refreshDuration )
+	}
+}
+
+func SetProcMonitorEnable( enable bool ){
+	procMonitorEnable = enable
+}
+
+func getProcStat(){
+	lockProcStat.Lock()
+
+	aliveList := GetAliveList()
+	results := BatchCallRpc(aliveList, "RpcClient.ProcStat", nil)
+	for key, value := range results {
+		if c := FindFromCache(helper.Int64(key)); c != nil && value != nil {
+			proc := &ProcStat{}
+			JSON.ParseToStruct(value, proc)
+			c.Proc = proc
 		}
 	}
+
+	lockProcStat.Unlock()
 }
 
 //获取cpu与内存使用状况
 func GetProcStat() {
-	procMonitorEnable = true
 	for {
 		if procMonitorEnable {
-			aliveList := GetAliveList()
-			results := BatchCallRpc(aliveList, "RpcClient.ProcStat", nil)
-			for key, value := range results {
-				if c := FindFromCache(helper.Int64(key)); c != nil && value != nil {
-					proc := &ProcStat{}
-					JSON.ParseToStruct(value, proc)
-					c.Proc = proc
-				}
-			}
-			time.Sleep( refreshDuration )
-		}else{
-			break
+			getProcStat()
 		}
+		time.Sleep( refreshDuration )
 	}
 }
 
@@ -196,8 +205,7 @@ func Update(client *model.WebServer, fields ...string) error {
 }
 
 func Active(client *model.WebServer) (helper.ErrorType, error) {
-
-	created, id, err := db.Orm().ReadOrCreate(client, "Ip", "Port");
+	created, id, err := db.Orm().ReadOrCreate(client, "InternalIp", "Port");
 	if  err != nil {
 		return helper.DefaultError, err
 	}
