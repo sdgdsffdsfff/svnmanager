@@ -8,7 +8,7 @@ define([
 './module',
 ],
 function( core, ng, directive ){
-    directories
+    directive
         .directive('systemSetting', function(){
             return {
                 controller: function( $scope ){
