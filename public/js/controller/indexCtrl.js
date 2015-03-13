@@ -7,6 +7,7 @@ define([
 'ui/Toast',
 'directive/svn',
 'directive/group',
+'directive/system',
 'service/ClientService',
 'service/SvnService',
 'service/SocketInstance',

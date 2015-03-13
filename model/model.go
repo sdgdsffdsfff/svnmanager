@@ -7,7 +7,6 @@ import (
 type Version struct {
 	Id            	int64
 	Version 		int 		//版本号
-	BackupPath    	string 		//文件地址
     Time 			time.Time 	//更新时间
 	Comment 		string 		//更新内容备注
 	List        	string 		//更新内容
@@ -33,9 +32,10 @@ type WebServer struct {
 	Name   			string 	//备注
 	Version 		int 	//版本号
 	Status 			int 	//状态
-	Group     		int64     //分组
+	Group     		int64   //分组
 	InternalIp  	string 	//内网IP
   	DeployPath		string  //部署地址
+    BackupPath 		string  //备份地址
 }
 
 type Group struct {

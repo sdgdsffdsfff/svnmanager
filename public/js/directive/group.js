@@ -52,6 +52,9 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 }, {
                     name: 'DeployPath',
                     placeholder: 'deploy path'
+                }, {
+                    name: 'BackupPath',
+                    placeholder: 'backup path'
                 },{
                     name: 'Id',
                     type: 'hidden'
@@ -68,9 +71,6 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                         this.setTitle('Edit Client');
                         this.getRef('formBtns').getRef('Delete').$elem().show();
                     }
-                },
-                onShown: function(){
-                    this.focusFirst();
                 },
                 onHidden: function(){
                     this.setState(null);
@@ -188,6 +188,16 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 }
             }
         })
+        .directive('clientControl', function(){
+            return {
+                link: function( scope, elem ){
+                    var em = elem.find('em');
+                    em.click(function(){
+                        elem.toggleClass('open')
+                    })
+                }
+            }
+        })
         .directive('clientMove', function( ClientService ){
             var formFlyout = FormFlyout({
                 title: "Change client group",
@@ -256,7 +266,7 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                         EditClientDialog
                             .setScope(scope)
                             .setState('add')
-                            .show('add');
+                            .show();
                     });
                 }
             }

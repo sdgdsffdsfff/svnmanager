@@ -9,8 +9,8 @@
         ${template "header"}
         <div class="version-control-bar">
             <div id="version" class="version">
-                <p class="number">Current Version: {{ version.Version }}</p>
-                <p class="time">Update Time: {{ formatTime(version.Time) }}</p>
+                <p class="number">Version: {{ version.Version }}</p>
+                <p class="time">Time: {{ formatTime(version.Time) }}</p>
             </div>
             <div class="page-controls" ng-class="{'disable-control' : lockControl || clientSelectable }">
                 <button class="btn btn-sm btn-primary" svn-update>
@@ -18,12 +18,6 @@
                 </button>
                 <button class="btn btn-sm btn-success" svn-deploy>
                     <i class="glyphicon glyphicon-transfer"></i> Deplpy
-                </button>
-                <button class="btn btn-sm btn-default" svn-backup>
-                    <i class="fa fa-database"></i> Backup
-                </button>
-                <button class="btn btn-sm btn-danger" svn-revert>
-                    <i class="fa fa-history"></i> Revert
                 </button>
             </div>
         </div>
@@ -44,30 +38,29 @@
                 <h3>{{group.Name}}</h3>
                 <p class="desc">{{group.Desc}}</p>
                 <div class="client-list row">
-                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col" ng-repeat="(cid, client) in group.Clients | orderBy:'Id'">
+                    <div class="col-lg-3 col-md-4 col-sm-6 client-col" ng-repeat="(cid, client) in group.Clients | orderBy:'Id'">
                         <div class="client" ng-class="{ selectable : clientSelectable && client.Version < version.Version, online: client.Status == STATUS.Alive }">
-                            <div class="pie">
-                                <div class="t"></div>
-                                <div class="b"></div>
-                            </div>
-                            <div class="content">
-                                <h5>{{client.Name}} <span>{{client.Version}}</span></h5>
-                                <p class="ip">{{client.Ip}}/{{client.InternalIp}}</p>
-                                <p class="internal">port: {{client.Port}}</p>
-                                <p class="cpu" ng-if="client.Status == STATUS.Alive">cpu: <span ng-class="{ warning: client.Proc.CPUPercent >= 80 && client.Proc.CPUPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.CPUPercent}}%</span></p>
-                                <p class="mem" ng-if="client.Status == STATUS.Alive">mem: <span ng-class="{ warning: client.Proc.MEMPercent >= 80 && client.Proc.MEMPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.MEMPercent}}%</span></p>
+                            <h5>{{client.Name || client.Ip}}</h5>
+                            <p class="ip">{{client.Ip}}/{{client.InternalIp}}</p>
+                            <span class="version">version: {{client.Version}}</span>
+                            <div class="usage">
+                                cpu: <span ng-class="{ warning: client.Proc.CPUPercent >= 80 && client.Proc.CPUPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.CPUPercent}}%</span>
+                                mem: <span ng-class="{ warning: client.Proc.MEMPercent >= 80 && client.Proc.MEMPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.MEMPercent}}%</span>
                             </div>
                             <label>
                                 <input type="checkbox" class="hidden" ng-model="client.selected" />
                                 <i class="fa fa-check"></i>
                             </label>
-                            <div class="control">
-                                <span><i class="fa fa-map-marker" client-move></i></span>
-                                <span><i class="fa fa-ellipsis-h" client-edit></i></span>
+                            <div class="control" client-control>
+                                <em class="hidden"><i class="fa fa-bars"></i></em>
+                                <span client-move><i class="fa fa-map-marker"></i> Move</span>
+                                <span client-edit><i class="fa fa-ellipsis-h"></i> Edit</span>
+                                <span client-backup><i class="fa fa-archive"></i> Backup</span>
+                                <span client-revert><i class="fa fa-clock-o"></i> Revert</span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-sm-3 col-sm-4 col-xs-6 client-col">
+                    <div class="col-lg-3 col-md-4 col-sm-6 client-col">
                         <div class="client add-client">
                             <i class="fa fa-plus-circle" client-add></i>
                         </div>

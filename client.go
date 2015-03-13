@@ -44,9 +44,10 @@ func main() {
 	//设置Rpc地址
 	config.Set("rpc", config.GetString("master")+"/rpc")
 
-	//在服务器上添加自己
+
 	bootstrap.Start(port, func(){
-		active(port);
+		//在服务器上添加自己，必须确定唯一属性
+		//active(port);
 		log.Println("already connect to server")
 	})
 }

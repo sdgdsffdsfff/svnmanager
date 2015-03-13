@@ -1,7 +1,7 @@
 .group-list {
   position: relative;
   margin-top: 50px;
-  li {
+  > li {
     @extend .clearfix;
     position: relative;
     margin-bottom: 40px;
@@ -28,60 +28,90 @@
   }
   .client {
     position: relative;
-    width: 140px;
-    height: 140px;
+    width: 100%;
+    height: 120px;
     overflow: hidden;
-    margin: 0 auto;
+    padding: 10px;
     font-size: 1.4rem;
-    border-radius: 100%;
-    text-align: center;
-    opacity: .4;
-    @include transform(opacity 0.6s ease);
-    .content {
-      position: absolute;
-      width: 100%;
-      top: 50%;
-      @include transform(translateY(-50%));
-      @include transition(height 0.5s ease, top 0.5s ease);
+    background: #2C363C;
+    @include transition(opacity 0.6s ease, background 0.3s ease);
+    border-left: 1px solid #666;
+  }
+  .online {
+    border-color: #308C30;
+  }
+
+  h5 {
+    margin-bottom: 15px;
+    font-size: 2rem;
+    color: #fff;
+    span {
+      font-size: 1.4rem;
+      color: #999;
     }
-    h5 {
-      margin: 0 0 5px;
-      font-size: 2rem;
-      color: #fff;
-      span {
-        font-size: 1.4rem;
+  }
+  label {
+    position: absolute;
+    top: -30px;
+    left: 2px;
+    right: 2px;
+    padding-bottom: 10px;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+    @include transition(top 0.3s ease, opacity 0.3s ease);
+    input:checked + i {
+      color: #FFF200;
+    }
+  }
+  .control {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 100px;
+    font-size: 1.4rem;
+    color: #eee;
+    @include transition-duration(0.5s);
+    @include transition-timing-function(ease);
+    @include transition-property(color, bottom, opacity);
+    i {
+      display: inline-block;
+      width: 20px;
+    }
+    em {
+      position: absolute;
+      right: 5px;
+      top: 10px;
+      color: #666;
+      @extend .cur-pointer;
+      &:hover {
         color: #999;
       }
     }
-    label {
-      position: absolute;
-      top: -30px;
-      left: 2px;
-      right: 2px;
-      padding-bottom: 10px;
-      font-size: 2rem;
-      cursor: pointer;
-      color: #666;
-      @include transition(top 0.3s ease, opacity 0.3s ease);
-      input:checked + i {
-        color: #FFF200;
+    span {
+      @extend .cur-pointer;
+      //@include transform(translateX(100%));
+      display: block;
+      height: 30px;
+      line-height: 30px;
+      padding: 0 10px;
+      margin-bottom: 1px;
+      background: #4C5354;
+      &:hover, &:active {
+        background: #215662;
       }
     }
-    .control {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      font-size: 1.6rem;
-      opacity: 0;
-      color: #A8C45C;
-      @include transition-duration(0.5s);
-      @include transition-timing-function(ease);
-      @include transition-property(color, bottom, opacity);
-      span {
-        @extend .cur-pointer;
-        margin: 0 2px;
-      }
+
+    //open animate
+    &.open {
+
     }
+  }
+
+  .usage {
+    position: absolute;
+    left: 10px; bottom: 6px;
   }
 
   .client-list {
@@ -97,57 +127,12 @@
     right: $width;
   }
 
-  .pie {
-    pointer-events: none;
-    z-index: 0;
-    &, .t, .b, .t:before, .b:before, .b:after {
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0;
-      border-radius: 50%;
-    }
-    .t, .b {
-      &:before, &:after {
-        display: none;
-        content: '';
-        border: 2px solid transparent;
-        @include transition-duration(0.5s);
-        @include transition-timing-function(ease);
-        @include transition-property(background, border);
-      }
-    }
-    .b {
-      border: 2px solid #2F3B3C;
-    }
-  }
-
-  .online {
-    .pie .b:before {
-      display: block;
-      border-color: #1f9c1f transparent #1f9c1f transparent;
-      @include distance(-2px);
-      @include animation(clockwise 7s linear infinite);
-    }
-  }
-
-  .warning {
-    color: #DBD930;
-  }
-  .danger {
-    color: #eb4942;
-  }
-
   .add-client {
+    text-align: center;
     i {
       pointer-events: none;
       font-size: 6rem;
-      position: relative;
-      top: 40%;
       opacity: .2;
-      @include transform(translateY(-50%));
       @include transition(opacity 0.2s ease, color 0.2s ease);
       @extend .cur-pointer;
     }
@@ -161,19 +146,6 @@
           top: 2px;
         }
       }
-      &:hover {
-        .pie .t {
-          border-color: #4c4c4c;
-          background: #303030;
-        }
-        .content {
-          top: 45%;
-        }
-        .control {
-          bottom: 5px;
-          opacity: 1;
-        }
-      }
     }
     .add-client {
       i {
@@ -184,40 +156,6 @@
           opacity: .4;
         }
       }
-    }
-  }
-}
-
-@media (min-width: 1440px) {
-  .group-list .client {
-    width: 200px;
-    height: 200px;
-  }
-}
-
-@media (min-width: $screen-lg ) and (max-width: 1440px) {
-  .group-list .client {
-    width: 180px;
-    height: 180px;
-  }
-}
-
-@media (max-width: $screen-lg) {
-  .group-list .client {
-    width: 160px;
-    height: 160px;
-    h5 {
-      font-size: 1.6rem;
-    }
-  }
-}
-
-@media (max-width: $screen-sm) {
-  .group-list .client {
-    width: 150px;
-    height: 150px;
-    .content {
-      font-size: 1.2rem;
     }
   }
 }

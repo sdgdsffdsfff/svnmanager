@@ -13,7 +13,10 @@
 .index {
   .version-control-bar {
     padding-top: 15px;
+    @include display(flex);
+    @include flex-flow(row);
     .version {
+      @include flex(1);
       p {
         margin: 0;
       }
@@ -26,9 +29,8 @@
       }
     }
     .page-controls {
-      float: right;
-      z-index: 2;
-      margin-top: -32px;
+      @include flex(1);
+      text-align: right;
       .btn {
         margin-left: 5px;
       }
