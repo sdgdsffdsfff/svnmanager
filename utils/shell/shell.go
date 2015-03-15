@@ -1,29 +1,52 @@
 package shell
 
 import (
-	"fmt"
 	"os/exec"
-	"log"
-	"bytes"
 	"strings"
 )
 
-func Cmd(command string) (string, error) {
-	commands := strings.Split(strings.Trim(command, " "), " ")
+type cmd struct {
+	cmd *exec.Cmd
+	next *cmd
+}
 
-	cmd := exec.Command(commands[0], commands[1:]...)
+func (r *cmd) Pipe( command string ) *cmd {
+	r.next = Cmd(command)
+	return r.next
+}
 
-	var out bytes.Buffer
-	var stderr bytes.Buffer
+func (r *cmd) Output() (string, error) {
+	if r.next != nil {
+		for r.next != nil {
+			out, err := r.cmd.StdoutPipe()
+			if err != nil {
+				return "", err
+			}
+			r.next.cmd.Stdin = out
+			r.cmd.Start()
+			r.cmd.Wait()
+		}
 
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-
-	err := cmd.Run()
-	if err != nil {
-		log.Println(command, "error:", fmt.Sprint(err) + ":" + stderr.String())
-		return "", err
+		out, err := r.cmd.Output()
+		if err != nil {
+			return "", err
+		}
+		return string(out), nil
+	} else {
+		out, err := r.cmd.Output()
+		if err != nil {
+			return "", err
+		}
+		return string(out), nil
 	}
+}
 
-	return out.String(), nil
+func Cmd(command string) *cmd {
+	parts := strings.Fields( command )
+	head := parts[0]
+	parts = parts[1:len(parts)]
+
+	c := &cmd{exec.Command(head, parts...), nil}
+
+	return c
 }

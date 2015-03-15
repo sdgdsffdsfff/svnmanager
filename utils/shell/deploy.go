@@ -1,5 +1,0 @@
-package shell
-
-func Deploy(){
-
-}

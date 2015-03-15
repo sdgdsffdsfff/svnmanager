@@ -67,7 +67,7 @@ function (core, ng, Toast){
         });
 
         SocketInstance.on('deploy', function( data ){
-            Toast.makeText(data.message).show()
+            console.log(data)
         });
 
         var stillEmptyProcstat = false;

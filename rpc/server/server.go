@@ -27,7 +27,7 @@ func (h *RpcServer) Active(r *http.Request, args *model.WebServer, reply *rpc.Rp
 	if err != nil {
 		return helper.NewError("add client error", err)
 	}
-	reply.Response = id
+	reply.Response =
 	return nil
 }
 

@@ -32,7 +32,7 @@ func SvnUp(paths ...string) (int, []JSON.Type, error){
 		path = svnDir
 	}
 
-	out, err := Cmd("svn up " + path)
+	out, err := Cmd("svn up " + path).Output()
 	if err != nil {
 		return -1, nil, helper.NewError("svn up command error", err)
 	}
