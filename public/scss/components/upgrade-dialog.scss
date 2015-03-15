@@ -20,6 +20,10 @@
     color: #3F9D2F;
     @include animation(littleScale 0.3s ease-in);
   }
+  
+  ul {
+    font-size: 1.4rem;
+  }
 
   .delete {
     color: #666;
@@ -32,8 +36,7 @@
   }
 
   .action {
-    width: 80px;
-    font-weight: bold;
+    width: 60px;
   }
 
   .path {
@@ -47,8 +50,6 @@
 
   .checkbox {
     margin: 0;
-    width: 80px;
-    text-align: center;
     i {
       color: #526469;
       font-size: 1.6rem;
@@ -77,8 +78,12 @@
         color: #fff;
       }
     }
-    > span:nth-child(1), > span:nth-child(3), > span:nth-child(4) {
+    > span:nth-child(1) {
+      width: 60px;
+    }
+    > span:nth-child(3) {
       width: 80px;
+      text-align: right;
     }
     > span:nth-child(2) {
       @include flex(1);

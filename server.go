@@ -3,8 +3,7 @@ package main
 import (
 	"king/bootstrap"
 	"king/config"
-	_ "king/controller/server"
-	_ "king/controller/websocket"
+	_ "king/routes/server"
 	_ "king/rpc/server"
 	"king/utils/db"
 	"log"

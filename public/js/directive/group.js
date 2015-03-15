@@ -189,11 +189,22 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
             }
         })
         .directive('clientControl', function(){
+            var lastName, lastElem = null;
             return {
                 link: function( scope, elem ){
-                    var em = elem.find('em');
-                    em.click(function(){
-                        elem.toggleClass('open')
+                    var more = elem.find('em.more');
+                    more.on('click',function(){
+                        if( lastElem && lastElem.hasClass('open') ){
+                            lastElem.removeClass('open');
+                        }
+                        lastElem = elem.addClass('open');
+                        if( lastName ){
+                            core.unbindDocumentEvent(lastName);
+                        }
+                        lastName = core.clickAnyWhereHideButMe(elem, function(){
+                            elem.removeClass('open');
+                            lastElem = null;
+                        });
                     })
                 }
             }

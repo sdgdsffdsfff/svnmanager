@@ -1,12 +1,17 @@
-package websocket
+package webSocket
 
-import (
+import(
+	"github.com/go-martini/martini"
 	"king/service/webSocket"
-	"king/service/client"
 	"king/utils/JSON"
+	"king/service/client"
 	"king/helper"
 	"king/service/group"
 )
+
+func Socket( params martini.Params, receiver <-chan *webSocket.Message, sender chan<- *webSocket.Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string) {
+	return webSocket.Listen(params, receiver, sender, done, disconnect, err)
+}
 
 func init(){
 	webSocket.OnEmit("heartbeat", func() JSON.Type {
@@ -32,7 +37,6 @@ func init(){
 	});
 
 	webSocket.OnEmit("getClientList", func() JSON.Type{
-
 		client.SetHeartEnable(true)
 		client.SetProcMonitorEnable(true)
 

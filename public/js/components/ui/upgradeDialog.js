@@ -15,9 +15,8 @@ function( core, React, Dialog, FormBtns ){
             return (
                 React.createElement("div", null, 
                     React.createElement("div", {className: "control"}, 
-                        React.createElement("span", {onClick: this.sortByAction, id: "UpFileSortByAction", "data-sortby": "0"}, "Action ", React.createElement("i", {className: "fa fa-sort"})), 
-                        React.createElement("span", {onClick: this.sortByPath, id: "UpFileSortByPath", "data-sortby": "0"}, "Path ", React.createElement("i", {className: "fa fa-sort"})), 
-                        React.createElement("span", null, "Version"), 
+                        React.createElement("span", {onClick: this.sortByAction, id: "UpFileSortByAction", "data-sortby": "0"}, React.createElement("i", {className: "fa fa-sort"}), " Action"), 
+                        React.createElement("span", {onClick: this.sortByPath, id: "UpFileSortByPath", "data-sortby": "0"}, React.createElement("i", {className: "fa fa-sort"}), " Path"), 
                         React.createElement("span", {onClick: this.selectAll, "data-all": "false", id: "UpFileSelectAllBtn"}, "Select All")
                     ), 
                     React.createElement("ul", null, 
@@ -27,7 +26,6 @@ function( core, React, Dialog, FormBtns ){
                                     React.createElement("label", null, 
                                         React.createElement("span", {className: "action " + this.getAction(item.Action).toLowerCase()}, this.getAction(item.Action)), 
                                         React.createElement("span", {className: "path"}, item.Path), 
-                                        React.createElement("span", {className: "version"}, item.Version), 
                                         React.createElement("input", {type: "checkbox", className: "hidden", value: item.Id, onChange: this.check}), 
                                         React.createElement("span", {className: "checkbox"}, 
                                             React.createElement("i", {className: "fa fa-check"})

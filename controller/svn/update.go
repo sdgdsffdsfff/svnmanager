@@ -1,4 +1,4 @@
-package server
+package svn
 
 import (
 	"king/helper"
@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func SvnUpCtrl() (model.Version, error){
+func update() (model.Version, error){
 	now := time.Now()
 	version := model.Version{}
 
@@ -39,9 +39,9 @@ func SvnUpCtrl() (model.Version, error){
 	}
 
 	webSocket.BroadCastAll(&webSocket.Message{
-		"svnup",
-		helper.Success(version),
-	})
+	"svnup",
+	helper.Success(version),
+})
 
 	return version, nil
 }

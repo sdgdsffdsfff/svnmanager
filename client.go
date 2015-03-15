@@ -3,7 +3,7 @@ package main
 import (
 	"king/bootstrap"
 	"king/config"
-	_ "king/controller/client"
+	_ "king/routes/client"
 	_ "king/rpc/client"
 	"log"
 	"os"

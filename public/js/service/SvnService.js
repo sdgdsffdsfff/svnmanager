@@ -8,7 +8,7 @@ function( core, ng, service){
         return {
             svnup: function () {
                 return Helper.result(
-                    $http.post("/aj/svn/up", {
+                    $http.post("/aj/svn/update", {
                         paths: ['_res', 'manage']
                     })
                 )

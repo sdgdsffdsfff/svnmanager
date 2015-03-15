@@ -1,4 +1,4 @@
-package server
+package client
 
 import (
 	"king/helper"
@@ -9,7 +9,7 @@ import (
 	"king/rpc"
 )
 
-func DeployCtrl(filesId []int64, clientsId []int64, message string) (JSON.Type, error) {
+func deploy(filesId []int64, clientsId []int64, message string) (JSON.Type, error) {
 	results := JSON.Type{}
 	errorCount := 0
 
@@ -25,21 +25,21 @@ func DeployCtrl(filesId []int64, clientsId []int64, message string) (JSON.Type, 
 
 	clients := client.List(clientsId)
 	helper.AsyncMap(clients, func(key, value interface{}) bool {
-		c := value.(*client.HostClient)
-		result, err := client.CallRpc(c, "RpcClient.Deploy", rpc.DeployArgs{fileList, c.DeployPath})
-		if err != nil {
-			errorCount++
-			return false
-		}
-		c.Version = svn.Version
-		err = client.Update(c.WebServer, "Version")
-		results[helper.Itoa64(c.Id)] = JSON.Type{
+			c := value.(*client.HostClient)
+			result, err := client.CallRpc(c, "RpcClient.Deploy", rpc.DeployArgs{fileList, c.DeployPath})
+			if err != nil {
+				errorCount++
+				return false
+			}
+			c.Version = svn.Version
+			err = client.Update(c.WebServer, "Version")
+			results[helper.Itoa64(c.Id)] = JSON.Type{
 			"Version": c.Version,
 			"result": result,
 			"error": err,
 		}
-		return false
-	})
+			return false
+		})
 
 	svn.Release()
 	webSocket.BroadCastAll(&webSocket.Message{"unlock", nil})

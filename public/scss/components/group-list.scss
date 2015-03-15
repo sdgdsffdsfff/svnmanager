@@ -29,7 +29,7 @@
   .client {
     position: relative;
     width: 100%;
-    height: 120px;
+    height: 134px;
     overflow: hidden;
     padding: 10px;
     font-size: 1.4rem;
@@ -70,42 +70,58 @@
     bottom: 0;
     right: 0;
     width: 100px;
-    font-size: 1.4rem;
-    color: #eee;
+    font-size: 1.2rem;
+    color: #94A0A8;
     @include transition-duration(0.5s);
     @include transition-timing-function(ease);
     @include transition-property(color, bottom, opacity);
-    i {
+    > i {
       display: inline-block;
-      width: 20px;
+      width: 15px;
+      text-align: center;
+      margin-right: 10px;
     }
-    em {
+    .quick {
       position: absolute;
       right: 5px;
       top: 10px;
       color: #666;
-      @extend .cur-pointer;
-      &:hover {
-        color: #999;
+      em {
+        @extend .cur-pointer;
+        &:hover {
+          color: #999;
+        }
+      }
+      i {
+        margin-right: 10px;
       }
     }
-    span {
+    > span {
       @extend .cur-pointer;
-      //@include transform(translateX(100%));
+      @include transform(translateX(100%));
+      @include transition(transform 0.3s ease-out);
       display: block;
-      height: 30px;
-      line-height: 30px;
+      height: 26px;
+      line-height: 26px;
       padding: 0 10px;
       margin-bottom: 1px;
-      background: #4C5354;
+      background: #343F45;
       &:hover, &:active {
+        color: #fff;
         background: #215662;
+      }
+      @for $i from 1 through 5 {
+        &:nth-of-type(#{$i}) {
+          @include transition-delay(50ms * $i);
+        }
       }
     }
 
     //open animate
     &.open {
-
+      span {
+        @include transform(translateX(0));
+      }
     }
   }
 

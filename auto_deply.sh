@@ -9,7 +9,7 @@ mvn clean:clean compile
 echo "--------------------mvn clean end--------------------"
 sleep 5
 echo "--------------------kill tomcat----------------------"
-
+gao
 times=0;
 while [ `ps aux|grep java | wc -l` -gt 1 ]
 do

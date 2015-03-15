@@ -52,11 +52,16 @@
                                 <i class="fa fa-check"></i>
                             </label>
                             <div class="control" client-control>
-                                <em class="hidden"><i class="fa fa-bars"></i></em>
-                                <span client-move><i class="fa fa-map-marker"></i> Move</span>
-                                <span client-edit><i class="fa fa-ellipsis-h"></i> Edit</span>
+                                <div class="quick">
+                                    <em client-move><i class="fa fa-map-marker"></i></em>
+                                    <em class="more"><i class="fa fa-bars"></i></em>
+                                </div>
+                                <span client-revert><i class="fa fa-arrow-down"></i> Update</span>
+                                <span client-revert><i class="fa fa-bolt"></i> Deploy</span>
                                 <span client-backup><i class="fa fa-archive"></i> Backup</span>
                                 <span client-revert><i class="fa fa-clock-o"></i> Revert</span>
+
+                                <span client-edit><i class="fa fa-cog"></i> Edit</span>
                             </div>
                         </div>
                     </div>

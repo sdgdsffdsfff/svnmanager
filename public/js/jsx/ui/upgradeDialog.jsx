@@ -15,9 +15,8 @@ function( core, React, Dialog, FormBtns ){
             return (
                 <div>
                     <div className="control">
-                        <span onClick={this.sortByAction} id="UpFileSortByAction" data-sortby="0">Action <i className="fa fa-sort"></i></span>
-                        <span onClick={this.sortByPath} id="UpFileSortByPath" data-sortby="0">Path <i className="fa fa-sort"></i></span>
-                        <span>Version</span>
+                        <span onClick={this.sortByAction} id="UpFileSortByAction" data-sortby="0"><i className="fa fa-sort"></i> Action</span>
+                        <span onClick={this.sortByPath} id="UpFileSortByPath" data-sortby="0"><i className="fa fa-sort"></i> Path</span>
                         <span onClick={this.selectAll} data-all="false" id="UpFileSelectAllBtn">Select All</span>
                     </div>
                     <ul>
@@ -27,7 +26,6 @@ function( core, React, Dialog, FormBtns ){
                                     <label>
                                         <span className={"action " + this.getAction(item.Action).toLowerCase()}>{this.getAction(item.Action)}</span>
                                         <span className="path">{item.Path}</span>
-                                        <span className="version">{item.Version}</span>
                                         <input type="checkbox" className="hidden" value={item.Id} onChange={this.check} />
                                         <span className="checkbox">
                                             <i className="fa fa-check"></i>
