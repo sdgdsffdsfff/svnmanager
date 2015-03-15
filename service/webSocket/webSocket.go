@@ -9,6 +9,9 @@ import(
 )
 
 var onEmitCallback = map[string]func()JSON.Type{}
+var onAppend = func(int){}
+var onOut = func(int){}
+
 func OnEmit(name string, callback func()JSON.Type){
 	if _, found := onEmitCallback[name]; found {
 		return
@@ -16,9 +19,12 @@ func OnEmit(name string, callback func()JSON.Type){
 	onEmitCallback[name] = callback
 }
 
-var onOutCallback = []func(int){}
-func OnOut(callback func(int)) {
-	onOutCallback = append( onOutCallback, callback)
+func OnAppend(callback func(int)){
+	onAppend = callback
+}
+
+func OnOut(callback func(int)){
+	onOut = callback
 }
 
 type Message struct {
@@ -42,6 +48,7 @@ func AppendClient(client *socketClient) {
 	syncLock.Lock()
 	clients = append(clients, client)
 	BroadCast(client, &Message{"online", client})
+	onAppend(len(clients))
 	syncLock.Unlock()
 }
 
@@ -54,12 +61,7 @@ func removeClient(client *socketClient) {
 			clients = append(clients[:index], clients[(index+1):]...)
 		}
 	}
-
-	clientLength := len( clients )
-
-	for _, callback := range onOutCallback {
-		callback(clientLength)
-	}
+	onOut(len(clients))
 }
 
 func Emit(client *socketClient, msg *Message) {

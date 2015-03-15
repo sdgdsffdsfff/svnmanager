@@ -6,7 +6,7 @@ define([
 'angular',
 'ui/Toast',
 'directive/svn',
-'directive/group',
+'directive/client',
 'directive/system',
 'service/ClientService',
 'service/SvnService',
@@ -66,10 +66,28 @@ function (core, ng, Toast){
             }, 5000)
         });
 
+        SocketInstance.on('deploy', function( data ){
+            Toast.makeText(data.message).show()
+        });
+
+        var stillEmptyProcstat = false;
         SocketInstance.on('procstat', function( data ){
-            for(var i in data.result) {
-                if( client = $scope.findClient( i ) ){
-                    client.Proc = data.result[i]
+            if( $.isEmptyObject(data.result) ){
+                if(!stillEmptyProcstat){
+                    stillEmptyProcstat = true;
+                    $scope.mapClients(function(client){
+                        client.Proc = {
+                            CPUPercent: 0,
+                            MEMPercent: 0
+                        }
+                    })
+                }
+            } else {
+                stillEmptyProcstat = false;
+                for(var i in data.result) {
+                    if( client = $scope.findClient( i ) ){
+                        client.Proc = data.result[i]
+                    }
                 }
             }
             $scope.$$parse && $scope.$apply();

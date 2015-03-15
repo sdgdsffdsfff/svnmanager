@@ -932,11 +932,6 @@ select.form-control {
     -webkit-transition-property: color, bottom, opacity;
     -moz-transition-property: color, bottom, opacity;
     transition-property: color, bottom, opacity; }
-    .group-list .control > i {
-      display: inline-block;
-      width: 15px;
-      text-align: center;
-      margin-right: 10px; }
     .group-list .control .quick {
       position: absolute;
       right: 5px;
@@ -984,6 +979,15 @@ select.form-control {
         -webkit-transition-delay: 250ms;
         -moz-transition-delay: 250ms;
         transition-delay: 250ms; }
+      .group-list .control > span i {
+        display: inline-block;
+        width: 15px;
+        text-align: center;
+        margin-right: 10px; }
+    .group-list .control .disabled {
+      pointer-events: none;
+      cursor: not-allowed;
+      color: #455056; }
     .group-list .control.open span {
       -webkit-transform: translateX(0);
       -moz-transform: translateX(0);

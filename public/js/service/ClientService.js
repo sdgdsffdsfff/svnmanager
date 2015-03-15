@@ -11,9 +11,9 @@ define(['kernel', 'angular', './module'],
                         $http.get('/aj/client/refresh')
                     )
                 },
-                update: function (cid, data) {
+                edit: function (cid, data) {
                     return Helper.result(
-                        $http.post('/aj/client/'+cid+'/update', data)
+                        $http.post('/aj/client/'+cid+'/edit', data)
                     )
                 },
                 add: function( data ){
@@ -39,6 +39,18 @@ define(['kernel', 'angular', './module'],
                 changeGroup: function (cid, gid) {
                     return Helper.result(
                         $http.post('/aj/client/' + cid + '/change/group/' + gid)
+                    )
+                },
+                update: function( id, fileIds){
+                    return Helper.result(
+                        $http.post('/aj/client/'+id+'/update', {
+                            fileIds: fileIds
+                        })
+                    )
+                },
+                deploy: function(id) {
+                    return Helper.result(
+                        $http.post('/aj/client/'+id+'/deploy')
                     )
                 },
                 checkClientDeployable: function( ids ){

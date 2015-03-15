@@ -115,7 +115,7 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                                     return false;
                                 }
                             });
-                            same ? self.hide() : ClientService.update(data.Id, data).then(function(data){
+                            same ? self.hide() : ClientService.edit(data.Id, data).then(function(data){
                                 //直接更新对象引用
                                 scope.client = data.result;
                                 self.hide();
@@ -296,5 +296,25 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                     })
                 }
             }
-        });
+        })
+        .directive('clientUpdate', function( ClientService ){
+            return {
+                link: function( scope, elem ){
+                    elem.click(function(){
+                        ClientService.update( scope.client.Id )
+                    })
+                }
+            }
+        })
+        .directive('clientDeploy', function( ClientService) {
+            return {
+                link: function( scope, elem ){
+                    elem.click(function(){
+                        ClientService.deploy( scope.client.Id ).then(function( data ){
+                            console.log( data )
+                        })
+                    })
+                }
+            }
+        })
 });

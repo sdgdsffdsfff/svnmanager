@@ -75,12 +75,6 @@
     @include transition-duration(0.5s);
     @include transition-timing-function(ease);
     @include transition-property(color, bottom, opacity);
-    > i {
-      display: inline-block;
-      width: 15px;
-      text-align: center;
-      margin-right: 10px;
-    }
     .quick {
       position: absolute;
       right: 5px;
@@ -115,6 +109,18 @@
           @include transition-delay(50ms * $i);
         }
       }
+      i {
+        display: inline-block;
+        width: 15px;
+        text-align: center;
+        margin-right: 10px;
+      }
+    }
+    
+    .disabled {
+      pointer-events: none;
+      cursor: not-allowed;
+      color: #455056;
     }
 
     //open animate

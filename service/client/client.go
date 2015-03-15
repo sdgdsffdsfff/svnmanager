@@ -6,10 +6,10 @@ import (
 	"king/utils"
 	"king/rpc"
 	"king/helper"
-	"time"
 	"king/utils/JSON"
 	"king/bootstrap"
 	"sync"
+	"time"
 )
 
 type Status int
@@ -34,11 +34,10 @@ type HostClient struct{
 
 type HostMap map[int64]*HostClient
 
-var heartbeatEnable bool
-var procMonitorEnable bool
 var hostMap HostMap
+var heartbeatEnable bool = false
+var lock sync.Mutex = sync.Mutex{}
 var refreshDuration = time.Second * 3
-var lockProcStat = sync.Mutex{}
 
 //多终端Rpc调用
 //TODO
@@ -91,6 +90,7 @@ func List( ids ...[]int64 ) (HostMap) {
 	return hostMap
 }
 
+//TODO 合并
 func Find(client model.WebServer) (*model.WebServer, error) {
 	err := db.Orm().Read(&client)
 	if err != nil {
@@ -108,18 +108,19 @@ func FindFromCache(id int64) *HostClient {
 }
 
 //仅向缓存列表里添加，ip与port不能重复
-func FindOrAppend(client *model.WebServer) {
+func FindOrAppend(client *model.WebServer) int64 {
 	found := false
 	for _, c := range hostMap {
 		if c.Ip == client.Ip && c.Port == client.Port {
 			c.Status = Alive
 			found = true
-			break
+			return c.Id
 		}
 	}
 	if !found {
 		hostMap[client.Id] = &HostClient{client, Connecting, &ProcStat{}}
 	}
+	return 0
 }
 
 func GetAliveList() HostMap {
@@ -132,67 +133,38 @@ func GetAliveList() HostMap {
 	return aliveHostMap
 }
 
+func UpdateUsage(id int64, cpu, mem float64) {
+	c := FindFromCache(id)
+	if c != nil {
+		c.Proc.CPUPercent = cpu
+		c.Proc.MEMPercent = mem
+	}
+}
+
 func Count() int {
 	return helper.Cap(hostMap)
 }
 
 func Refresh() {
-	if list := List(); len(list) > 0 {
-		for _, c := range hostMap {
-			c.Status = GetClientStatus(c)
+	helper.AsyncMap(hostMap, func(key, value interface{}) bool {
+		c := value.(*HostClient)
+		status := GetClientStatus(c)
+		if status == Die {
+			c.Proc.CPUPercent = 0
+			c.Proc.MEMPercent = 0
+		} else if c.Status == Die && status == Alive {
+			ReportMeUsage(c)
 		}
-	}
+		c.Status = status
+		return false
+	})
 }
 
-func SetHeartEnable( enable bool ){
-	heartbeatEnable = enable
-}
-
-func Heartbeat() {
-	for {
-		if heartbeatEnable {
-			Refresh()
-
-		}
-		time.Sleep( refreshDuration )
-	}
-}
-
-func SetProcMonitorEnable( enable bool ){
-	procMonitorEnable = enable
-}
-
-func getProcStat(){
-	lockProcStat.Lock()
-
-	aliveList := GetAliveList()
-	results := BatchCallRpc(aliveList, "RpcClient.ProcStat", nil)
-	for key, value := range results {
-		if c := FindFromCache(helper.Int64(key)); c != nil && value != nil {
-			proc := &ProcStat{}
-			JSON.ParseToStruct(value, proc)
-			c.Proc = proc
-		}
-	}
-
-	lockProcStat.Unlock()
-}
-
-//获取cpu与内存使用状况
-func GetProcStat() {
-	for {
-		if procMonitorEnable {
-			getProcStat()
-		}
-		time.Sleep( refreshDuration )
-	}
-}
-
-func Add(client *model.WebServer) (helper.ErrorType, error) {
+func Add(client *model.WebServer) (int64, error) {
 	return Active(client)
 }
 
-func Update(client *model.WebServer, fields ...string) error {
+func Edit(client *model.WebServer, fields ...string) error {
 	if _, err := db.Orm().Update(client, fields...); err != nil {
 		return err
 	}
@@ -202,20 +174,6 @@ func Update(client *model.WebServer, fields ...string) error {
 	}
 
 	return nil
-}
-
-func Active(client *model.WebServer) (helper.ErrorType, error) {
-	created, id, err := db.Orm().ReadOrCreate(client, "InternalIp", "Port");
-	if  err != nil {
-		return helper.DefaultError, err
-	}
-	if created || id > 0 {
-		FindOrAppend(client)
-	} else {
-		return helper.ExistsError, helper.NewError( helper.AppendString("already exisits client, id: ", id))
-	}
-
-	return helper.DefaultError, nil
 }
 
 func Del(client *model.WebServer) (error) {
@@ -245,15 +203,49 @@ func GetAvailableIp(client *HostClient) string {
 	return ip
 }
 
+func Active(client *model.WebServer) (int64, error) {
+	created, id, err := db.Orm().ReadOrCreate(client, "InternalIp", "Port");
+	if  err != nil {
+		return id, err
+	}
+	if created || id > 0 {
+		id = FindOrAppend(client)
+		return id, nil
+	}
+
+	return id, helper.NewError( helper.AppendString("already exisits client, id: ", id))
+}
+
+func ReportMeUsage(client ...*HostClient) interface{} {
+	if len(client) > 0 {
+		result, _ := CallRpc(client[0], "RpcClient.WatchUsage", nil)
+		return result
+	} else {
+		return BatchCallRpc(GetAliveList(), "RpcClient.WatchUsage", nil)
+	}
+}
+
 func RpcIp(client *HostClient) string {
 	return "http://" + client.InternalIp + ":" + client.Port + "/rpc"
+}
+
+func HeartEnable( enable bool ){
+	heartbeatEnable = enable
+}
+
+func Heartbeat() {
+	for {
+		if heartbeatEnable {
+			Refresh()
+		}
+		time.Sleep( refreshDuration )
+	}
 }
 
 func init(){
 	bootstrap.Register(func(){
 		if db.IsConnected() {
 			Fetch()
-			go GetProcStat()
 			Heartbeat()
 		}
 	})

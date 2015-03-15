@@ -63,15 +63,15 @@ func Add(rend render.Render, req *http.Request){
 		return
 	}
 
-	if errType, err := client.Add(c); err != nil {
-		rend.JSON(200, helper.Error(errType, err))
+	if _, err := client.Add(c); err != nil {
+		rend.JSON(200, helper.Error(err))
 		return
 	}
 
 	rend.JSON(200, helper.Success(c))
 }
 
-func Update(rend render.Render, req *http.Request){
+func Edit(rend render.Render, req *http.Request){
 	body := JSON.FormRequest(req.Body)
 	c := &model.WebServer{}
 	if err := JSON.ParseToStruct(JSON.Stringify(body), c); err != nil {
@@ -80,7 +80,7 @@ func Update(rend render.Render, req *http.Request){
 	}
 	keys := JSON.GetKeys(body)
 
-	if err := client.Update(c, keys...); err != nil {
+	if err := client.Edit(c, keys...); err != nil {
 		rend.JSON(200, helper.Error(err))
 		return
 	}
@@ -102,7 +102,7 @@ func Move(rend render.Render, params martini.Params) {
 	gid := helper.Int64(params["gid"])
 
 	c := model.WebServer{Id: id, Group: gid}
-	if err := client.Update(&c, "Group"); err != nil {
+	if err := client.Edit(&c, "Group"); err != nil {
 		rend.JSON(200, helper.Error(err))
 		return
 	}
@@ -110,31 +110,42 @@ func Move(rend render.Render, params martini.Params) {
 	rend.JSON(200, helper.Success())
 }
 
-func Deploy(rend render.Render, req *http.Request, params martini.Params){
+func Update(rend render.Render, req *http.Request, params martini.Params){
+	id := helper.Int64(params["id"])
 	body, err := jason.NewObjectFromReader(req.Body)
-	if err != nil {
-		rend.JSON(200, helper.Error(helper.ParamsError))
-		return
-	}
-	//如果数据为[0]则表示up_file表中的全部文件
-	filesId, err := body.GetInt64Array("filesId")
-	if err != nil {
-		rend.JSON(200, helper.Error(helper.ParamsError))
-		return
-	}
-	clientsId, err := body.GetInt64Array("clientsId")
-	if err != nil {
-		rend.JSON(200, helper.Error(helper.ParamsError))
+
+	fileIds, err := body.GetInt64Array("fileIds")
+
+	host := client.FindFromCache(id)
+	if host == nil {
+		rend.JSON(200, helper.Error(helper.EmptyError, "Client is not found"))
 		return
 	}
 
-	message, err := body.GetString("message")
-
-	result, err := deploy( filesId, clientsId, message )
-	//报告错误原因
+	result, err := update(host, fileIds)
 	if err != nil {
-		rend.JSON(200, helper.Error(err, result))
+		rend.JSON(200, helper.Error(err))
 		return
 	}
+
+	rend.JSON(200, helper.Success(result))
+}
+
+func Deploy(rend render.Render, req *http.Request, params martini.Params){
+
+	id := helper.Int64(params["id"])
+
+	host := client.FindFromCache(id)
+	if host == nil {
+		rend.JSON(200, helper.Error(helper.EmptyError, "Client is not found"))
+		return
+	}
+
+	result, err := deploy(host)
+	if err != nil {
+		rend.JSON(200, helper.Error( err ))
+		return
+	}
+
 	rend.JSON(200, helper.Success(result))
 }

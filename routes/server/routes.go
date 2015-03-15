@@ -31,10 +31,11 @@ func (ctn *ServerRoutes) SetRouter(m *martini.ClassicMartini){
 		r.Get("/list",  client.List)
 		r.Post("/check", client.Check)
 		r.Post("/add", client.Add)
-		r.Post("/:id/update", client.Update)
+		r.Post("/:id/edit", client.Edit)
 		r.Post("/:id/del", client.Del)
 		r.Post("/:id/change/group/:gid", client.Move)
-		r.Post("/:id/update")
+		r.Post("/:id/update", client.Update)
+		r.Post("/:id/deploy", client.Deploy)
 	})
 
 	m.Group("/aj/group", func(r martini.Router){

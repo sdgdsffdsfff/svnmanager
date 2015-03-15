@@ -7,6 +7,7 @@ import (
 	"king/model"
 	"king/service/client"
 	"king/helper"
+	"king/service/webSocket"
 )
 
 //rpc method
@@ -22,16 +23,30 @@ func (h *RpcServer) Status(r *http.Request, args *JSON.Type, reply *rpc.RpcReply
 
 //客户端启动通知，保存客户端入库
 func (h *RpcServer) Active(r *http.Request, args *model.WebServer, reply *rpc.RpcReply) error {
-
-	if _, err := client.Active(args); err != nil {
+	id, err := client.Active(args)
+	if err != nil {
 		return helper.NewError("add client error", err)
 	}
-	reply.Response = true
+	reply.Response = id
 	return nil
 }
 
 func (h *RpcServer) Message(r *http.Request, args *JSON.Type, reply *rpc.RpcReply) error {
 	reply.Response = args
+	return nil
+}
+
+func (h *RpcServer) ReportUsage(r *http.Request, args *rpc.UsageArgs, reply *rpc.RpcReply) error {
+	if args.Id > 0 {
+		client.UpdateUsage(args.Id, args.CPUPercent, args.MEMPercent)
+	}
+	reply.Response = true
+	return nil
+}
+
+func (h *RpcServer) BroadCastAll(r *http.Request, args *webSocket.Message, reply *rpc.RpcReply) error {
+	webSocket.BroadCastAll(args)
+	reply.Response = true
 	return nil
 }
 

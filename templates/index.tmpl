@@ -56,8 +56,8 @@
                                     <em client-move><i class="fa fa-map-marker"></i></em>
                                     <em class="more"><i class="fa fa-bars"></i></em>
                                 </div>
-                                <span client-revert><i class="fa fa-arrow-down"></i> Update</span>
-                                <span client-revert><i class="fa fa-bolt"></i> Deploy</span>
+                                <span client-update ng-class="{ disabled: client.Version >= version.Version }"><i class="fa fa-arrow-down"></i> Update</span>
+                                <span client-deploy ng-class="{ disabled: client.Version < version.Version }"><i class="fa fa-bolt"></i> Deploy</span>
                                 <span client-backup><i class="fa fa-archive"></i> Backup</span>
                                 <span client-revert><i class="fa fa-clock-o"></i> Revert</span>
 
