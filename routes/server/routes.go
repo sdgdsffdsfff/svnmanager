@@ -13,13 +13,13 @@ import (
 	"king/service/webSocket"
 )
 
-type ServerRoutes struct {}
+type Routes struct {}
 
 func init() {
-	sysConfig.AppendValue(sysConfig.Controller, &ServerRoutes{})
+	sysConfig.AppendValue(sysConfig.Controller, &Routes{})
 }
 
-func (ctn *ServerRoutes) SetRouter(m *martini.ClassicMartini){
+func (ctn *Routes) SetRouter(m *martini.ClassicMartini){
 
 	m.Get("/", func(rend render.Render) {
 		rend.HTML(200, "index", nil)
