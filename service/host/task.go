@@ -45,12 +45,12 @@ func init(){
 
 		broadcastAll("mvn client start", "")
 		session = sh.Command("sh", "shells/mvn.sh")
-		if err = session.Start(); err == nil {
-			if err = session.Wait(); err == nil {
-				if output, err = session.Output(); err == nil {
-					broadcastAll(string(output), "")
-				}
+		if err = session.Run(); err == nil {
+			//if err = session.Wait(); err == nil {
+			if output, err = session.Output(); err == nil {
+				broadcastAll(string(output), "")
 			}
+			//}
 		}
 		if err != nil {
 			broadcastAll("mvn clean:clean compile", err.Error())
