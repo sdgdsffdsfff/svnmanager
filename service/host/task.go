@@ -7,8 +7,6 @@ import (
 	"king/service/webSocket"
 	"king/utils/JSON"
 	sh "github.com/codeskyblue/go-sh"
-	"fmt"
-	"bytes"
 )
 
 var deploying bool
