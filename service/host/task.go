@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"fmt"
 	"bytes"
+	"io"
 )
 
 var deploying bool
@@ -38,7 +39,7 @@ func init(){
 
 		var err error
 		var output []byte
-		var stdout io.Reader
+		var stdout io.ReadCloser
 		var session *sh.Session
 
 		deploying = true
