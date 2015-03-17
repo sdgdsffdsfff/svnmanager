@@ -29,6 +29,7 @@ func init(){
 	Task("Deploy", func(this *TaskCallback){
 
 		if deploying {
+			this.Enable = false
 			return
 		}
 
@@ -39,11 +40,10 @@ func init(){
 		}()
 
 		broadcastAll("mvn client start", "")
-		output, err := sh.Command("mvn", "clean:clean", "compile", "/opt/wings").Output()
+		output, err := sh.Command("sh", "shells/mvn.sh").Output()
 		if err != nil {
 			broadcastAll("", err.Error())
 		}
-
 		broadcastAll("kill tomcat", "")
 		output, err = sh.Command("ps", "aux").Command("grep", "java").Command("wc","-l").Output()
 		if err != nil {
