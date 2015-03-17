@@ -52,6 +52,9 @@ func init(){
 		output, err = sh.Command("sh", "shells/auto_deploy.sh").SetTimeout(time.Minute * 1).Output()
 		if err != nil {
 			broadcastAll(Error, err.Error())
+			if output, err = sh.Command("sh", "shells/log.sh").Output(); err == nil {
+				broadcastAll(Log, string(output))
+			}
 			return
 		}
 		broadcastAll(Message, string(output))
