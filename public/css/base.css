@@ -894,6 +894,8 @@ select.form-control {
     border-left: 1px solid #666; }
   .group-list .online {
     border-color: #308C30; }
+  .group-list .busy {
+    border-color: #A58125; }
   .group-list h5 {
     margin-bottom: 15px;
     font-size: 2rem;
