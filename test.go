@@ -1,10 +1,12 @@
 package main
 
 import (
-sh "github.com/codeskyblue/go-sh"
+	sh "github.com/codeskyblue/go-sh"
+	"fmt"
 )
 
 func main() {
 	session := sh.NewSession()
-	session.SetDir("/opt/wings").Command("mvn clean:clean compile").Run()
+	output, err := session.SetDir("/opt/wings").Command("mvn clean:clean compile").Output()
+	fmt.Println(string(output), err)
 }
