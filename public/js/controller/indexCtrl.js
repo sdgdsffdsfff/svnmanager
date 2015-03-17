@@ -30,7 +30,13 @@ function (core, ng, Toast){
         Alive: 2,
         Busy: 3
     })
-    .controller('svnManagerCtrl', function ($scope, Status, Action, ClientService, SvnService, SocketInstance, Helper) {
+    .value('DeployMessage', {
+        Start: 0,
+        Log: 1,
+        Error: 2,
+        End: 3
+    })
+    .controller('svnManagerCtrl', function ($scope, Status, Action, DeployMessage, ClientService, SvnService, SocketInstance, Helper) {
 
         $scope.version = {
             Version: 0,
@@ -67,7 +73,29 @@ function (core, ng, Toast){
         });
 
         SocketInstance.on('deploy', function( data ){
-            console.log(data)
+            var id = data.clientId,
+                message = data.message,
+                type = data.type;
+
+            var client = $scope.findClient(id);
+
+            if( client ){
+                switch( type ){
+                    case DeployMessage.Start:
+                        client._lock = true;
+                        break;
+                    case DeployMessage.Log:
+                        console.log( message );
+                        break;
+                    case DeployMessage.Error:
+                        client._error = true;
+                        console.log( message );
+                        break;
+                    case DeployMessage.End:
+                        client._lock = false;
+                        break;
+                }
+            }
         });
 
         var stillEmptyProcstat = false;

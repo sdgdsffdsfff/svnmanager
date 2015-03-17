@@ -12,9 +12,10 @@ import (
 var deploying bool
 
 const (
-	Message int = iota
+	Start int = iota
 	Log
 	Error
+	End
 )
 
 func broadcastAll(types int, message string){
@@ -48,15 +49,18 @@ func init(){
 			deploying = false
 		}()
 
-		broadcastAll(Message,"starting deploy")
-		output, err = sh.Command("sh", "shells/auto_deploy.sh").SetTimeout(time.Minute * 1).Output()
+		broadcastAll(Start, "starting deploy")
+		_, err = sh.Command("sh", "shells/auto_deploy.sh").SetTimeout(time.Minute * 1).Output()
 		if err != nil {
 			broadcastAll(Error, err.Error())
-			if output, err = sh.Command("sh", "shells/log.sh").Output(); err == nil {
+		} else {
+			output, err = sh.Command("sh", "shells/log.sh").Output()
+			if err == nil {
 				broadcastAll(Log, string(output))
+			} else {
+				broadcastAll(Error, err.Error())
 			}
-			return
 		}
-		broadcastAll(Message, string(output))
+		broadcastAll(End, "starting deploy")
 	})
 }
