@@ -38,10 +38,7 @@ func init(){
 			deploying = false
 		}()
 
-		var cmd string
-
 		broadcastAll("mvn client start", "")
-		cmd = "mvn client:clien compile /opt/wings"
 		output, err := sh.Command("mvn", "clean:clean", "compile", "/opt/wings").Output()
 		if err != nil {
 			broadcastAll("", err.Error())
