@@ -301,7 +301,6 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
             return {
                 link: function( scope, elem ){
                     elem.click(function(){
-                        //Lock
                         ClientService.update( scope.client.Id ).then(function( data ){
                             scope.client.Version = data.result.Version;
                         })
@@ -314,7 +313,9 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                 link: function( scope, elem ){
                     elem.click(function(){
                         ClientService.deploy( scope.client.Id ).then(function( data ){
-                            console.log( data )
+
+                        }, function(){
+
                         })
                     })
                 }

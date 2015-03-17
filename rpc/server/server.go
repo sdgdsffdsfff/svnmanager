@@ -52,7 +52,7 @@ func (h *RpcServer) BroadCastAll(r *http.Request, args *webSocket.Message, reply
 
 func (h *RpcServer) EndDeploy(r *http.Request, args *webSocket.Message, reply *rpc.RpcReply) error {
 	if id, found := args.Params.(map[string]interface{})["clientId"]; found {
-		client.SetBusy(int64(id.(int)), false)
+		client.SetBusy(int64(id.(float64)), false)
 	}
 	reply.Response = true
 	return nil
