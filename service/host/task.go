@@ -54,8 +54,9 @@ func init(){
 		if stdout, err = cmd.StdoutPipe(); err == nil {
 			if err = cmd.Run(); err == nil {
 				in := bufio.NewScanner(stdout)
+				fmt.Println("okokokokokokokokokokokokokok")
 				for in.Scan() {
-					fmt.Println(in.Text())
+					fmt.Println("=========>>>", in.Text())
 				}
 			}
 		}
