@@ -7,6 +7,6 @@ import (
 
 func main() {
 	session := sh.NewSession()
-	output, err := session.SetDir("/opt/wings").Command("pwd").Output()
+	output, err := session.Command("sh", "shells/mvn.sh").Output()
 	fmt.Println(string(output), err)
 }
