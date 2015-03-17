@@ -57,7 +57,7 @@ func init(){
 		}()
 
 		broadcastAll(Start, "starting deploy")
-		_, err = sh.Command("sh", "shells/auto_deploy.sh").SetTimeout(time.Second * 10).Output()
+		_, err = sh.Command("sh", "shells/auto_deploy.sh").SetTimeout(time.Second * 2).Output()
 		if err != nil {
 			broadcastAll(Error, err.Error())
 		}
@@ -67,6 +67,7 @@ func init(){
 		} else {
 			broadcastAll(Error, err.Error())
 		}
+
 		endDeploy()
 	})
 }

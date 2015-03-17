@@ -8,6 +8,7 @@ import (
 	"king/service/client"
 	"king/helper"
 	"king/service/webSocket"
+	"fmt"
 )
 
 //rpc method
@@ -52,8 +53,10 @@ func (h *RpcServer) BroadCastAll(r *http.Request, args *webSocket.Message, reply
 
 func (h *RpcServer) EndDeploy(r *http.Request, args *webSocket.Message, reply *rpc.RpcReply) error {
 	if id, found := args.Params.(map[string]interface{})["clientId"]; found {
+		fmt.Println(id)
 		client.SetBusy(int64(id.(float64)), false)
 	}
+	webSocket.BroadCastAll(args)
 	reply.Response = true
 	return nil
 }
