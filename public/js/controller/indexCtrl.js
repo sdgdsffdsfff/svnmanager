@@ -55,6 +55,10 @@ function (core, ng, Toast){
         SocketInstance.on('getClientList', function(data){
             Helper.data(data).then(function( data ){
                 $scope.groupList = data.result;
+                $scope.mapClients(function(client){
+                    client._lock = false;
+                    client._error = false;
+                });
                 $scope.$apply();
             })
         });
@@ -83,6 +87,7 @@ function (core, ng, Toast){
                 switch( type ){
                     case DeployMessage.Start:
                         client._lock = true;
+                        console.log(message);
                         break;
                     case DeployMessage.Log:
                         console.log( message );

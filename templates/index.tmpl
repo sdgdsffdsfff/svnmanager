@@ -51,7 +51,7 @@
                                 <input type="checkbox" class="hidden" ng-model="client.selected" />
                                 <i class="fa fa-check"></i>
                             </label>
-                            <div class="control" client-control>
+                            <div class="control" client-control ng-class="{ open : !client._lock }">
                                 <div class="quick">
                                     <em client-move><i class="fa fa-map-marker"></i></em>
                                     <em class="more"><i class="fa fa-bars"></i></em>
