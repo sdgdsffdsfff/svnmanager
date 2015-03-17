@@ -8,6 +8,7 @@ import (
 	"king/utils/JSON"
 	"bufio"
 	sh "github.com/codeskyblue/go-sh"
+	"os/exec"
 	"fmt"
 )
 
@@ -37,6 +38,7 @@ func init(){
 
 		var err error
 		var output []byte
+		var stdout io.Reader
 		var session *sh.Session
 
 		deploying = true
@@ -46,13 +48,17 @@ func init(){
 		}()
 
 		broadcastAll("mvn client start", "")
-		session = sh.Command("sh", "shells/mvn.sh")
-		if err = session.Run(); err == nil {
-			in := bufio.NewScanner(session.Stdout)
-			for in.Scan() {
-				fmt.Println(in.Text())
+		cmd := exec.Command("sh", "shells/mvn.sh")
+
+		if stdout, err = cmd.StdoutPipe(); err == nil {
+			if err = cmd.Run(); err == nil {
+				in := bufio.NewScanner(stdout)
+				for in.Scan() {
+					fmt.Println(in.Text())
+				}
 			}
 		}
+
 		if err != nil {
 			broadcastAll("mvn clean:clean compile", err.Error())
 			return
