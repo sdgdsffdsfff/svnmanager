@@ -7,15 +7,22 @@ import (
 	"king/service/webSocket"
 	"king/utils/JSON"
 	sh "github.com/codeskyblue/go-sh"
+	"king/helper"
 )
 
 var deploying bool
 
-func broadcastAll(message, err string){
+const (
+	Message int = iota
+	Log
+	Error
+)
+
+func broadcastAll(types int, message string){
 	CallRpc("BroadCastAll", webSocket.Message{"deploy", JSON.Type{
 		"clientId": Detail.Id,
+		"type": types,
 		"message": message,
-		"error": err,
 	}})
 }
 
@@ -42,20 +49,14 @@ func init(){
 			deploying = false
 		}()
 
-		broadcastAll("mvn client start", "")
-		output, err = sh.Command("sh", "shells/mvn.sh").Output()
+		broadcastAll(Message,"starting deploy")
+		session := sh.Command("sh", "shells/auto_deploy.sh")
+		session.WaitTimeout( time.Minute * 1 )
+		output, err = session.Output()
 		if err != nil {
-			broadcastAll("mvn clean:clean compile", err.Error())
+			broadcastAll(Error, err.Error())
 			return
 		}
-		broadcastAll(string(output), "")
-
-		broadcastAll("kill tomcat", "")
-		output, err = sh.Command("ps", "aux").Command("grep", "java").Command("wc","-l").Output()
-		if err != nil {
-			broadcastAll("ps aux | grep java | wc -l", err.Error())
-			return
-		}
-		broadcastAll(string(output), "")
+		broadcastAll(Message, string(output))
 	})
 }
