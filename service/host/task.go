@@ -8,7 +8,6 @@ import (
 	"king/utils/JSON"
 	sh "github.com/codeskyblue/go-sh"
 	"os/exec"
-	"os"
 	"fmt"
 	"bytes"
 )
@@ -54,9 +53,9 @@ func init(){
 			cmd := exec.Command("sh", "shells/mvn.sh")
 
 			if stdout, err = cmd.StdoutPipe(); err == nil {
-				buf := new(bytes.Buffer)
-				cmd.Stdout = &buf
 				if err = cmd.Run(); err == nil {
+					buf := new(bytes.Buffer)
+					buf.ReadFrom(stdout)
 					fmt.Println(buf.String())
 				}
 			}
