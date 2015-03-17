@@ -48,20 +48,24 @@ func init(){
 			deploying = false
 		}()
 
-		broadcastAll("mvn client start", "")
-		cmd := exec.Command("sh", "shells/mvn.sh")
+		ch := make(chan error)
+		go func(){
+			broadcastAll("mvn client start", "")
+			cmd := exec.Command("sh", "shells/mvn.sh")
 
-		if stdout, err = cmd.StdoutPipe(); err == nil {
-			if err = cmd.Run(); err == nil {
-				in := bufio.NewScanner(stdout)
-				fmt.Println("okokokokokokokokokokokokokok")
-				for in.Scan() {
-					fmt.Println("=========>>>", in.Text())
+			if stdout, err = cmd.StdoutPipe(); err == nil {
+				if err = cmd.Run(); err == nil {
+					in := bufio.NewScanner(stdout)
+					fmt.Println("okokokokokokokokokokokokokok")
+					for in.Scan() {
+						fmt.Println("=========>>>", in.Text())
+					}
 				}
 			}
-		}
+			ch <- err
+		}()
 
-		if err != nil {
+		if	err = <-ch; err != nil {
 			broadcastAll("mvn clean:clean compile", err.Error())
 			return
 		}
