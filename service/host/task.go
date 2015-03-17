@@ -6,11 +6,11 @@ import (
 	"time"
 	"king/service/webSocket"
 	"king/utils/JSON"
-	"bufio"
 	sh "github.com/codeskyblue/go-sh"
 	"os/exec"
-	"io"
+	"os"
 	"fmt"
+	"bytes"
 )
 
 var deploying bool
@@ -54,12 +54,10 @@ func init(){
 			cmd := exec.Command("sh", "shells/mvn.sh")
 
 			if stdout, err = cmd.StdoutPipe(); err == nil {
+				buf := new(bytes.Buffer)
+				cmd.Stdout = &buf
 				if err = cmd.Run(); err == nil {
-					in := bufio.NewScanner(stdout)
-					fmt.Println("okokokokokokokokokokokokokok")
-					for in.Scan() {
-						fmt.Println("=========>>>", in.Text())
-					}
+					fmt.Println(buf.String())
 				}
 			}
 			ch <- err
