@@ -7,10 +7,8 @@ import (
 	"king/service/webSocket"
 	"king/utils/JSON"
 	sh "github.com/codeskyblue/go-sh"
-	"os/exec"
 	"fmt"
 	"bytes"
-	"io"
 )
 
 var deploying bool
@@ -39,8 +37,6 @@ func init(){
 
 		var err error
 		var output []byte
-		var stdout io.ReadCloser
-		var session *sh.Session
 
 		deploying = true
 		this.Enable = false
@@ -48,35 +44,20 @@ func init(){
 			deploying = false
 		}()
 
-		ch := make(chan error)
-		go func(){
-			broadcastAll("mvn client start", "")
-			cmd := exec.Command("sh", "shells/mvn.sh")
-
-			if stdout, err = cmd.StdoutPipe(); err == nil {
-				if err = cmd.Run(); err == nil {
-					buf := new(bytes.Buffer)
-					buf.ReadFrom(stdout)
-					fmt.Println(buf.String())
-				}
-			}
-			ch <- err
-		}()
-
-		if	err = <-ch; err != nil {
+		broadcastAll("mvn client start", "")
+		output, err = sh.Command("sh", "shells/mvn.sh").Output()
+		if err != nil {
 			broadcastAll("mvn clean:clean compile", err.Error())
 			return
 		}
+		broadcastAll(string(output), "")
 
 		broadcastAll("kill tomcat", "")
-		session = sh.Command("ps", "aux").Command("grep", "java").Command("wc","-l")
-		if output, err = session.Output(); err == nil {
-			broadcastAll(string(output), "")
-		}
+		output, err = sh.Command("ps", "aux").Command("grep", "java").Command("wc","-l").Output()
 		if err != nil {
 			broadcastAll("ps aux | grep java | wc -l", err.Error())
 			return
 		}
-
+		broadcastAll(string(output), "")
 	})
 }
