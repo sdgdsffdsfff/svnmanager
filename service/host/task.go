@@ -49,17 +49,11 @@ func init(){
 		}()
 
 		broadcastAll(Message,"starting deploy")
-		session := sh.Command("sh", "shells/auto_deploy.sh")
-		output, err = session.Output()
-		if err == nil {
-			if err = session.WaitTimeout( time.Minute * 1 ); err == nil {
-				broadcastAll(Message, string(output))
-			}
-		}
-
+		output, err = sh.Command("sh", "shells/auto_deploy.sh").SetTimeout(time.Minute * 1).Output()
 		if err != nil {
 			broadcastAll(Error, err.Error())
 			return
 		}
+		broadcastAll(Message, string(output))
 	})
 }
