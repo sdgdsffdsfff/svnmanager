@@ -40,9 +40,8 @@ func init(){
 		}()
 
 		broadcastAll("mvn client start", "")
-		cmd := sh.Command("sh", "shells/mvn.sh")
-		cmd.Wait()
-		output, err := cmd.CombinedOutput()
+		session := sh.Command("sh", "shells/mvn.sh")
+		output, err := session.CombinedOutput()
 		if err != nil {
 			broadcastAll("", err.Error())
 			return
