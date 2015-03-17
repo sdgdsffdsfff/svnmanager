@@ -9,6 +9,7 @@ import (
 	"bufio"
 	sh "github.com/codeskyblue/go-sh"
 	"os/exec"
+	"io"
 	"fmt"
 )
 
