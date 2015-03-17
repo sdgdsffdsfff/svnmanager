@@ -35,6 +35,7 @@ func init(){
 
 		var err error
 		var output []byte
+		var session *sh.Session
 
 		deploying = true
 		this.Enable = false
@@ -43,7 +44,7 @@ func init(){
 		}()
 
 		broadcastAll("mvn client start", "")
-		session := sh.Command("sh", "shells/mvn.sh")
+		session = sh.Command("sh", "shells/mvn.sh")
 		if err = session.Start(); err == nil {
 			if err = session.Wait(); err == nil {
 				if output, err = session.Output(); err == nil {
@@ -51,18 +52,20 @@ func init(){
 				}
 			}
 		}
-
 		if err != nil {
-			broadcastAll("", err.Error())
+			broadcastAll("mvn clean:clean compile", err.Error())
 			return
 		}
 
 		broadcastAll("kill tomcat", "")
-		output, err = sh.Command("ps", "aux").Command("grep", "java").Command("wc","-l").Output()
+		session = sh.Command("ps", "aux").Command("grep", "java").Command("wc","-l")
+		if output, err = session.Output(); err == nil {
+			broadcastAll(string(output), "")
+		}
 		if err != nil {
-			broadcastAll("", err.Error())
+			broadcastAll("ps aux | grep java | wc -l", err.Error())
 			return
 		}
-		broadcastAll(string(output), "")
+
 	})
 }
