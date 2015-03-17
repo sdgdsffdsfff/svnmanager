@@ -6,7 +6,9 @@ import (
 	"time"
 	"king/service/webSocket"
 	"king/utils/JSON"
+	"bufio"
 	sh "github.com/codeskyblue/go-sh"
+	"fmt"
 )
 
 var deploying bool
@@ -46,11 +48,10 @@ func init(){
 		broadcastAll("mvn client start", "")
 		session = sh.Command("sh", "shells/mvn.sh")
 		if err = session.Run(); err == nil {
-			//if err = session.Wait(); err == nil {
-			if output, err = session.Output(); err == nil {
-				broadcastAll(string(output), "")
+			in := bufio.NewScanner(session.Stdout)
+			for in.Scan() {
+				fmt.Println(in.Text())
 			}
-			//}
 		}
 		if err != nil {
 			broadcastAll("mvn clean:clean compile", err.Error())
