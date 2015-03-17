@@ -33,6 +33,9 @@ func init(){
 			return
 		}
 
+		var err error
+		var output []byte
+
 		deploying = true
 		this.Enable = false
 		defer func(){
@@ -41,13 +44,18 @@ func init(){
 
 		broadcastAll("mvn client start", "")
 		session := sh.Command("sh", "shells/mvn.sh")
-		output, err := session.CombinedOutput()
+		if err = session.Start(); err == nil {
+			if err = session.Wait(); err == nil {
+				if output, err = session.Output(); err == nil {
+					broadcastAll(string(output), "")
+				}
+			}
+		}
+
 		if err != nil {
 			broadcastAll("", err.Error())
 			return
 		}
-
-		broadcastAll(string(output), "")
 
 		broadcastAll("kill tomcat", "")
 		output, err = sh.Command("ps", "aux").Command("grep", "java").Command("wc","-l").Output()
