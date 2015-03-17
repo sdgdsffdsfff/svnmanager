@@ -40,16 +40,15 @@ func init(){
 
 		var cmd string
 
-
 		broadcastAll("mvn client start", "")
-		cmd = "mvn client:clien compile"
+		cmd = "mvn client:clien compile /opt/wings"
 		output, err := sh.Command(cmd).Output()
 		if err != nil {
 			broadcastAll("", err.Error())
 		}
 
 		broadcastAll("kill tomcat", "")
-		output, err = sh.Command("ps", "aux").Command("grep", "chrome").Command("wc","-l").Output()
+		output, err = sh.Command("ps", "aux").Command("grep", "java").Command("wc","-l").Output()
 		if err != nil {
 			broadcastAll("", err.Error())
 			//return

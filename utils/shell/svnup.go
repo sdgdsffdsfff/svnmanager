@@ -9,7 +9,7 @@ import (
 	"king/service/svn"
 )
 
-var svnDir string = "/home/languid/svn/project/king"
+var svnDir string = "/home/languid/svn/wings"
 
 /**
 	return JSON.Type{

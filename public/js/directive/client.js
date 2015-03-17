@@ -301,7 +301,10 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
             return {
                 link: function( scope, elem ){
                     elem.click(function(){
-                        ClientService.update( scope.client.Id )
+                        //Lock
+                        ClientService.update( scope.client.Id ).then(function( data ){
+                            scope.client.Version = data.result.Version;
+                        })
                     })
                 }
             }

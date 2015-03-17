@@ -86,7 +86,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                         if( !enable() ) return;
                         toggle();
 
-                        scope.svnUpdate().then(function(){
+                        scope.svnUpdate().then(function( data ){
                             toggle();
                             tips(elem, 'Update To New Version!', {
                                 placement: 'bottom',

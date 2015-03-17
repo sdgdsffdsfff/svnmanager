@@ -14,7 +14,6 @@ func update() (model.Version, error){
 	now := time.Now()
 	version := model.Version{}
 
-
 	num, list, err := shell.SvnUp()
 	if err != nil {
 		return version, err
@@ -39,9 +38,9 @@ func update() (model.Version, error){
 	}
 
 	webSocket.BroadCastAll(&webSocket.Message{
-	"svnup",
-	helper.Success(version),
-})
+		"svnup",
+		helper.Success(version),
+	})
 
 	return version, nil
 }
