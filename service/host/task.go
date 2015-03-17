@@ -26,6 +26,13 @@ func broadcastAll(types int, message string){
 	}})
 }
 
+func endDeploy(){
+	CallRpc("EndDeploy", webSocket.Message{"deploy", JSON.Type{
+		"clientId": Detail.Id,
+		"type": End,
+	}})
+}
+
 func init(){
 	Task("ProcStat", func(this *TaskCallback){
 		cpu := proc.CPUPercent()
@@ -60,6 +67,6 @@ func init(){
 		} else {
 			broadcastAll(Error, err.Error())
 		}
-		broadcastAll(End, "starting deploy")
+		endDeploy()
 	})
 }

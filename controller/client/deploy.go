@@ -5,7 +5,6 @@ import (
 )
 
 func deploy(host *client.HostClient) (interface{},error) {
-
 	result, err := client.CallRpc(host, "RpcClient.Deploy" , nil)
 	if err != nil {
 		return nil, err

@@ -50,6 +50,15 @@ func (h *RpcServer) BroadCastAll(r *http.Request, args *webSocket.Message, reply
 	return nil
 }
 
+func (h *RpcServer) EndDeploy(r *http.Request, args *webSocket.Message, reply *rpc.RpcReply) error {
+	if found, id := args["clientId"]; found {
+		client.SetBusy(id, false)
+	}
+	webSocket.BroadCastAll(args)
+	reply.Response = true
+	return nil
+}
+
 //controller service
 type report struct{
 	List []*JSON.Type

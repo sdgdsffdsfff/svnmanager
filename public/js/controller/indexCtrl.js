@@ -100,6 +100,8 @@ function (core, ng, Toast){
                         client._lock = false;
                         break;
                 }
+
+                $scope.$apply();
             }
         });
 

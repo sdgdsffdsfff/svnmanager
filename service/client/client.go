@@ -216,6 +216,16 @@ func Active(client *model.WebServer) (int64, error) {
 	return id, helper.NewError( helper.AppendString("already exisits client, id: ", id))
 }
 
+func SetBusy(id int64, isBusy bool) {
+	if client := FindFromCache(id); client != nil {
+		if !isBusy {
+			client.Status = Alive
+		} else {
+			client.Status = Busy
+		}
+	}
+}
+
 func ReportMeUsage(client ...*HostClient) interface{} {
 	if len(client) > 0 {
 		result, _ := CallRpc(client[0], "RpcClient.WatchUsage", nil)
