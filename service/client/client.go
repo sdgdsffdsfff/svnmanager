@@ -156,7 +156,9 @@ func Refresh() {
 			ReportMeUsage(c)
 		}
 
-		if c.Status != Busy || status != Alive {
+		if c.Status == Busy && status == Alive {
+
+		} else {
 			c.Status = status
 		}
 		return false
