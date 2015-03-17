@@ -21,3 +21,12 @@ select.form-control {
 .form-buttons {
   text-align: right;
 }
+
+pre {
+  background: none;
+  border-radius: 0;
+  border: none;
+  color: #999;
+  line-height: 1.8rem;
+  word-break: break-all;
+}

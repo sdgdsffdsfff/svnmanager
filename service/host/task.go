@@ -47,9 +47,6 @@ func init(){
 			return
 		}
 
-		var err error
-		var output []byte
-
 		deploying = true
 		this.Enable = false
 		defer func(){
@@ -57,14 +54,8 @@ func init(){
 		}()
 
 		broadcastAll(Start, "starting deploy")
-		_, err = sh.Command("sh", "shells/auto_deploy.sh").SetTimeout(time.Second * 2).Output()
+		_, err := sh.Command("sh", "shells/test.sh").SetTimeout(time.Second * 10).Output()
 		if err != nil {
-			broadcastAll(Error, err.Error())
-		}
-		output, err = sh.Command("sh", "shells/log.sh").Output()
-		if err == nil {
-			broadcastAll(Log, string(output))
-		} else {
 			broadcastAll(Error, err.Error())
 		}
 

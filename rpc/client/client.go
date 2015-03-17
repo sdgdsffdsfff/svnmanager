@@ -43,6 +43,12 @@ func (h *RpcClient) Deploy(r *http.Request, args *rpc.DeployArgs, reply *rpc.Rpc
 	return nil
 }
 
+func (h *RpcClient) ShowLog(r *http.Request, args *JSON.Type, reply *rpc.RpcReply) error {
+	output, err := host.ShowLog()
+	reply.Response = output
+	return err
+}
+
 func init(){
 	rpc.AddCtrl(new(RpcClient))
 }

@@ -39,13 +39,16 @@
                 <p class="desc">{{group.Desc}}</p>
                 <div class="client-list row">
                     <div class="col-lg-3 col-md-4 col-sm-6 client-col" ng-repeat="(cid, client) in group.Clients | orderBy:'Id'">
-                        <div class="client" ng-class="{ lock: client._lock, online: client.Status == STATUS.Alive, busy: client.Status == STATUS.Busy }">
+                        <div class="client" ng-class="{ lock: client.Status == STATUS.Busy || client._lock, online: client.Status == STATUS.Alive, busy: client.Status == STATUS.Busy }">
                             <h5>{{client.Name || client.Ip}}</h5>
                             <p class="ip">{{client.Ip}}/{{client.InternalIp}}</p>
                             <span class="version">version: {{client.Version}}</span>
-                            <div class="usage">
-                                cpu: <span ng-class="{ warning: client.Proc.CPUPercent >= 80 && client.Proc.CPUPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.CPUPercent}}%</span>
-                                mem: <span ng-class="{ warning: client.Proc.MEMPercent >= 80 && client.Proc.MEMPercent < 100, danger : client.Proc.CPUPercent >= 100 }">{{client.Proc.MEMPercent}}%</span>
+                            <div class="notify">
+                                <div class="usage" ng-class="{ show: !client._msg }">
+                                    cpu: {{client.Proc.CPUPercent}}%
+                                    mem: {{client.Proc.MEMPercent}}%
+                                </div>
+                                <div class="message" ng-class="{ show: client._msg  }">{{ client._msg }}</div>
                             </div>
                             <label>
                                 <input type="checkbox" class="hidden" ng-model="client.selected" />
@@ -58,9 +61,8 @@
                                 </div>
                                 <span client-update ng-class="{ disabled: client.Version >= version.Version }"><i class="fa fa-arrow-down"></i> Update</span>
                                 <span client-deploy ng-class="{ disabled: client.Version < version.Version }"><i class="fa fa-bolt"></i> Deploy</span>
-                                <span client-backup><i class="fa fa-archive"></i> Backup</span>
                                 <span client-revert><i class="fa fa-clock-o"></i> Revert</span>
-
+                                <span client-log><i class="fa fa-file-o"></i> Log</span>
                                 <span client-edit><i class="fa fa-cog"></i> Edit</span>
                             </div>
                         </div>

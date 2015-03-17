@@ -14,6 +14,8 @@ const (
 	RequestError
 	DbError
 	EmptyError
+	OfflineError
+	BusyError
 
 )
 

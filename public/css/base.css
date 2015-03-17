@@ -732,6 +732,14 @@ select.form-control {
 .form-buttons {
   text-align: right; }
 
+pre {
+  background: none;
+  border-radius: 0;
+  border: none;
+  color: #999;
+  line-height: 1.8rem;
+  word-break: break-all; }
+
 .modal-content {
   background: #3A454A;
   border: 1px solid rgba(147, 147, 147, 0.47); }
@@ -996,10 +1004,36 @@ select.form-control {
       -ms-transform: translateX(0);
       -o-transform: translateX(0);
       transform: translateX(0); }
-  .group-list .usage {
+  .group-list .lock .control {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: .5; }
+    .group-list .lock .control > span {
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%); }
+  .group-list .notify {
     position: absolute;
     left: 10px;
-    bottom: 6px; }
+    bottom: 6px;
+    height: 26px;
+    right: 100px;
+    overflow: hidden; }
+    .group-list .notify > div {
+      height: 26px;
+      line-height: 26px;
+      position: absolute;
+      left: 0;
+      top: -26px;
+      -webkit-transition: top 0.5s ease;
+      -moz-transition: top 0.5s ease;
+      transition: top 0.5s ease; }
+    .group-list .notify .show {
+      top: 0; }
+    .group-list .notify .message {
+      color: #BA972A; }
   .group-list .client-list {
     padding-top: 15px; }
   .group-list .add-client {

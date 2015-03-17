@@ -15,6 +15,7 @@ import (
 	"king/utils"
 	"fmt"
 	"github.com/golang/glog"
+	sh "github.com/codeskyblue/go-sh"
 	"log"
 )
 
@@ -144,6 +145,14 @@ func Update(fileList []*model.UpFile, deployPath string) []JSON.Type {
 	})
 
 	return results
+}
+
+func ShowLog() (string, error){
+	output, err := sh.Command("sh", "shells/log.sh").Output()
+	if err != nil {
+		return "", err
+	}
+	return string(output), nil
 }
 
 func CallRpc(method string, params interface{})(interface{}, error) {

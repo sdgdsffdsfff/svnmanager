@@ -19,6 +19,7 @@ function( core, React, DialogComponent ){
                 title: 'Dialog',
                 showClass: 'fade',
                 classStyle: '',
+                size: '',
                 onShow: $.noop,
                 onShown: $.noop,
                 onHide: $.noop,
@@ -33,6 +34,8 @@ function( core, React, DialogComponent ){
             this._reactElement = React.render( React.createElement(DialogComponent, {
                 title: this.options.title
             }), this.element[0]);
+
+            this.element.find('.modal-dialog').addClass(this.options.size);
 
             this.header = this.element.find('.modal-header');
             this.title = this.header.find('.modal-title');

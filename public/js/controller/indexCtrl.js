@@ -58,6 +58,7 @@ function (core, ng, Toast){
                 $scope.mapClients(function(client){
                     client._lock = false;
                     client._error = false;
+                    client._msg = "";
                 });
                 $scope.$apply();
             })
@@ -81,28 +82,19 @@ function (core, ng, Toast){
                 message = data.message,
                 type = data.type;
 
-            var client = $scope.findClient(id);
-
-            if( client ){
-                switch( type ){
-                    case DeployMessage.Start:
-                        client._lock = true;
-                        console.log(message);
-                        break;
-                    case DeployMessage.Log:
-                        console.log( message );
-                        break;
-                    case DeployMessage.Error:
-                        client._error = true;
-                        console.log( message );
-                        break;
-                    case DeployMessage.End:
-                        client._lock = false;
-                        break;
-                }
-
-                $scope.$apply();
+            switch( type ){
+                case DeployMessage.Start:
+                    $scope.notify(id, "deploying");
+                    break;
+                case DeployMessage.Error:
+                    $scope.notify(id, message);
+                    break;
+                case DeployMessage.End:
+                    $scope.notify(id, "deploy end", true);
+                    break;
             }
+
+            $scope.$apply();
         });
 
         var stillEmptyProcstat = false;
@@ -208,17 +200,22 @@ function (core, ng, Toast){
 
         $scope.findClient = function( id ){
             var result = null;
-            $.each($scope.groupList, function(gid, group){
-                var notFound = true;
-                $.each(group.Clients, function(cid, host) {
-                    if( cid == id ) {
-                        result = host;
-                        notFound = false;
-                        return false
-                    }
+
+            if( $.isPlainObject(id) ){
+                result = id;
+            } else {
+                $.each($scope.groupList, function(gid, group){
+                    var notFound = true;
+                    $.each(group.Clients, function(cid, host) {
+                        if( cid == id ) {
+                            result = host;
+                            notFound = false;
+                            return false
+                        }
+                    });
+                    return notFound;
                 });
-                return notFound;
-            });
+            }
             return result;
         };
 
@@ -240,6 +237,13 @@ function (core, ng, Toast){
             var client = $scope.findClient(id);
             if( client ){
                 delete $scope.groupList[client.Group]["Clients"][client.Id];
+            }
+        };
+
+        $scope.lockClient = function( id, lock ){
+            var client = $scope.findClient(id);
+            if( client ){
+                client._lock = $.isUndefined(lock) ? true : lock;
             }
         };
 

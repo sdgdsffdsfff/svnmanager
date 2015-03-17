@@ -71,7 +71,14 @@ func Add(rend render.Render, req *http.Request){
 	rend.JSON(200, helper.Success(c))
 }
 
-func Edit(rend render.Render, req *http.Request){
+func Edit(rend render.Render, req *http.Request, params martini.Params){
+
+	id := helper.Int64(params["id"])
+	host := getClientWithNotBusyOrJSONError(id, rend)
+	if host == nil {
+		return
+	}
+
 	body := JSON.FormRequest(req.Body)
 	c := &model.WebServer{}
 	if err := JSON.ParseToStruct(JSON.Stringify(body), c); err != nil {
@@ -88,7 +95,13 @@ func Edit(rend render.Render, req *http.Request){
 }
 
 func Del(rend render.Render, params martini.Params){
-	id :=helper.Int64(params["id"])
+
+	id := helper.Int64(params["id"])
+	host := getClientWithAliveOrJSONError(id, rend)
+	if host == nil {
+		return
+	}
+
 	c := model.WebServer{Id: id}
 	if err := client.Del(&c); err != nil {
 		rend.JSON(200, helper.Error(err))
@@ -111,16 +124,15 @@ func Move(rend render.Render, params martini.Params) {
 }
 
 func Update(rend render.Render, req *http.Request, params martini.Params){
+
 	id := helper.Int64(params["id"])
-	body, err := jason.NewObjectFromReader(req.Body)
-
-	fileIds, err := body.GetInt64Array("fileIds")
-
-	host := client.FindFromCache(id)
+	host := getClientWithAliveOrJSONError(id, rend)
 	if host == nil {
-		rend.JSON(200, helper.Error(helper.EmptyError, "Client is not found"))
 		return
 	}
+
+	body, err := jason.NewObjectFromReader(req.Body)
+	fileIds, err := body.GetInt64Array("fileIds")
 
 	result, err := update(host, fileIds)
 	if err != nil {
@@ -134,17 +146,11 @@ func Update(rend render.Render, req *http.Request, params martini.Params){
 func Deploy(rend render.Render, req *http.Request, params martini.Params){
 
 	id := helper.Int64(params["id"])
-
-	host := client.FindFromCache(id)
+	host := getClientWithAliveOrJSONError(id, rend)
 	if host == nil {
-		rend.JSON(200, helper.Error(helper.EmptyError, "Client is not found"))
 		return
 	}
 
-	if host.Status == client.Busy {
-		rend.JSON(200, helper.Error("busy"))
-		return
-	}
 	client.SetBusy(id, true)
 	result, err := deploy(host)
 	if err != nil {
@@ -153,4 +159,62 @@ func Deploy(rend render.Render, req *http.Request, params martini.Params){
 	}
 
 	rend.JSON(200, helper.Success(result))
+}
+
+func ShowLog(rend render.Render, params martini.Params) {
+
+	id := helper.Int64(params["id"])
+	host := getClientOrJSONError(id, rend)
+	if host == nil {
+		return
+	}
+
+	result, err := client.CallRpc(host, "RpcClient.ShowLog", nil)
+	if err != nil {
+		rend.JSON(200, helper.Error(err))
+		return
+	}
+
+	rend.JSON(200, helper.Success(result))
+}
+
+
+func getClientOrJSONError(id int64, rend render.Render ) *client.HostClient {
+	host := client.FindFromCache(id)
+	if host == nil {
+		rend.JSON(200, helper.Error(helper.EmptyError, "Client is not found"))
+		return nil
+	}
+	return host
+}
+
+func getClientWithAliveOrJSONError(id int64, rend render.Render) *client.HostClient {
+	host := getClientOrJSONError(id, rend)
+	if host != nil {
+		switch host.Status {
+		case client.Alive:
+			return host
+		case client.Die:
+			rend.JSON(200, helper.Error(helper.OfflineError))
+			break
+		case client.Busy:
+			rend.JSON(200, helper.Error(helper.BusyError))
+			break
+		}
+	}
+	return nil
+}
+
+func getClientWithNotBusyOrJSONError(id int64, rend render.Render) *client.HostClient {
+	host := getClientOrJSONError(id, rend)
+	if host != nil {
+		switch host.Status {
+		case client.Alive:
+			return host
+		case client.Busy:
+			rend.JSON(200, helper.Error(helper.BusyError))
+			break
+		}
+	}
+	return nil
 }

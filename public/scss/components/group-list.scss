@@ -133,9 +133,36 @@
     }
   }
 
-  .usage {
+  .lock .control {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: .5;
+    > span {
+      @include transform(translateX(100%));
+    }
+  }
+
+  .notify {
     position: absolute;
-    left: 10px; bottom: 6px;
+    left: 10px;
+    bottom: 6px;
+    height: 26px;
+    right: 100px;
+    overflow: hidden;
+    > div {
+      height: 26px;
+      line-height: 26px;
+      position: absolute;
+      left: 0;
+      top: -26px;
+      @include transition(top 0.5s ease);
+    }
+    .show {
+      top: 0;
+    }
+    .message {
+      color: #BA972A;
+    }
   }
 
   .client-list {

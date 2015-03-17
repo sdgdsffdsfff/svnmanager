@@ -4,12 +4,13 @@ define([
 './module',
 'components/form/FormFlyout',
 'components/form/FormDialog',
+'ui/Dialog',
 'ui/confirm',
 'ui/tips',
 'service/GroupService',
 'service/ClientService'
 ],
-function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
+function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips){
 
     directive
         .factory('EditClientDialog', function(ClientService){
@@ -173,7 +174,7 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
         })
         .directive('groupList', function(){
             return {
-                controller: function( $scope ){
+                controller: function( $scope, $timeout ){
                     $scope.clientSelectable = false;
 
                     $scope.getSelectedClient = function(){
@@ -185,26 +186,48 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                         });
                         return clients;
                     };
+
+                    $scope.notify = function(id, msg, hide){
+                        var client = $scope.findClient(id);
+                        if( client ) {
+                            client._msg = msg;
+                            if( hide ){
+                                $timeout(function(){
+                                    client._msg = null;
+                                }, 2000)
+                            }
+                        }
+                    }
                 }
             }
         })
-        .directive('clientControl', function(){
-            var lastName, lastElem = null;
+        .factory('ClientControlUI', function(){
+            var lastBindName, lastElem = null;
+            return {
+                show: function( elem ){
+                    this.hide();
+                    lastElem = elem.addClass('open');
+                    lastBindName = core.clickAnyWhereHideButMe(elem, function(){
+                        elem.removeClass('open');
+                        lastElem = null;
+                    });
+                },
+                hide: function(){
+                    if( lastElem && lastElem.hasClass('open') ){
+                        lastElem.removeClass('open');
+                    }
+                    if( lastBindName ){
+                        core.unbindDocumentEvent(lastBindName);
+                    }
+                }
+            }
+        })
+        .directive('clientControl', function( ClientControlUI ){
             return {
                 link: function( scope, elem ){
                     var more = elem.find('em.more');
                     more.on('click',function(){
-                        if( lastElem && lastElem.hasClass('open') ){
-                            lastElem.removeClass('open');
-                        }
-                        lastElem = elem.addClass('open');
-                        if( lastName ){
-                            core.unbindDocumentEvent(lastName);
-                        }
-                        lastName = core.clickAnyWhereHideButMe(elem, function(){
-                            elem.removeClass('open');
-                            lastElem = null;
-                        });
+                        ClientControlUI.show(elem)
                     })
                 }
             }
@@ -303,20 +326,57 @@ function( core, ng, directive, FormFlyout, FormDialog, confirm, tips){
                     elem.click(function(){
                         ClientService.update( scope.client.Id ).then(function( data ){
                             scope.client.Version = data.result.Version;
+                        }, function( data ){
+                            console.log( data )
                         })
                     })
                 }
             }
         })
-        .directive('clientDeploy', function( ClientService) {
+        .directive('clientDeploy', function( ClientService, ClientControlUI) {
+            var lastDefer;
+
             return {
                 link: function( scope, elem ){
                     elem.click(function(){
-                        ClientService.deploy( scope.client.Id ).then(function( data ){
-
+                        if( lastDefer && lastDefer.state() == 'pending' ){
+                            tips(elem, 'is busy', 'info')
+                            return
+                        }
+                        lastDefer = ClientService.deploy( scope.client.Id ).then(function( data ){
+                            ClientControlUI.hide();
                         }, function(){
-
+                            tips(elem, 'is busy', 'info')
                         })
+                    })
+                }
+            }
+        })
+        .directive('clientLog', function( ClientService ) {
+            var dialog = new Dialog({
+                title: "Log (catalina.out)",
+                size: "modal-lg"
+            });
+
+            var pre = $('<pre />');
+            dialog.body.append( pre );
+
+            var lastDefer;
+
+            return {
+                link: function( scope, elem ){
+                    elem.click(function(){
+                        if( lastDefer && lastDefer.state() == 'pending' ){
+                            tips(elem, 'waiting', 'info');
+                            return;
+                        }
+                        lastDefer = ClientService.log( scope.client.Id ).then(function( data ){
+                            pre.html(data.message);
+                            dialog.show();
+                        }, function( data ){
+                            console.error('client:'+scope.client.Id+'/'+scope.client.Ip, data.message);
+                            tips(elem, 'Can not open log file!', 'warning');
+                        });
                     })
                 }
             }
