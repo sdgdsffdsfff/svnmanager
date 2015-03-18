@@ -340,7 +340,7 @@ function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips){
                 link: function( scope, elem ){
                     elem.click(function(){
                         if( lastDefer && lastDefer.state() == 'pending' ){
-                            tips(elem, 'is busy', 'info')
+                            tips(elem, 'is busy', 'info');
                             return
                         }
                         lastDefer = ClientService.deploy( scope.client.Id ).then(function( data ){

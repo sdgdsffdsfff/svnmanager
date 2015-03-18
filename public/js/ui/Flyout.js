@@ -472,18 +472,25 @@ function(core, React){
         },
         //横向对齐方式
         _alignHorizontally: function( anchorDimension, flyoutDimension ){
-        	
-        	//大部分情况是居中对齐
-        	if( this._currentAlignment == 'center' ){
-        		this._nextLeft = anchorDimension.left + anchorDimension.width / 2 - flyoutDimension.width / 2;
-        	}else {
-                if( this._currentAlignment == 'left' && !this._fitAlignLeft(anchorDimension, flyoutDimension) ){
-                    this._fitAlignRight(anchorDimension, flyoutDimension);
+
+            var width = $window.width();
+
+            if( this._currentAlignment == 'center' ){
+                this._nextLeft = anchorDimension.left + anchorDimension.width / 2 - flyoutDimension.width / 2;
+
+                if( this._nextLeft + flyoutDimension.width > width ) {
                     this._currentAlignment = 'right';
-                }else if( this._currentAlignment == 'right' && !this._fitAlignRight(anchorDimension, flyoutDimension) ){
-                    this._fitAlignLeft(anchorDimension, flyoutDimension);
+                } else if( this._nextLeft < 0 ){
                     this._currentAlignment = 'left';
                 }
+            }
+
+            if( this._currentAlignment == 'left' && !this._fitAlignLeft(anchorDimension, flyoutDimension) ){
+                this._fitAlignRight(anchorDimension, flyoutDimension);
+                this._currentAlignment = 'right';
+            }else if( this._currentAlignment == 'right' && !this._fitAlignRight(anchorDimension, flyoutDimension) ){
+                this._fitAlignLeft(anchorDimension, flyoutDimension);
+                this._currentAlignment = 'left';
             }
 
         	this._startPosition.left = this._nextLeft;

@@ -47,8 +47,8 @@ function (core, ng, Toast){
         $scope.upFileList = [];
         $scope.groupList = [];
 
-        $scope.ACTION = Action;
-        $scope.STATUS = Status;
+        $scope.Action = Action;
+        $scope.Status = Status;
 
         SocketInstance.setScope( $scope );
 
@@ -58,20 +58,30 @@ function (core, ng, Toast){
                 $scope.mapClients(function(client){
                     client._lock = false;
                     client._error = false;
-                    client._msg = "";
+                    if( client.Status == Status.Die ){
+                        $scope.notify(client, "connecting..")
+                    } else if( client.Status == Status.Busy) {
+                        $scope.notify(client, "busy..")
+                    }
                 });
                 $scope.$apply();
             })
         });
 
         SocketInstance.on('heartbeat', function( data ){
-            var client;
+            var client, status;
             for(var i in data.result) {
                 if( client = $scope.findClient( i ) ){
-                    client.Status = data.result[i]
+                    status = data.result[i];
+                    if( client.Status != Status.Die && status == Status.Die ){
+                        $scope.notify(client, "offline", true);
+                    }
+                    var d = data.result[i];
+                    client.Status = d.Status;
+                    client.Message = d.Message;
                 }
             }
-            $scope.$$parse && $scope.$apply();
+            !$scope.$$parse && $scope.$apply();
             core.delay(function(){
                 SocketInstance.emit('heartbeat');
             }, 5000)

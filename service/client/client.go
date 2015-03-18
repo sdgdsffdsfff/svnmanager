@@ -30,6 +30,7 @@ type HostClient struct{
 	*model.WebServer
 	Status Status
 	Proc *ProcStat
+	Message string
 }
 
 type HostMap map[int64]*HostClient
@@ -67,7 +68,7 @@ func Fetch() (HostMap, error) {
 	_, err := db.Orm().QueryTable("web_server").All(&list)
 	if err == nil {
 		for _, webServer := range list {
-			hostMap[webServer.Id] = &HostClient{webServer, Connecting, &ProcStat{}}
+			hostMap[webServer.Id] = &HostClient{webServer, Connecting, &ProcStat{}, ""}
 		}
 	}
 	return hostMap, err
@@ -118,7 +119,7 @@ func FindOrAppend(client *model.WebServer) int64 {
 		}
 	}
 	if !found {
-		hostMap[client.Id] = &HostClient{client, Connecting, &ProcStat{}}
+		hostMap[client.Id] = &HostClient{client, Connecting, &ProcStat{}, ""}
 	}
 	return 0
 }
@@ -227,6 +228,16 @@ func SetBusy(id int64, isBusy bool) {
 			client.Status = Alive
 		} else {
 			client.Status = Busy
+		}
+	}
+}
+
+func SetMessage(id int64, message ...string) {
+	if client := FindFromCache(id); client != nil {
+		if len(message) > 0 {
+			client.Message = message[0]
+		} else {
+			client.Message = ""
 		}
 	}
 }

@@ -34,9 +34,11 @@ func init(){
 		result := JSON.Type{}
 
 		for _, c := range list {
-			result[helper.Itoa64(c.Id)] = c.Status
+			result[helper.Itoa64(c.Id)] = JSON.Type{
+				"Status": c.Status,
+				"Message": c.Message,
+			}
 		}
-
 		return helper.Success(result)
 	})
 

@@ -22,15 +22,6 @@
             </div>
         </div>
 
-        <div class="upfile-list">
-            <ul>
-                <li ng-repeat="item in upFileList">
-                    <span ng-bind-html="ACTION[item.Action]" class="action" ng-class="ACTION[item.Action].toLowerCase()"></span>
-                    <span ng-bind-html="item.Path" class="path"></span>
-                </li>
-            </ul>
-        </div>
-
         <ul id="GroupList" group-list class="group-list" ng-class="{controllable: !lockControl}">
             <li class="group" ng-class="{ hidden: !group.Clients || isEmptyObject(group.Clients) }"
                 ng-repeat="(gid, group) in groupList | orderBy:'-Id'"
@@ -39,16 +30,18 @@
                 <p class="desc">{{group.Desc}}</p>
                 <div class="client-list row">
                     <div class="col-lg-3 col-md-4 col-sm-6 client-col" ng-repeat="(cid, client) in group.Clients | orderBy:'Id'">
-                        <div class="client" ng-class="{ lock: client.Status == STATUS.Busy || client._lock, online: client.Status == STATUS.Alive, busy: client.Status == STATUS.Busy }">
+                        <div class="client" ng-class="{ lock: client.Status == Status.Busy || client._lock, online: client.Status == Status.Alive, busy: client.Status == Status.Busy }">
                             <h5>{{client.Name || client.Ip}}</h5>
                             <p class="ip">{{client.Ip}}/{{client.InternalIp}}</p>
                             <span class="version">version: {{client.Version}}</span>
                             <div class="notify">
-                                <div class="usage" ng-class="{ show: !client._msg }">
+                                <div class="usage" ng-class="{ show: !client.Message }">
                                     cpu: {{client.Proc.CPUPercent}}%
                                     mem: {{client.Proc.MEMPercent}}%
                                 </div>
-                                <div class="message" ng-class="{ show: client._msg  }">{{ client._msg }}</div>
+                                <div class="message" ng-class="{ show: client.Message  }">
+                                    <i class="fa fa-spinner fx-spinner"></i> {{ client.Message }}
+                                </div>
                             </div>
                             <label>
                                 <input type="checkbox" class="hidden" ng-model="client.selected" />
@@ -59,10 +52,10 @@
                                     <em client-move><i class="fa fa-map-marker"></i></em>
                                     <em class="more"><i class="fa fa-bars"></i></em>
                                 </div>
-                                <span client-update ng-class="{ disabled: client.Version >= version.Version }"><i class="fa fa-arrow-down"></i> Update</span>
-                                <span client-deploy ng-class="{ disabled: client.Version < version.Version }"><i class="fa fa-bolt"></i> Deploy</span>
-                                <span client-revert><i class="fa fa-clock-o"></i> Revert</span>
-                                <span client-log><i class="fa fa-file-o"></i> Log</span>
+                                <span client-update ng-class="{ disabled: client.Version >= version.Version || client.Status != Status.Alive }"><i class="fa fa-arrow-down"></i> Update</span>
+                                <span client-deploy ng-class="{ disabled: client.Version < version.Version && client.Status != Status.Alive }"><i class="fa fa-bolt"></i> Deploy</span>
+                                <span client-revert ng-class="{ disabled: client.Status != Status.Alive }"><i class="fa fa-clock-o"></i> Revert</span>
+                                <span client-log ng-class="{ disabled: client.Status == Status.Die }"><i class="fa fa-file-o"></i> Log</span>
                                 <span client-edit><i class="fa fa-cog"></i> Edit</span>
                             </div>
                         </div>

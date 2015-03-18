@@ -255,9 +255,9 @@
     -o-transform: rotateZ(360deg);
     transform: rotateZ(360deg); } }
 .fx-spinner {
-  -webkit-animation: spinner 1s linear infinite;
-  -moz-animation: spinner 1s linear infinite;
-  animation: spinner 1s linear infinite; }
+  -webkit-animation: spinner 2s linear infinite;
+  -moz-animation: spinner 2s linear infinite;
+  animation: spinner 2s linear infinite; }
 
 /* YUI 3.9.1 (build 5852) Copyright 2013 Yahoo! Inc. http://yuilibrary.com/license/ */
 body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td {
@@ -1033,7 +1033,9 @@ pre {
     .group-list .notify .show {
       top: 0; }
     .group-list .notify .message {
-      color: #BA972A; }
+      color: #969550; }
+      .group-list .notify .message i {
+        color: #bbb; }
   .group-list .client-list {
     padding-top: 15px; }
   .group-list .add-client {
