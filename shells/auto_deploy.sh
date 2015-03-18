@@ -2,8 +2,8 @@
 cd /opt/wings
 echo "cd /opt/wings"
 echo "--------------------svn up---------------------------"
-svn up
-sleep 3
+#svn up
+#sleep 3
 echo "--------------------mvn clean start------------------"
 mvn clean:clean compile 
 echo "--------------------mvn clean end--------------------"
