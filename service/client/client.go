@@ -222,8 +222,12 @@ func Active(client *model.WebServer) (int64, error) {
 	return id, helper.NewError( helper.AppendString("already exisits client, id: ", id))
 }
 
-func SetBusy(id int64, isBusy bool) {
+func SetBusy(id int64, yes ...bool) {
 	if client := FindFromCache(id); client != nil {
+		isBusy := true
+		if len(yes) > 0 {
+			isBusy = yes[0]
+		}
 		if !isBusy {
 			client.Status = Alive
 		} else {

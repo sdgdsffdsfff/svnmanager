@@ -151,7 +151,7 @@ func Deploy(rend render.Render, req *http.Request, params martini.Params){
 		return
 	}
 
-	client.SetBusy(id, true)
+	client.SetBusy(id)
 	result, err := deploy(host)
 	if err != nil {
 		rend.JSON(200, helper.Error( err ))
