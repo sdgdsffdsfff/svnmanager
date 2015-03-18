@@ -1,7 +1,6 @@
 package host
 
 import (
-	"king/bootstrap"
 	"time"
 	"king/rpc"
 	"king/config"
@@ -13,85 +12,20 @@ import (
 	"net/url"
 	"path/filepath"
 	"king/utils"
-	"fmt"
 	"github.com/golang/glog"
 	sh "github.com/codeskyblue/go-sh"
 	"log"
 )
 
-type TaskCallback struct {
-	IsRunning bool
-	Enable bool
-	Watch func()
-	Duration time.Duration
-}
+var Detail = rpc.ActiveArgs{}
 
-func (r *TaskCallback) Stop(){
-	r.Enable = false
-}
-
-func (r *TaskCallback) Start() {
-	r.Enable = true
-}
-
-func (r *TaskCallback) Quit(){
-	r.IsRunning = false
-}
-
-var Detail = model.WebServer{}
-
-var defaultDuration = time.Second * 5
-var taskList = map[string]*TaskCallback{}
 var lock sync.Mutex = sync.Mutex{}
 var IsConnected = false
-var taskLoopEnabled = false
-
-func Task(name string, callback func(*TaskCallback), duration ...time.Duration){
-	d := defaultDuration
-
-	if len(duration) > 0 {
-		d = duration[0]
-	}
-
-	task := &TaskCallback{
-		IsRunning: false,
-		Enable: false,
-		Duration: d,
-	}
-
-	task.Watch = func(){
-		if task.IsRunning {
-			return
-		}
-		task.IsRunning = true
-		for {
-			if task.IsRunning == false {
-				break
-			}
-			if taskLoopEnabled && task.Enable && IsConnected {
-				callback(task)
-			}
-			time.Sleep(task.Duration)
-		}
-	}
-
-	taskList[name] = task
-}
-
-func Trigger(name string){
-
-	StartTask()
-
-	if method, found:= taskList[name]; found {
-		method.Enable = true
-		method.IsRunning = true
-	}
-}
-
 var reActiveTimes time.Duration = 5
 var retryTimes time.Duration = 0
-func Active(){
-	result, err := rpc.Send(config.MasterRpc(), "RpcServer.Active", Detail)
+
+func Connect(){
+	result, err := CallRpc("Active", Detail)
 	if err != nil {
 		retryTimes++
 		if retryTimes > reActiveTimes {
@@ -100,12 +34,19 @@ func Active(){
 			time.Sleep(time.Second * 2 * retryTimes)
 		}
 		glog.Errorln(err)
-		Active()
+		Connect()
 	} else {
 		Detail.Id = int64(result.(float64))
-		IsConnected = true
 		log.Println("already connect to server")
 	}
+}
+
+func Active(id int64){
+	if IsConnected {
+		return
+	}
+	Detail.Id = id
+	IsConnected = true
 }
 
 func Update(fileList []*model.UpFile, deployPath string) []JSON.Type {
@@ -159,25 +100,8 @@ func CallRpc(method string, params interface{})(interface{}, error) {
 	result, err := rpc.Send(config.MasterRpc(), "RpcServer."+method, params)
 	if err != nil {
 		IsConnected = false
+		log.Println("lose connect")
 		return nil, err
 	}
 	return result, nil
-}
-
-func StartTask(){
-	taskLoopEnabled = true
-}
-func StopTask(){
-	taskLoopEnabled = false
-}
-
-func init(){
-	bootstrap.Register(func(){
-		StartTask()
-		helper.AsyncMap(taskList, func(key, value interface{}) bool {
-			value.(*TaskCallback).Watch()
-			return false
-		})
-		fmt.Println("can not reach")
-	})
 }

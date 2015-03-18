@@ -44,7 +44,7 @@ func Check(rend render.Render, req *http.Request) {
 	clientList := client.List(clientsId)
 	results := JSON.Type{}
 	for _, c := range clientList {
-		result, err := client.CallRpc(c, "RpcClient.CheckDeployPath", rpc.CheckDeployPathArgs{c.DeployPath})
+		result, err := client.CallRpc(c, "CheckDeployPath", rpc.CheckDeployPathArgs{c.Id, c.DeployPath})
 		if err != nil {
 			results[ helper.Itoa64(c.Id) ] = helper.Error(err)
 		} else {
@@ -74,8 +74,9 @@ func Add(rend render.Render, req *http.Request){
 func Edit(rend render.Render, req *http.Request, params martini.Params){
 
 	id := helper.Int64(params["id"])
-	host := getClientWithNotBusyOrJSONError(id, rend)
+	host, errResponse := getClientWithNoBusyOrJSONError(id)
 	if host == nil {
+		rend.JSON(200, errResponse)
 		return
 	}
 
@@ -97,8 +98,9 @@ func Edit(rend render.Render, req *http.Request, params martini.Params){
 func Del(rend render.Render, params martini.Params){
 
 	id := helper.Int64(params["id"])
-	host := getClientWithAliveOrJSONError(id, rend)
+	host, errResponse := getClientWithNoBusyOrJSONError(id)
 	if host == nil {
+		rend.JSON(200, errResponse)
 		return
 	}
 
@@ -126,8 +128,9 @@ func Move(rend render.Render, params martini.Params) {
 func Update(rend render.Render, req *http.Request, params martini.Params){
 
 	id := helper.Int64(params["id"])
-	host := getClientWithAliveOrJSONError(id, rend)
+	host, errResponse := getClientWithAliveOrJSONError(id)
 	if host == nil {
+		rend.JSON(200, errResponse)
 		return
 	}
 
@@ -146,8 +149,9 @@ func Update(rend render.Render, req *http.Request, params martini.Params){
 func Deploy(rend render.Render, req *http.Request, params martini.Params){
 
 	id := helper.Int64(params["id"])
-	host := getClientWithAliveOrJSONError(id, rend)
+	host, errResponse := getClientWithAliveOrJSONError(id)
 	if host == nil {
+		rend.JSON(200, errResponse)
 		return
 	}
 
@@ -164,12 +168,13 @@ func Deploy(rend render.Render, req *http.Request, params martini.Params){
 func ShowLog(rend render.Render, params martini.Params) {
 
 	id := helper.Int64(params["id"])
-	host := getClientOrJSONError(id, rend)
+	host, errResponse := getClientOrJSONError(id)
 	if host == nil {
+		rend.JSON(200, errResponse)
 		return
 	}
 
-	result, err := client.CallRpc(host, "RpcClient.ShowLog", nil)
+	result, err := client.CallRpc(host, "ShowLog", &rpc.SimpleArgs{Id: host.Id})
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
 		return
@@ -179,42 +184,41 @@ func ShowLog(rend render.Render, params martini.Params) {
 }
 
 
-func getClientOrJSONError(id int64, rend render.Render ) *client.HostClient {
+func getClientOrJSONError(id int64) (*client.HostClient, JSON.Type) {
 	host := client.FindFromCache(id)
 	if host == nil {
-		rend.JSON(200, helper.Error(helper.EmptyError, "Client is not found"))
-		return nil
+		return nil, helper.Error(helper.EmptyError, "Client is not found")
 	}
-	return host
+	return host, nil
 }
 
-func getClientWithAliveOrJSONError(id int64, rend render.Render) *client.HostClient {
-	host := getClientOrJSONError(id, rend)
+func getClientWithAliveOrJSONError(id int64) (*client.HostClient, JSON.Type) {
+	host, err := getClientOrJSONError(id)
 	if host != nil {
 		switch host.Status {
 		case client.Alive:
-			return host
+			return host, nil
 		case client.Die:
-			rend.JSON(200, helper.Error(helper.OfflineError))
+			err = helper.Error(helper.OfflineError)
 			break
 		case client.Busy:
-			rend.JSON(200, helper.Error(helper.BusyError))
+			err = helper.Error(helper.BusyError)
 			break
 		}
 	}
-	return nil
+	return nil, err
 }
 
-func getClientWithNotBusyOrJSONError(id int64, rend render.Render) *client.HostClient {
-	host := getClientOrJSONError(id, rend)
+func getClientWithNoBusyOrJSONError(id int64) (*client.HostClient, JSON.Type) {
+	host, err := getClientOrJSONError(id)
 	if host != nil {
 		switch host.Status {
-		case client.Alive:
-			return host
 		case client.Busy:
-			rend.JSON(200, helper.Error(helper.BusyError))
+			err = helper.Error(helper.BusyError)
 			break
+		default:
+			return host, nil
 		}
 	}
-	return nil
+	return nil, err
 }

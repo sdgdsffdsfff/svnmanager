@@ -22,8 +22,12 @@ func (h *RpcServer) Status(r *http.Request, args *JSON.Type, reply *rpc.RpcReply
 }
 
 //客户端启动通知，保存客户端入库
-func (h *RpcServer) Active(r *http.Request, args *model.WebServer, reply *rpc.RpcReply) error {
-	id, err := client.Active(args)
+func (h *RpcServer) Active(r *http.Request, args *rpc.ActiveArgs, reply *rpc.RpcReply) error {
+	id, err := client.Active(&model.WebServer{
+		Ip: args.Ip,
+		InternalIp: args.InternalIp,
+		Port: args.Port,
+	})
 	if err != nil {
 		return helper.NewError("add client error", err)
 	}

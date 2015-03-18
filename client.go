@@ -25,9 +25,9 @@ func main() {
 
 	bootstrap.Start(port, func(){
 		//在服务器上添加自己，必须确定唯一属性
-		host.Detail.Ip = "192.168.1.111"
-		host.Detail.InternalIp = "192.168.1.111"
+		host.Detail.Ip = "192.168.1.122"
+		host.Detail.InternalIp = "192.168.1.122"
 		host.Detail.Port = port
-		host.Active()
+		host.Connect()
 	})
 }

@@ -9,7 +9,7 @@ import (
 	"king/utils/JSON"
 	"king/bootstrap"
 	"sync"
-	"time"
+	"king/service/task"
 )
 
 type Status int
@@ -36,18 +36,17 @@ type HostClient struct{
 type HostMap map[int64]*HostClient
 
 var hostMap HostMap
-var heartbeatEnable bool = false
 var lock sync.Mutex = sync.Mutex{}
-var refreshDuration = time.Second * 3
+var taskStarted = false
 
 //多终端Rpc调用
 //TODO
 //队列调用，最大同时调用数
-func BatchCallRpc(clients HostMap, method string, params interface{}) JSON.Type {
+func BatchCallRpc(clients HostMap, method string, params ...rpc.RpcInterface) JSON.Type {
 	results := JSON.Type{}
 	helper.AsyncMap(clients, func(key, value interface{}) bool {
 		c := value.(*HostClient)
-		result, err := CallRpc(c, method, params)
+		result, err := CallRpc(c, method, params...)
 		if err != nil {
 			results[ helper.Itoa64(c.Id) ] = helper.Error(err)
 		} else {
@@ -58,8 +57,14 @@ func BatchCallRpc(clients HostMap, method string, params interface{}) JSON.Type 
 	return results
 }
 
-func CallRpc(client *HostClient, method string, params interface{})(interface{}, error) {
-	return rpc.Send(RpcIp(client), method, params)
+func CallRpc(client *HostClient, method string, params ...rpc.RpcInterface)(interface{}, error) {
+	var param rpc.RpcInterface = &rpc.SimpleArgs{Id: client.Id}
+
+	if len(params) > 0 && params[0] != nil {
+		param = params[0]
+		param.SetId(client.Id)
+	}
+	return rpc.Send(RpcIp(client), "RpcClient."+method, param)
 }
 
 func Fetch() (HostMap, error) {
@@ -68,7 +73,7 @@ func Fetch() (HostMap, error) {
 	_, err := db.Orm().QueryTable("web_server").All(&list)
 	if err == nil {
 		for _, webServer := range list {
-			hostMap[webServer.Id] = &HostClient{webServer, Connecting, &ProcStat{}, ""}
+			hostMap[webServer.Id] = &HostClient{webServer, Die, &ProcStat{}, ""}
 		}
 	}
 	return hostMap, err
@@ -156,7 +161,6 @@ func Refresh() {
 		} else if c.Status == Die && status == Alive {
 			ReportMeUsage(c)
 		}
-
 		if c.Status == Busy && status == Alive {
 
 		} else {
@@ -248,35 +252,36 @@ func SetMessage(id int64, message ...string) {
 
 func ReportMeUsage(client ...*HostClient) interface{} {
 	if len(client) > 0 {
-		result, _ := CallRpc(client[0], "RpcClient.WatchUsage", nil)
+		result, _ := CallRpc(client[0], "Procstat")
 		return result
 	} else {
-		return BatchCallRpc(GetAliveList(), "RpcClient.WatchUsage", nil)
+		return BatchCallRpc(hostMap, "Procstat")
 	}
+}
+
+func StartTask(){
+	if taskStarted {
+		return
+	}
+	taskStarted = true
+	task.Trigger("Heartbeat")
+}
+
+func StopTask(){
+	if !taskStarted {
+		return
+	}
+	taskStarted = false
 }
 
 func RpcIp(client *HostClient) string {
 	return "http://" + client.InternalIp + ":" + client.Port + "/rpc"
 }
 
-func HeartEnable( enable bool ){
-	heartbeatEnable = enable
-}
-
-func Heartbeat() {
-	for {
-		if heartbeatEnable {
-			Refresh()
-		}
-		time.Sleep( refreshDuration )
-	}
-}
-
 func init(){
 	bootstrap.Register(func(){
 		if db.IsConnected() {
 			Fetch()
-			Heartbeat()
 		}
 	})
 }

@@ -18,7 +18,7 @@ func update(host *client.HostClient, fileIds []int64) (JSON.Type, error){
 
 	webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
 
-	data, err := client.CallRpc(host, "RpcClient.Update", rpc.UpdateArgs{fileList, host.DeployPath})
+	data, err := client.CallRpc(host, "RpcClient.Update", rpc.UpdateArgs{host.Id,fileList, host.DeployPath})
 	if err != nil {
 		return result, err
 	}

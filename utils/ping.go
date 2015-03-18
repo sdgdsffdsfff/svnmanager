@@ -20,3 +20,7 @@ func Ping(ip string) (bool, error) {
 	}
 	return false, err
 }
+
+func GetLocalIp()(string, error) {
+	return "", nil
+}

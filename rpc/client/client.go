@@ -2,20 +2,14 @@ package client
 
 import (
 	"king/rpc"
-	"king/utils/JSON"
 	"net/http"
+	"king/service/task"
 	"king/utils"
 	"king/service/host"
 )
 
 //rpc method
 type RpcClient struct{}
-
-func (h *RpcClient) Active(r *http.Request, args *rpc.ActiveArgs, reply *rpc.RpcReply) error {
-	host.Active()
-	reply.Response = true
-	return nil
-}
 
 func (h *RpcClient) CheckDeployPath(r *http.Request, args *rpc.CheckDeployPathArgs, reply *rpc.RpcReply) error {
 	if err := utils.PathEnable(args.Path); err != nil {
@@ -26,24 +20,31 @@ func (h *RpcClient) CheckDeployPath(r *http.Request, args *rpc.CheckDeployPathAr
 	return nil
 }
 
-func (h *RpcClient) WatchUsage(r *http.Request, args *JSON.Type, reply *rpc.RpcReply) error {
-	host.Trigger("ProcStat")
+func (h *RpcClient) Procstat(r *http.Request, args *rpc.SimpleArgs, reply *rpc.RpcReply) error {
+	host.Active(args.Id)
+
+	task.Trigger("ProcStat")
 	reply.Response = true
 	return nil
 }
 
 func (h *RpcClient) Update(r *http.Request, args *rpc.UpdateArgs, reply *rpc.RpcReply) error {
+	host.Active(args.Id)
+
 	reply.Response = host.Update(args.FileUrl, args.DeployPath)
 	return nil
 }
 
-func (h *RpcClient) Deploy(r *http.Request, args *rpc.DeployArgs, reply *rpc.RpcReply) error {
-	host.Trigger("Deploy")
+func (h *RpcClient) Deploy(r *http.Request, args *rpc.SimpleArgs, reply *rpc.RpcReply) error {
+	host.Active(args.Id)
+
+	task.Trigger("Deploy")
 	reply.Response = true
 	return nil
 }
 
-func (h *RpcClient) ShowLog(r *http.Request, args *JSON.Type, reply *rpc.RpcReply) error {
+func (h *RpcClient) ShowLog(r *http.Request, args *rpc.SimpleArgs, reply *rpc.RpcReply) error {
+	host.Active(args.Id)
 	output, err := host.ShowLog()
 	reply.Response = output
 	return err

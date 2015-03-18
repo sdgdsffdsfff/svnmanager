@@ -7,7 +7,6 @@ import(
 	"king/service/client"
 	"king/helper"
 	"king/service/group"
-	"fmt"
 )
 
 func Socket( params martini.Params, receiver <-chan *webSocket.Message, sender chan<- *webSocket.Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string) {
@@ -17,15 +16,12 @@ func Socket( params martini.Params, receiver <-chan *webSocket.Message, sender c
 func init(){
 
 	webSocket.OnAppend(func(clientLength int){
-		if clientLength == 1 {
-			client.HeartEnable(true)
-			client.ReportMeUsage()
-		}
+		client.StartTask()
 	})
 
 	webSocket.OnOut(func(clientLength int){
 		if clientLength == 0 {
-			fmt.Println(0)
+			client.StopTask()
 		}
 	})
 

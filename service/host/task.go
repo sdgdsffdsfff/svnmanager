@@ -6,8 +6,8 @@ import (
 	"time"
 	"king/service/webSocket"
 	"king/utils/JSON"
+	"king/service/task"
 	sh "github.com/codeskyblue/go-sh"
-	"fmt"
 )
 
 var deploying bool
@@ -35,14 +35,23 @@ func endDeploy(){
 }
 
 func init(){
-	Task("ProcStat", func(this *TaskCallback){
+	task.New("ProcStat", func(this *task.Task){
+
+		if IsConnected == false {
+			return
+		}
 		cpu := proc.CPUPercent()
 		mem := proc.MEMPercent()
-		fmt.Println(cpu, mem)
+
 		CallRpc("ReportUsage", rpc.UsageArgs{Detail.Id, cpu, mem})
+
 	}, time.Second * 1)
 
-	Task("Deploy", func(this *TaskCallback){
+	task.New("Deploy", func(this *task.Task){
+
+		if IsConnected == false {
+			return
+		}
 
 		if deploying {
 			this.Enable = false
