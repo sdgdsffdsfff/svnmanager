@@ -7,6 +7,7 @@ import (
 	"king/service/webSocket"
 	"king/utils/JSON"
 	sh "github.com/codeskyblue/go-sh"
+	"fmt"
 )
 
 var deploying bool
@@ -37,6 +38,7 @@ func init(){
 	Task("ProcStat", func(this *TaskCallback){
 		cpu := proc.CPUPercent()
 		mem := proc.MEMPercent()
+		fmt.Println(cpu, mem)
 		CallRpc("ReportUsage", rpc.UsageArgs{Detail.Id, cpu, mem})
 	}, time.Second * 1)
 
