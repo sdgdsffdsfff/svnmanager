@@ -209,7 +209,7 @@ func GetAvailableIp(client *HostClient) string {
 }
 
 func Active(client *model.WebServer) (int64, error) {
-	created, id, err := db.Orm().ReadOrCreate(client, "InternalIp", "Port");
+	created, id, err := db.Orm().ReadOrCreate(client, "Ip", "InternalIp", "Port");
 	if  err != nil {
 		return id, err
 	}
