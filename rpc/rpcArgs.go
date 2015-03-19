@@ -12,6 +12,7 @@ type SimpleArgs struct {
 	Message string
 	Error bool
 	Data interface{}
+	What int
 }
 
 /***** Server Rpc Arguments ******/

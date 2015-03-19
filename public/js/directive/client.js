@@ -190,10 +190,10 @@ function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips){
                     $scope.notify = function(id, msg, hide){
                         var client = $scope.findClient(id);
                         if( client ) {
-                            client._msg = msg;
+                            client.Message = msg;
                             if( hide ){
                                 $timeout(function(){
-                                    client._msg = null;
+                                    client.Message = null;
                                 }, 2000)
                             }
                         }

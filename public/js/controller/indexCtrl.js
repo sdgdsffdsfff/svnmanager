@@ -32,7 +32,7 @@ function (core, ng, Toast){
     })
     .value('DeployMessage', {
         Start: 0,
-        Log: 1,
+        Message: 1,
         Error: 2,
         End: 3
     })
@@ -88,13 +88,17 @@ function (core, ng, Toast){
         });
 
         SocketInstance.on('deploy', function( data ){
-            var id = data.clientId,
-                message = data.message,
-                type = data.type;
+            var id = data.Id,
+                message = data.Message,
+                what = data.What;
 
-            switch( type ){
+            switch( what ){
                 case DeployMessage.Start:
                     $scope.notify(id, "deploying");
+                    break;
+                case DeployMessage.Message:
+                    console.log(message);
+                    $scope.notify(id, message);
                     break;
                 case DeployMessage.Error:
                     $scope.notify(id, message);

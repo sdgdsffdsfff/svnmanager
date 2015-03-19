@@ -54,6 +54,16 @@ func (h *RpcServer) BroadCastAll(r *http.Request, args *webSocket.Message, reply
 	return nil
 }
 
+func (h *RpcServer) DeployStatue(r *http.Request, args *rpc.SimpleArgs, reply *rpc.RpcReply) error {
+	client.SetMessage(args.Id, args.Message)
+	webSocket.BroadCastAll(&webSocket.Message{
+		Method: "deploy",
+		Params: args,
+	})
+	reply.Response = true
+	return nil
+}
+
 func (h *RpcServer) EndDeploy(r *http.Request, args *webSocket.Message, reply *rpc.RpcReply) error {
 	if id, found := args.Params.(map[string]interface{})["clientId"]; found {
 		cid := int64(id.(float64))
