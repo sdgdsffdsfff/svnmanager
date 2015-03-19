@@ -44,7 +44,7 @@ func Check(rend render.Render, req *http.Request) {
 	clientList := client.List(clientsId)
 	results := JSON.Type{}
 	for _, c := range clientList {
-		result, err := client.CallRpc(c, "CheckDeployPath", rpc.CheckDeployPathArgs{c.Id, c.DeployPath})
+		result, err := c.CallRpc("CheckDeployPath", rpc.CheckDeployPathArgs{c.Id, c.DeployPath})
 		if err != nil {
 			results[ helper.Itoa64(c.Id) ] = helper.Error(err)
 		} else {
@@ -137,7 +137,7 @@ func Update(rend render.Render, req *http.Request, params martini.Params){
 	body, err := jason.NewObjectFromReader(req.Body)
 	fileIds, err := body.GetInt64Array("fileIds")
 
-	result, err := update(host, fileIds)
+	result, err := host.Update(fileIds)
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
 		return
@@ -155,8 +155,8 @@ func Deploy(rend render.Render, req *http.Request, params martini.Params){
 		return
 	}
 
-	client.SetBusy(id)
-	result, err := deploy(host)
+	host.SetBusy()
+	result, err := host.Deploy()
 	if err != nil {
 		rend.JSON(200, helper.Error( err ))
 		return
@@ -174,7 +174,7 @@ func ShowLog(rend render.Render, params martini.Params) {
 		return
 	}
 
-	result, err := client.CallRpc(host, "ShowLog", &rpc.SimpleArgs{Id: host.Id})
+	result, err := host.CallRpc("ShowLog", &rpc.SimpleArgs{Id: host.Id})
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
 		return

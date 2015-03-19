@@ -9,7 +9,9 @@ import (
 	"king/utils/JSON"
 	"king/bootstrap"
 	"sync"
+	"king/service/svn"
 	"king/service/task"
+	"king/service/webSocket"
 )
 
 type Status int
@@ -31,7 +33,109 @@ type HostClient struct{
 	Status Status
 	Proc *ProcStat
 	Message string
+	Error string
 }
+
+func (r *HostClient) SetBusy(yes ...bool) {
+	isBusy := true
+	if len(yes) > 0 {
+		isBusy = yes[0]
+	}
+	if !isBusy {
+		r.Status = Alive
+	} else {
+		r.Status = Busy
+	}
+}
+
+func (r *HostClient) SetMessage(message ...string) {
+	if len(message) > 0 {
+		r.Message = message[0]
+	} else {
+		r.Message = ""
+	}
+}
+
+func (r *HostClient) SetError(err ...string) {
+	if len(err) > 0 {
+		r.Error = err[0]
+	} else {
+		r.Error = ""
+	}
+}
+
+func (r *HostClient) CallRpc(method string, params ...rpc.RpcInterface)(interface{}, error) {
+	var param rpc.RpcInterface = &rpc.SimpleArgs{Id: r.Id}
+
+	if len(params) > 0 && params[0] != nil {
+		param = params[0]
+		param.SetId(r.Id)
+	}
+	return rpc.Send(r.RpcIp(), "RpcClient."+method, param)
+}
+
+func (r *HostClient) RpcIp() string {
+	return "http://" + r.InternalIp + ":" + r.Port + "/rpc"
+}
+
+func (r *HostClient) ReportMeUsage() interface{} {
+	result, _ := r.CallRpc("Procstat")
+	return result
+}
+
+func (r *HostClient) GetStatus() Status {
+	isConnect, _ := utils.Ping( r.GetAvailableIp() + ":" + r.Port )
+	if isConnect {
+		return Alive
+	}
+	return Die
+}
+
+func (r *HostClient) GetAvailableIp() string {
+	ip := ""
+	if len(r.InternalIp) > 0 {
+		ip = r.InternalIp
+	} else if len(r.Ip) > 0 {
+		ip = r.Ip
+	}
+	return ip
+}
+
+
+func (r *HostClient) Deploy() (interface{},error) {
+	r.Message = "Ready to deploy.."
+	result, err := r.CallRpc("Deploy" , rpc.SimpleArgs{Id: r.Id})
+	if err != nil {
+		return nil, err
+	}
+	r.Message = "Deploying.."
+	return result, nil
+}
+
+func (r *HostClient) Update(fileIds []int64) (JSON.Type, error){
+	result := JSON.Type{}
+	fileList, err := svn.GetUnDeployFileList(fileIds)
+	if err != nil {
+		return result, err
+	}
+
+	webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
+
+	data, err := r.CallRpc("RpcClient.Update", rpc.UpdateArgs{r.Id,fileList, r.DeployPath})
+	if err != nil {
+	return result, err
+	}
+
+	r.Version = svn.Version
+	err = Edit(r.WebServer, "Version")
+
+	result["Version"] = r.Version
+	result["Rpc"] = data
+	result["Error"] = err
+
+	return result, nil
+}
+
 
 type HostMap map[int64]*HostClient
 
@@ -46,7 +150,7 @@ func BatchCallRpc(clients HostMap, method string, params ...rpc.RpcInterface) JS
 	results := JSON.Type{}
 	helper.AsyncMap(clients, func(key, value interface{}) bool {
 		c := value.(*HostClient)
-		result, err := CallRpc(c, method, params...)
+		result, err := c.CallRpc(method, params...)
 		if err != nil {
 			results[ helper.Itoa64(c.Id) ] = helper.Error(err)
 		} else {
@@ -57,15 +161,7 @@ func BatchCallRpc(clients HostMap, method string, params ...rpc.RpcInterface) JS
 	return results
 }
 
-func CallRpc(client *HostClient, method string, params ...rpc.RpcInterface)(interface{}, error) {
-	var param rpc.RpcInterface = &rpc.SimpleArgs{Id: client.Id}
 
-	if len(params) > 0 && params[0] != nil {
-		param = params[0]
-		param.SetId(client.Id)
-	}
-	return rpc.Send(RpcIp(client), "RpcClient."+method, param)
-}
 
 func Fetch() (HostMap, error) {
 	var list []*model.WebServer
@@ -73,7 +169,7 @@ func Fetch() (HostMap, error) {
 	_, err := db.Orm().QueryTable("web_server").All(&list)
 	if err == nil {
 		for _, webServer := range list {
-			hostMap[webServer.Id] = &HostClient{webServer, Die, &ProcStat{}, ""}
+			hostMap[webServer.Id] = &HostClient{webServer, Die, &ProcStat{}, "", ""}
 		}
 	}
 	return hostMap, err
@@ -124,7 +220,7 @@ func FindOrAppend(client *model.WebServer) int64 {
 		}
 	}
 	if !found {
-		hostMap[client.Id] = &HostClient{client, Connecting, &ProcStat{}, ""}
+		hostMap[client.Id] = &HostClient{client, Connecting, &ProcStat{}, "", ""}
 	}
 	return 0
 }
@@ -154,12 +250,12 @@ func Count() int {
 func Refresh() {
 	helper.AsyncMap(hostMap, func(key, value interface{}) bool {
 		c := value.(*HostClient)
-		status := GetClientStatus(c)
+		status := c.GetStatus()
 		if status == Die {
 			c.Proc.CPUPercent = 0
 			c.Proc.MEMPercent = 0
 		} else if c.Status == Die && status == Alive {
-			ReportMeUsage(c)
+			c.ReportMeUsage()
 		}
 		if c.Status == Busy && status == Alive {
 
@@ -195,23 +291,6 @@ func Del(client *model.WebServer) (error) {
 	return nil
 }
 
-func GetClientStatus(client *HostClient) Status {
-	isConnect, _ := utils.Ping( GetAvailableIp(client) + ":" + client.Port )
-	if isConnect {
-		return Alive
-	}
-	return Die
-}
-
-func GetAvailableIp(client *HostClient) string {
-	ip := ""
-	if len(client.InternalIp) > 0 {
-		ip = client.InternalIp
-	} else if len(client.Ip) > 0 {
-		ip = client.Ip
-	}
-	return ip
-}
 
 func Active(client *model.WebServer) (int64, error) {
 	created, id, err := db.Orm().ReadOrCreate(client, "Ip", "InternalIp", "Port");
@@ -226,38 +305,6 @@ func Active(client *model.WebServer) (int64, error) {
 	return id, helper.NewError( helper.AppendString("already exisits client, id: ", id))
 }
 
-func SetBusy(id int64, yes ...bool) {
-	if client := FindFromCache(id); client != nil {
-		isBusy := true
-		if len(yes) > 0 {
-			isBusy = yes[0]
-		}
-		if !isBusy {
-			client.Status = Alive
-		} else {
-			client.Status = Busy
-		}
-	}
-}
-
-func SetMessage(id int64, message ...string) {
-	if client := FindFromCache(id); client != nil {
-		if len(message) > 0 {
-			client.Message = message[0]
-		} else {
-			client.Message = ""
-		}
-	}
-}
-
-func ReportMeUsage(client ...*HostClient) interface{} {
-	if len(client) > 0 {
-		result, _ := CallRpc(client[0], "Procstat")
-		return result
-	} else {
-		return BatchCallRpc(hostMap, "Procstat")
-	}
-}
 
 func StartTask(){
 	if taskStarted {
@@ -272,10 +319,6 @@ func StopTask(){
 		return
 	}
 	taskStarted = false
-}
-
-func RpcIp(client *HostClient) string {
-	return "http://" + client.InternalIp + ":" + client.Port + "/rpc"
 }
 
 func init(){

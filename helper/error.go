@@ -16,7 +16,6 @@ const (
 	EmptyError
 	OfflineError
 	BusyError
-
 )
 
 func NewError(msg string, err ...error) error {

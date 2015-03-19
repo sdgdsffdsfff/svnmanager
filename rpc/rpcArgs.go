@@ -10,7 +10,7 @@ type RpcInterface interface {
 type SimpleArgs struct {
 	Id int64
 	Message string
-	Error bool
+	IsError bool
 	Data interface{}
 	What int
 }

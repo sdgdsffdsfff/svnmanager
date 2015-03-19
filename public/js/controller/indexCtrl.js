@@ -34,7 +34,7 @@ function (core, ng, Toast){
         Start: 0,
         Message: 1,
         Error: 2,
-        End: 3
+        Finish: 3
     })
     .controller('svnManagerCtrl', function ($scope, Status, Action, DeployMessage, ClientService, SvnService, SocketInstance, Helper) {
 
@@ -89,22 +89,24 @@ function (core, ng, Toast){
 
         SocketInstance.on('deploy', function( data ){
             var id = data.Id,
-                message = data.Message,
-                what = data.What;
+                message = data.Message;
 
-            switch( what ){
+
+
+            var client = $scope.setStatus(id, Status.Busy);
+
+            switch( data.What ){
                 case DeployMessage.Start:
-                    $scope.notify(id, "deploying");
+                    $scope.notify(client, "deploying");
                     break;
                 case DeployMessage.Message:
-                    console.log(message);
-                    $scope.notify(id, message);
+                    $scope.notify(client, message);
                     break;
                 case DeployMessage.Error:
-                    $scope.notify(id, message);
+                    $scope.notify(client, message, true);
                     break;
                 case DeployMessage.End:
-                    $scope.notify(id, "deploy end", true);
+                    $scope.notify(client, "deploy end", true);
                     break;
             }
 
@@ -259,6 +261,15 @@ function (core, ng, Toast){
             if( client ){
                 client._lock = $.isUndefined(lock) ? true : lock;
             }
+        };
+
+        $scope.setStatus = function(id, status) {
+            var client = $scope.findClient(id);
+            if( client ){
+                client.Status = status;
+            }
+
+            return client
         };
 
         $scope.onGroupChange = function () {

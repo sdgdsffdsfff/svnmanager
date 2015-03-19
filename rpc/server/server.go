@@ -8,6 +8,7 @@ import (
 	"king/service/client"
 	"king/helper"
 	"king/service/webSocket"
+	deployEnum "king/enum/deploy"
 )
 
 //rpc method
@@ -55,22 +56,27 @@ func (h *RpcServer) BroadCastAll(r *http.Request, args *webSocket.Message, reply
 }
 
 func (h *RpcServer) DeployStatue(r *http.Request, args *rpc.SimpleArgs, reply *rpc.RpcReply) error {
-	client.SetMessage(args.Id, args.Message)
+
+	c := client.FindFromCache(args.Id)
+
+	c.SetMessage(args.Message)
 	webSocket.BroadCastAll(&webSocket.Message{
 		Method: "deploy",
 		Params: args,
 	})
-	reply.Response = true
-	return nil
-}
 
-func (h *RpcServer) EndDeploy(r *http.Request, args *webSocket.Message, reply *rpc.RpcReply) error {
-	if id, found := args.Params.(map[string]interface{})["clientId"]; found {
-		cid := int64(id.(float64))
-		client.SetBusy(cid, false)
-		client.SetMessage(cid)
+	switch args.What {
+	case deployEnum.Error:
+		c.SetError(args.Message)
+		c.SetMessage()
+		c.SetBusy()
+		break
+	case deployEnum.Finish:
+		c.SetError()
+		c.SetBusy()
+		break
 	}
-	webSocket.BroadCastAll(args)
+
 	reply.Response = true
 	return nil
 }
