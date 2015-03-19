@@ -925,6 +925,12 @@ pre {
     transition: top 0.3s ease, opacity 0.3s ease; }
     .group-list label input:checked + i {
       color: #FFF200; }
+  .group-list .warning {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    color: #CA6363;
+    cursor: pointer; }
   .group-list .control {
     position: absolute;
     top: 0;

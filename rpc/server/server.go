@@ -69,11 +69,12 @@ func (h *RpcServer) DeployStatue(r *http.Request, args *rpc.SimpleArgs, reply *r
 	case deployEnum.Error:
 		c.SetError(args.Message)
 		c.SetMessage()
-		c.SetBusy()
+		c.SetBusy(false)
 		break
 	case deployEnum.Finish:
 		c.SetError()
-		c.SetBusy()
+		c.SetMessage()
+		c.SetBusy(false)
 		break
 	}
 

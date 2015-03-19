@@ -33,6 +33,7 @@ func init(){
 			result[helper.Itoa64(c.Id)] = JSON.Type{
 				"Status": c.Status,
 				"Message": c.Message,
+				"Error": c.Error,
 			}
 		}
 		return helper.Success(result)

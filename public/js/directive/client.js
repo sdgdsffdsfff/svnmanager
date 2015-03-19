@@ -352,6 +352,16 @@ function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips){
                 }
             }
         })
+        .directive('clientError', function(){
+
+            return {
+                link: function( scope, elem ){
+                    elem.click(function(){
+                        tips(elem, scope.client.Error, 'danger')
+                    })
+                }
+            }
+        })
         .directive('clientLog', function( ClientService ) {
             var dialog = new Dialog({
                 title: "Log (catalina.out)",

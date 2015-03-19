@@ -60,8 +60,6 @@ function (core, ng, Toast){
                     client._error = false;
                     if( client.Status == Status.Die ){
                         $scope.notify(client, "connecting..")
-                    } else if( client.Status == Status.Busy) {
-                        $scope.notify(client, "busy..")
                     }
                 });
                 $scope.$apply();
@@ -79,6 +77,7 @@ function (core, ng, Toast){
                     var d = data.result[i];
                     client.Status = d.Status;
                     client.Message = d.Message;
+                    client.Error = d.Error;
                 }
             }
             !$scope.$$parse && $scope.$apply();
@@ -136,7 +135,7 @@ function (core, ng, Toast){
             $scope.$$parse && $scope.$apply();
             core.delay(function(){
                 SocketInstance.emit('procstat');
-            }, 5000)
+            }, 2000)
         });
 
         SocketInstance.on('lock', function(){

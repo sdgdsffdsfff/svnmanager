@@ -47,13 +47,15 @@
                                 <input type="checkbox" class="hidden" ng-model="client.selected" />
                                 <i class="fa fa-check"></i>
                             </label>
+
                             <div class="control" client-control>
+                                <i class="warning fa fa-exclamation-circle" ng-show="!!client.Error" client-error></i>
                                 <div class="quick">
                                     <em client-move><i class="fa fa-map-marker"></i></em>
                                     <em class="more"><i class="fa fa-bars"></i></em>
                                 </div>
                                 <span client-update ng-class="{ disabled: client.Version >= version.Version || client.Status != Status.Alive }"><i class="fa fa-arrow-down"></i> Update</span>
-                                <span client-deploy ng-class="{ disabled: client.Version < version.Version && client.Status != Status.Alive }"><i class="fa fa-bolt"></i> Deploy</span>
+                                <span client-deploy ng-class="{ disabled: client.Version < version.Version || client.Status != Status.Alive }"><i class="fa fa-bolt"></i> Deploy</span>
                                 <span client-revert ng-class="{ disabled: client.Status != Status.Alive }"><i class="fa fa-clock-o"></i> Revert</span>
                                 <span client-log ng-class="{ disabled: client.Status == Status.Die }"><i class="fa fa-file-o"></i> Log</span>
                                 <span client-edit><i class="fa fa-cog"></i> Edit</span>

@@ -57,7 +57,9 @@ func init(){
 			if err != nil {
 				broadcastAll(Error, err.Error())
 			} else {
-				broadcastAll(Finish, "deploy complete")
+				broadcastAll(Message, "deploy complete")
+				time.Sleep( time.Second * 2 )
+				broadcastAll(Finish, "")
 			}
 		}()
 
@@ -82,7 +84,7 @@ func init(){
 		}
 
 		broadcastAll(Message, "execute mvn war:exploded")
-		output, err = sh.Command("sh", shDir+"exploaded.sh").SetTimeout(time.Second * 30).Output()
+		output, err = sh.Command("sh", shDir+"exploded.sh").SetTimeout(time.Second * 30).Output()
 		if err != nil {
 			err = helper.NewError("mvn war:exploded error!", err)
 			return
