@@ -47,6 +47,7 @@ func Send(url string, method string, params interface{}) (interface{}, error) {
 	contentBody := []byte(contentString)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(contentBody))
+	defer req.Body.Close()
 
 	if err != nil {
 		return nil, helper.NewError("create request error:", err)
@@ -66,7 +67,6 @@ func Send(url string, method string, params interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, helper.NewError("rpc request error", err)
 	}
-	defer req.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body);
 	if err != nil {
