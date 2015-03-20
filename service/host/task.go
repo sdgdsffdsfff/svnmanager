@@ -8,11 +8,12 @@ import (
 	sh "github.com/codeskyblue/go-sh"
 	"king/helper"
 	. "king/enum/deploy"
+	"strings"
 	"log"
 )
 
 var deploying bool
-var shDir = "shells/deploy1/"
+var shDir = "shells/deploy/"
 
 func broadcastAll(what int, message string){
 	CallRpc("DeployStatue", &rpc.SimpleArgs{
@@ -20,6 +21,19 @@ func broadcastAll(what int, message string){
 		Message: message,
 		What: what,
 	})
+}
+
+func getOutput(output []byte, err error) error {
+	if err != nil {
+		return err
+	}
+	lines := strings.Split(helper.Trim(string(output)), "\n")
+	lastLine := lines[len(lines)-1]
+	if lastLine != "complete" {
+		return helper.NewError(lastLine)
+	}
+	log.Println("===", string(output))
+	return nil
 }
 
 func init(){
@@ -46,14 +60,12 @@ func init(){
 			return
 		}
 
-		var output []byte
 		var err error
 
 		deploying = true
 		this.Enable = false
 		defer func(){
 			deploying = false
-			log.Println(string(output))
 			if err != nil {
 				broadcastAll(Error, err.Error())
 			} else {
@@ -64,35 +76,32 @@ func init(){
 		}()
 
 		broadcastAll(Start, "mvn compiling..")
-		output, err = sh.Command("sh", shDir+"compile.sh").SetTimeout(time.Second * 10).Output()
+		err = getOutput(sh.Command("sh", shDir+"compile.sh").SetTimeout(time.Second * 10).Output())
 		if err != nil {
 			err = helper.NewError("mvn compile error!", err)
 			return
 		}
+
 		broadcastAll(Message, "killing java..")
-		output, err = sh.Command("sh", shDir+"kill.sh").SetTimeout(time.Second * 30).Output()
-		if err != nil {
+		if err = getOutput(sh.Command("sh", shDir+"kill.sh").SetTimeout(time.Second * 30).Output()); err != nil {
 			err = helper.NewError("kill java error!", err)
 			return
 		}
 
 		broadcastAll(Message, "backup whole project..")
-		output, err = sh.Command("sh", shDir+"backup.sh").SetTimeout(time.Second * 30).Output()
-		if err != nil {
+		if err = getOutput(sh.Command("sh", shDir+"backup.sh").SetTimeout(time.Second * 30).Output()); err != nil {
 			err = helper.NewError("backup error!", err)
 			return
 		}
 
 		broadcastAll(Message, "execute mvn war:exploded")
-		output, err = sh.Command("sh", shDir+"exploded.sh").SetTimeout(time.Second * 30).Output()
-		if err != nil {
+		if err = getOutput(sh.Command("sh", shDir+"exploded.sh").SetTimeout(time.Second * 30).Output()); err != nil {
 			err = helper.NewError("mvn war:exploded error!", err)
 			return
 		}
 
 		broadcastAll(Message, "starting server..")
-		output, err = sh.Command("sh", shDir+"startup.sh").SetTimeout(time.Second * 30).Output()
-		if err != nil {
+		if err = getOutput(sh.Command("sh", shDir+"startup.sh").SetTimeout(time.Second * 30).Output()); err != nil {
 			err = helper.NewError("server start error!", err)
 			return
 		}

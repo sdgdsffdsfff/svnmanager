@@ -1,5 +1,7 @@
 #!/bin/bash
-cd /opt/wings
-mvn clean:clean compile
-
-echo "complete"
+{
+    cd /opt/wings && mvn clean:clean compile &&
+    echo "complete"
+} || {
+    echo "error"
+}

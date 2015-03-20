@@ -1,5 +1,8 @@
 #!/bin/bash
-cd /opt/wings
-mvn war:exploded
+{
+    cd /opt/wings && mvn war:exploded &&
+    echo "complete"
+} || {
+    echo "error"
+}
 
-echo "complete"

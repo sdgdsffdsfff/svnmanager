@@ -165,6 +165,16 @@ func Deploy(rend render.Render, req *http.Request, params martini.Params){
 	rend.JSON(200, helper.Success(result))
 }
 
+func Refresh(rend render.Render) {
+
+	list, err := client.Fetch()
+	if err != nil {
+		rend.JSON(200, helper.Error(err))
+		return
+	}
+	rend.JSON(200, helper.Success(list))
+}
+
 func ShowLog(rend render.Render, params martini.Params) {
 
 	id := helper.Int64(params["id"])

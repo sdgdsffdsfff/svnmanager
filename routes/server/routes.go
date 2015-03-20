@@ -31,6 +31,7 @@ func (ctn *Routes) SetRouter(m *martini.ClassicMartini){
 		r.Get("/list",  client.List)
 		r.Post("/check", client.Check)
 		r.Post("/add", client.Add)
+		r.Post("/refresh", client.Refresh)
 		r.Get("/:id/log", client.ShowLog)
 		r.Post("/:id/edit", client.Edit)
 		r.Post("/:id/del", client.Del)

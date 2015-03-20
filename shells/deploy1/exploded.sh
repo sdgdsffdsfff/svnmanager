@@ -1,4 +1,7 @@
 #!/bin/bash
-cd /opt/wings
-sleep 3
-echo "complete"
+{
+    cd /opt/wings &&
+    echo "complete"
+} || {
+    echo "error"
+}
