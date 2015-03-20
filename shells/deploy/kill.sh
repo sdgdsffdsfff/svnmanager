@@ -1,6 +1,5 @@
 #!/bin/bash
 
-isError=true;
 times=0;
 while [ `ps aux|grep java | wc -l` -gt 1 ]
 do
@@ -11,10 +10,9 @@ do
     then
         ps aux | grep java | awk '{f++;if(NF>12){id=$2}} END {print "kill -9 " id}' |sh
     fi
-    isError=true
 done
 
-if [ isError ]
+if [[ $times -eq 0 ]]
 then
     echo "error"
 else

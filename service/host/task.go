@@ -32,8 +32,6 @@ func getOutput(output []byte, err error) error {
 	if lastLine != "complete" {
 		return helper.NewError(lastLine)
 	}
-	log.Println("====================")
-	log.Println(string(output))
 	return nil
 }
 
@@ -45,9 +43,7 @@ func init(){
 		}
 		cpu := proc.CPUPercent()
 		mem := proc.MEMPercent()
-
 		CallRpc("ReportUsage", rpc.UsageArgs{Detail.Id, cpu, mem})
-
 	}, time.Second * 1)
 
 	task.New("Deploy", func(this *task.Task){
@@ -68,6 +64,7 @@ func init(){
 		defer func(){
 			deploying = false
 			if err != nil {
+				log.Println(err)
 				broadcastAll(Error, err.Error())
 			} else {
 				broadcastAll(Message, "deploy complete")
