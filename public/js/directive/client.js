@@ -352,6 +352,15 @@ function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips){
                 }
             }
         })
+        .directive('clientRevert', function() {
+            return {
+                link: function( scope, elem ){
+                    elem.click(function(){
+                        console.log( 1 )
+                    });
+                }
+            }
+        })
         .directive('clientError', function(){
 
             return {

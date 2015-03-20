@@ -193,6 +193,23 @@ func ShowLog(rend render.Render, params martini.Params) {
 	rend.JSON(200, helper.Success(result))
 }
 
+func GetBackupList(rend render.Render, params martini.Params){
+
+	id := helper.Int64(params["id"])
+	host, errResponse := getClientWithNoBusyOrJSONError(id)
+	if host == nil {
+		rend.JSON(200, errResponse)
+		return
+	}
+
+	result, err := host.CallRpc("GetBackupList")
+	if err != nil {
+		rend.JSON(200, helper.Error(err))
+		return
+	}
+
+	rend.JSON(200, helper.Success(result))
+}
 
 func getClientOrJSONError(id int64) (*client.HostClient, JSON.Type) {
 	host := client.FindFromCache(id)

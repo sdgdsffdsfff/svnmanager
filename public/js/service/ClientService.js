@@ -36,6 +36,9 @@ define(['kernel', 'angular', './module'],
                         $http.get('/aj/client/heartbeat')
                     )
                 },
+                revert: function(){
+
+                },
                 changeGroup: function (cid, gid) {
                     return Helper.result(
                         $http.post('/aj/client/' + cid + '/change/group/' + gid)
@@ -51,6 +54,11 @@ define(['kernel', 'angular', './module'],
                 deploy: function(id) {
                     return Helper.result(
                         $http.post('/aj/client/'+id+'/deploy')
+                    )
+                },
+                getBackupList: function(id){
+                    return Helper.result(
+                        $http.get('/aj/client/'+id+'/backuplist')
                     )
                 },
                 log: function( id ){

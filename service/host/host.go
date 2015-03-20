@@ -15,6 +15,8 @@ import (
 	"github.com/golang/glog"
 	sh "github.com/codeskyblue/go-sh"
 	"log"
+	"io/ioutil"
+	"strings"
 )
 
 var Detail = rpc.ActiveArgs{}
@@ -23,6 +25,8 @@ var lock sync.Mutex = sync.Mutex{}
 var IsConnected = false
 var reActiveTimes time.Duration = 5
 var retryTimes time.Duration = 0
+var backupPath = "/opt/bak"
+var webrootPath = "/usr/local/tomcat6/webapps/ROOT"
 
 func Connect(){
 	result, err := CallRpc("Active", Detail)
@@ -94,6 +98,28 @@ func ShowLog() (string, error){
 		return "", err
 	}
 	return string(output), nil
+}
+
+func GetBackupList() ([]string, error) {
+
+	var result []string
+	var name string
+
+	files, err := ioutil.ReadDir(backupPath)
+	if err != nil {
+		return result, err
+	}
+
+	for _, f := range files {
+		if f.IsDir() {
+			name = f.Name()
+			if strings.Index(name, "ROOT") == 0 {
+				result = append(result, name)
+			}
+		}
+	}
+
+	return result, nil
 }
 
 func CallRpc(method string, params interface{})(interface{}, error) {

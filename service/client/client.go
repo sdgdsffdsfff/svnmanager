@@ -136,7 +136,6 @@ func (r *HostClient) Update(fileIds []int64) (JSON.Type, error){
 	return result, nil
 }
 
-
 type HostMap map[int64]*HostClient
 
 var hostMap HostMap
