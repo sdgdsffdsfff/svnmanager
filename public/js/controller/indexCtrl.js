@@ -105,7 +105,7 @@ function (core, ng, Toast){
                     $scope.notify(client, message, true);
                     break;
                 case DeployMessage.End:
-                    $scope.notify(client, "deploy end", true);
+                    $scope.notify(client, "deploy complete", true);
                     break;
             }
 

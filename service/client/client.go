@@ -103,12 +103,12 @@ func (r *HostClient) GetAvailableIp() string {
 
 
 func (r *HostClient) Deploy() (interface{},error) {
-	r.Message = "Ready to deploy.."
+	r.Message = "ready to deploy.."
 	result, err := r.CallRpc("Deploy" , rpc.SimpleArgs{Id: r.Id})
 	if err != nil {
 		return nil, err
 	}
-	r.Message = "Deploying.."
+	r.Message = "deploying.."
 	return result, nil
 }
 
