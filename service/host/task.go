@@ -32,7 +32,8 @@ func getOutput(output []byte, err error) error {
 	if lastLine != "complete" {
 		return helper.NewError(lastLine)
 	}
-	log.Println("===", string(output))
+	log.Println("====================")
+	log.Println(string(output))
 	return nil
 }
 
