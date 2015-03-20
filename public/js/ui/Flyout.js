@@ -13,11 +13,7 @@ function(core, React){
     			//use template
     			if(flyoutModel = Flyout.template[ element ]){
     				element = $(flyoutModel.element);
-    				if(options){
-    					options = $.extend({},flyoutModel.options, options)
-    				}else{
-    					options = flyoutModel.options;
-    				}
+    				options = $.extend({},flyoutModel.options, options)
     			//create element
     			}else{
     				element = $(element)
@@ -511,7 +507,12 @@ function(core, React){
         		}
         	})
     	},
-        template: {}
+        template: {
+            base : {
+                element: '<div class="ui-flyout box"><div class="mod"><div class="bd"></div><div class="ft"></div></div></div>'
+            }
+
+        }
 	});
 	return Flyout
 });

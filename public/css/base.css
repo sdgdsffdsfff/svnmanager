@@ -972,9 +972,11 @@ pre {
       padding: 0 10px;
       margin-bottom: 1px;
       background: #343F45; }
-      .group-list .control > span:hover, .group-list .control > span:active {
+      .group-list .control > span:hover {
         color: #fff;
         background: #215662; }
+      .group-list .control > span:active {
+        box-shadow: inset 0 1px 2px #14353c; }
       .group-list .control > span:nth-of-type(1) {
         -webkit-transition-delay: 50ms;
         -moz-transition-delay: 50ms;

@@ -7,10 +7,11 @@ define([
 'ui/Dialog',
 'ui/confirm',
 'ui/tips',
+'ui/Flyout',
 'service/GroupService',
 'service/ClientService'
 ],
-function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips){
+function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips, Flyout){
 
     directive
         .factory('EditClientDialog', function(ClientService){
@@ -352,17 +353,38 @@ function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips){
                 }
             }
         })
-        .directive('clientRevert', function() {
+        .directive('clientRevert', function( ClientService ) {
+            var lastDefer;
+            var flyout = new Flyout('base', {
+                onRendered: function(){
+                    this.bd = this.element.find('.bd');
+                    this.ul = $('<ul>').appendTo(this.bd)
+                }
+            }, {
+                setList: function(){
+
+                }
+            });
             return {
                 link: function( scope, elem ){
+
                     elem.click(function(){
-                        console.log( 1 )
+                        if( lastDefer && lastDefer.state() == 'pending' ){
+                            tips(elem, 'fetching..', 'info');
+                            return
+                        }
+                        lastDefer = ClientService.getBackupList( scope.client.Id ).then(function( data ){
+                            var list = data.result;
+                            list.sort().reverse();
+                            flyout.show(elem, 'bottom', 'right')
+                        }, function( data ){
+                            tips(elem, 'error', 'warning')
+                        })
                     });
                 }
             }
         })
         .directive('clientError', function(){
-
             return {
                 link: function( scope, elem ){
                     elem.click(function(){
