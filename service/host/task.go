@@ -77,7 +77,7 @@ func init(){
 		}()
 
 		broadcastAll(Start, "mvn compiling..")
-		err = getOutput(sh.Command("sh", shDir+"compile.sh").SetTimeout(time.Second * 10).Output())
+		err = getOutput(sh.Command("sh", shDir+"compile.sh").SetTimeout(time.Second * 60).Output())
 		if err != nil {
 			err = helper.NewError("mvn compile error!", err)
 			return
