@@ -12,6 +12,8 @@ do
     fi
 done
 
+echo $times
+
 if [[ $times -eq 0 ]]
 then
     echo "error"
