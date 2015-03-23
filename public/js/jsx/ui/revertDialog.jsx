@@ -4,10 +4,9 @@
 define([
 'kernel',
 'react',
-'ui/Dialog',
-'components/form/FormBtns'
+'ui/Dialog'
 ],
-function( core, React, Dialog, FormBtns ){
+function( core, React, Dialog ){
     var RevertList = React.createClass({
         getDefaultProps: function(){
             return {
@@ -17,10 +16,8 @@ function( core, React, Dialog, FormBtns ){
         more: function(){
             this.$list.find('li.hidden').removeClass('hidden')
         },
-        revert: function(){
-            this.$list.find('li.hidden')
-        },
         render: function(){
+
             return (
                 <div>
                     <ul>
@@ -29,8 +26,8 @@ function( core, React, Dialog, FormBtns ){
                             <li key={index} className={ index > 4 ? 'hidden' : '' }>
                                 <span className="path">{item}</span>
                                 <span className="control">
-                                    <i className="fa fa-download overwrite" onClick={this.overwrite}></i>
-                                    <i className="fa fa-remove remove"></i>
+                                    <i className="fa fa-download overwrite" onClick={this.props.events.revert}></i>
+                                    <i className="fa fa-remove remove" onClick={this.props.events.remove}></i>
                                 </span>
                             </li>
                         )
@@ -55,25 +52,19 @@ function( core, React, Dialog, FormBtns ){
     });
 
     return function( events, options, extral ){
-        var buttons = [{
-            text: 'Next',
-            className: 'btn-primary',
-            click: events.confirm
-        }];
+        events = $.extend({
+            remove: $.noop,
+            revert: $.noop
+        }, events);
 
         var dialog = new Dialog( $.extend(options, {
             title: 'Revert Manager',
             classStyle: 'revert-dialog'
         }), extral);
 
-        dialog.revertList = React.render(<RevertList />, dialog.body[0], function(){
+        dialog.revertList = React.render(<RevertList events={events} />, dialog.body[0], function(){
             this.getView();
         });
-
-        dialog.formBtns = React.render(<FormBtns
-            buttons={buttons}
-            overload={dialog}
-        />, dialog.footer[0]);
 
         return dialog;
     }

@@ -357,14 +357,11 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, Dialog, con
         .directive('clientRevert', function( ClientService ) {
             var lastDefer;
             var dialog = revertDialog({
-                confirm: function( btn ){
-                    btn.loading();
-                    this.check().then(function(){
-                        btn.reset();
-                    }, function( data ){
-                        btn.reset();
-                        tips(btn.$elem(), data.message, 'warning');
-                    });
+                revert: function(){
+
+                },
+                remove: function(){
+                    console.log(1)
                 }
             });
 
