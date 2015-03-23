@@ -4,6 +4,7 @@ define([
 './module',
 'components/form/FormFlyout',
 'components/form/FormDialog',
+'components/ui/revertDialog',
 'ui/Dialog',
 'ui/confirm',
 'ui/tips',
@@ -11,7 +12,7 @@ define([
 'service/GroupService',
 'service/ClientService'
 ],
-function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips, Flyout){
+function( core, ng, directive, FormFlyout, FormDialog, revertDialog, Dialog, confirm, tips, Flyout){
 
     directive
         .factory('EditClientDialog', function(ClientService){
@@ -355,19 +356,20 @@ function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips, Fl
         })
         .directive('clientRevert', function( ClientService ) {
             var lastDefer;
-            var flyout = new Flyout('base', {
-                onRendered: function(){
-                    this.bd = this.element.find('.bd');
-                    this.ul = $('<ul>').appendTo(this.bd)
-                }
-            }, {
-                setList: function(){
-
+            var dialog = revertDialog({
+                confirm: function( btn ){
+                    btn.loading();
+                    this.check().then(function(){
+                        btn.reset();
+                    }, function( data ){
+                        btn.reset();
+                        tips(btn.$elem(), data.message, 'warning');
+                    });
                 }
             });
+
             return {
                 link: function( scope, elem ){
-
                     elem.click(function(){
                         if( lastDefer && lastDefer.state() == 'pending' ){
                             tips(elem, 'fetching..', 'info');
@@ -376,7 +378,8 @@ function( core, ng, directive, FormFlyout, FormDialog, Dialog, confirm, tips, Fl
                         lastDefer = ClientService.getBackupList( scope.client.Id ).then(function( data ){
                             var list = data.result;
                             list.sort().reverse();
-                            flyout.show(elem, 'bottom', 'right')
+                            dialog.revertList.setList(list);
+                            dialog.show();
                         }, function( data ){
                             tips(elem, 'error', 'warning')
                         })

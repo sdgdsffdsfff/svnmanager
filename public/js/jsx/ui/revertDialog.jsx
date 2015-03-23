@@ -1,0 +1,80 @@
+/**
+ * Created by languid on 3/13/15.
+ */
+define([
+'kernel',
+'react',
+'ui/Dialog',
+'components/form/FormBtns'
+],
+function( core, React, Dialog, FormBtns ){
+    var RevertList = React.createClass({
+        getDefaultProps: function(){
+            return {
+                list: []
+            }
+        },
+        more: function(){
+            this.$list.find('li.hidden').removeClass('hidden')
+        },
+        revert: function(){
+            this.$list.find('li.hidden')
+        },
+        render: function(){
+            return (
+                <div>
+                    <ul>
+                    {this.props.list.map(function(item, index){
+                        return (
+                            <li key={index} className={ index > 4 ? 'hidden' : '' }>
+                                <span className="path">{item}</span>
+                                <span className="control">
+                                    <i className="fa fa-download overwrite" onClick={this.overwrite}></i>
+                                    <i className="fa fa-remove remove"></i>
+                                </span>
+                            </li>
+                        )
+                    }, this)}
+                    </ul>
+                    <p className={ 'more ' + (this.props.list.length < 5 ? 'hidden': '') } onClick={this.more}>Show More</p>
+                </div>
+            )
+        },
+        $el: null,
+        getView: function(){
+            this.$el = $(this.getDOMNode());
+            this.$list = this.$el.find('ul');
+        },
+        setList: function( list ){
+            this.setProps({
+                list: list
+            });
+            this.forceUpdate();
+            return this
+        }
+    });
+
+    return function( events, options, extral ){
+        var buttons = [{
+            text: 'Next',
+            className: 'btn-primary',
+            click: events.confirm
+        }];
+
+        var dialog = new Dialog( $.extend(options, {
+            title: 'Revert Manager',
+            classStyle: 'revert-dialog'
+        }), extral);
+
+        dialog.revertList = React.render(<RevertList />, dialog.body[0], function(){
+            this.getView();
+        });
+
+        dialog.formBtns = React.render(<FormBtns
+            buttons={buttons}
+            overload={dialog}
+        />, dialog.footer[0]);
+
+        return dialog;
+    }
+});

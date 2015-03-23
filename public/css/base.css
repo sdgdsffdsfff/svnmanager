@@ -1264,3 +1264,36 @@ pre {
     -ms-transform: translateY(0);
     -o-transform: translateY(0);
     transform: translateY(0); }
+
+.revert-dialog ul li {
+  display: table;
+  width: 100%; }
+  .revert-dialog ul li:hover {
+    background: #3e4a50; }
+.revert-dialog ul span {
+  display: table-cell;
+  vertical-align: middle;
+  height: 40px;
+  padding: 0 10px; }
+.revert-dialog ul .path {
+  color: #999;
+  font-family: sans-serif;
+  font-size: 1.4rem; }
+.revert-dialog ul .control {
+  width: 80px; }
+.revert-dialog ul i {
+  margin: 0 5px;
+  cursor: pointer; }
+.revert-dialog ul .remove {
+  color: #C35353; }
+.revert-dialog ul .overwrite {
+  color: #3F934C; }
+.revert-dialog .more {
+  text-align: center;
+  line-height: 35px;
+  cursor: pointer; }
+  .revert-dialog .more:hover {
+    background: #3e4a50;
+    color: #999; }
+  .revert-dialog .more:active {
+    box-shadow: inset 0 1px 2px #333; }
