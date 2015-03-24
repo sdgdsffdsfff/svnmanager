@@ -29,7 +29,7 @@
                 <h3>{{group.Name}}</h3>
                 <p class="desc">{{group.Desc}}</p>
                 <div class="client-list row">
-                    <div class="col-lg-3 col-md-4 col-sm-6 client-col" ng-repeat="(cid, client) in group.Clients | orderBy:'Id'">
+                    <div class="col-lg-3 col-md-4 col-sm-6 client-col" ng-repeat="(cid, client) in group.Clients | orderBy:'Id'" data-id="{{cid}}}">
                         <div class="client" ng-class="{ lock: client.Status == Status.Busy || client._lock, online: client.Status == Status.Alive, busy: client.Status == Status.Busy }">
                             <h5>{{client.Name || client.Ip}}</h5>
                             <p class="ip">{{client.Ip}}/{{client.InternalIp}}</p>

@@ -43,6 +43,17 @@ func (h *RpcClient) Deploy(r *http.Request, args *rpc.SimpleArgs, reply *rpc.Rpc
 	return nil
 }
 
+func (h *RpcClient) Revert(r *http.Request, args *rpc.SimpleArgs, reply *rpc.RpcReply) error {
+	host.Active(args.Id)
+
+	err := host.Revert(args.Message)
+	if err != nil {
+		return err
+	}
+	reply.Response = true
+	return nil
+}
+
 func (h *RpcClient) GetBackupList(r *http.Request, args *rpc.SimpleArgs, reply *rpc.RpcReply) error {
 	host.Active(args.Id)
 	result, err := host.GetBackupList()

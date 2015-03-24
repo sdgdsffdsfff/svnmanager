@@ -12,6 +12,7 @@ import (
 	"king/service/svn"
 	"king/service/task"
 	"king/service/webSocket"
+	"time"
 )
 
 type Status int
@@ -121,9 +122,9 @@ func (r *HostClient) Update(fileIds []int64) (JSON.Type, error){
 
 	webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
 
-	data, err := r.CallRpc("RpcClient.Update", rpc.UpdateArgs{r.Id,fileList, r.DeployPath})
+	data, err := r.CallRpc("Update", rpc.UpdateArgs{r.Id,fileList, r.DeployPath})
 	if err != nil {
-	return result, err
+		return result, err
 	}
 
 	r.Version = svn.Version
@@ -133,6 +134,46 @@ func (r *HostClient) Update(fileIds []int64) (JSON.Type, error){
 	result["Rpc"] = data
 	result["Error"] = err
 
+	return result, nil
+}
+
+func (r *HostClient) Revert(path string) (interface{}, error) {
+	r.SetBusy()
+	r.SetMessage("revert to " + path)
+	defer r.SetBusy(false)
+
+	result, err := r.CallRpc("Revert", rpc.SimpleArgs{
+		Id: r.Id,
+		Message: path,
+	})
+
+	if err != nil {
+		r.SetError("revert to " + path +" failure")
+		return nil, err
+	}
+	r.SetMessage("revert complete")
+	time.Sleep( time.Second * 2 )
+	r.SetMessage()
+	return result, nil
+}
+
+func (r *HostClient) RemoveBackup(path string) (interface{}, error) {
+	r.SetBusy()
+	r.SetMessage("removing " + path)
+	defer r.SetBusy(false)
+
+	result, err := r.CallRpc("RemoveBackup", rpc.SimpleArgs{
+		Id: r.Id,
+		Message: path,
+	})
+
+	if err != nil {
+		r.SetError("remove " + path +" failure")
+		return nil, err
+	}
+	r.SetMessage("remove complete")
+	time.Sleep( time.Second * 2 )
+	r.SetMessage()
 	return result, nil
 }
 

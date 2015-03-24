@@ -26,7 +26,8 @@ var IsConnected = false
 var reActiveTimes time.Duration = 5
 var retryTimes time.Duration = 0
 var backupPath = "/opt/bak"
-var webrootPath = "/usr/local/tomcat6/webapps/ROOT"
+var deployPath = "/usr/local/tomcat6/webapps/ROOT"
+var webrootPath = "/usr/local/tomcat6/webapps"
 
 func Connect(){
 	result, err := CallRpc("Active", Detail)
@@ -53,7 +54,7 @@ func Active(id int64){
 	IsConnected = true
 }
 
-func Update(fileList []*model.UpFile, deployPath string) []JSON.Type {
+func Update(fileList []*model.UpFile, dpath ...string) []JSON.Type {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -90,6 +91,40 @@ func Update(fileList []*model.UpFile, deployPath string) []JSON.Type {
 	})
 
 	return results
+}
+
+func Revert( path string ) error {
+	root := filepath.Join(backupPath, path)
+	err := utils.PathEnable( root )
+	if err != nil {
+		return err
+	}
+
+	_, err = sh.Command("rm", "-rf", deployPath).Output()
+	if err != nil {
+		return err
+	}
+
+	_, err = sh.Command("cp", "-r", root, deployPath).Output()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func RemoveBackup( path string ) error {
+	root := filepath.Join(backupPath, path)
+	err := utils.PathEnable(root)
+	if err != nil {
+		return err
+	}
+	_, err = sh.Command("rm", "-rf", root).Output()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func ShowLog() (string, error){

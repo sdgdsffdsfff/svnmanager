@@ -357,15 +357,26 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, Dialog, con
         .directive('clientRevert', function( ClientService ) {
             var lastDefer;
             var dialog = revertDialog({
-                revert: function(){
-
+                revert: function( path ){
+                    ClientService.revert(this.scope.client.Id, path).then(function( data ){
+                        console.log( data )
+                    })
                 },
-                remove: function(){
-                    console.log(1)
+                remove: function( path ){
+                    ClientService.removeBackup(this.scope.client.Id, path).then(function( data ){
+                        console.log( data )
+                    })
+                }
+            }, null, {
+                scope: null,
+                setScope: function( scope ){
+                    this.scope = scope;
+                    return this
                 }
             });
 
             return {
+
                 link: function( scope, elem ){
                     elem.click(function(){
                         if( lastDefer && lastDefer.state() == 'pending' ){
@@ -376,7 +387,7 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, Dialog, con
                             var list = data.result;
                             list.sort().reverse();
                             dialog.revertList.setList(list);
-                            dialog.show();
+                            dialog.setScope(scope).show();
                         }, function( data ){
                             tips(elem, 'error', 'warning')
                         })

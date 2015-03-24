@@ -36,8 +36,19 @@ define(['kernel', 'angular', './module'],
                         $http.get('/aj/client/heartbeat')
                     )
                 },
-                revert: function(){
-
+                revert: function( id, path ){
+                    return Helper.result(
+                        $http.post('/aj/client/'+id+'/revert', {
+                            path: path
+                        })
+                    )
+                },
+                removeBackup: function( id, path ){
+                    return Helper.result(
+                        $http.post('/aj/client/'+id+'/removebackup', {
+                            path: path
+                        })
+                    )
                 },
                 changeGroup: function (cid, gid) {
                     return Helper.result(

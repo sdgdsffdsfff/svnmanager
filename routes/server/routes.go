@@ -39,6 +39,8 @@ func (ctn *Routes) SetRouter(m *martini.ClassicMartini){
 		r.Post("/:id/change/group/:gid", client.Move)
 		r.Post("/:id/update", client.Update)
 		r.Post("/:id/deploy", client.Deploy)
+		r.Post("/:id/revert", client.Revert)
+		r.Post("/:id/removebackup", client.RemoveBackup)
 	})
 
 	m.Group("/aj/group", func(r martini.Router){

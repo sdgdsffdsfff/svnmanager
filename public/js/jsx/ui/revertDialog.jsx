@@ -26,8 +26,8 @@ function( core, React, Dialog ){
                             <li key={index} className={ index > 4 ? 'hidden' : '' }>
                                 <span className="path">{item}</span>
                                 <span className="control">
-                                    <i className="fa fa-download overwrite" onClick={this.props.events.revert}></i>
-                                    <i className="fa fa-remove remove" onClick={this.props.events.remove}></i>
+                                    <i className="fa fa-download overwrite" onClick={this.props.events.revert.bind(this.props.overload, item)}></i>
+                                    <i className="fa fa-remove remove" onClick={this.props.events.remove.bind(this.props.overload, item)}></i>
                                 </span>
                             </li>
                         )
@@ -62,7 +62,7 @@ function( core, React, Dialog ){
             classStyle: 'revert-dialog'
         }), extral);
 
-        dialog.revertList = React.render(<RevertList events={events} />, dialog.body[0], function(){
+        dialog.revertList = React.render(<RevertList overload={dialog} events={events} />, dialog.body[0], function(){
             this.getView();
         });
 

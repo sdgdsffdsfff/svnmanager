@@ -165,6 +165,45 @@ func Deploy(rend render.Render, req *http.Request, params martini.Params){
 	rend.JSON(200, helper.Success(result))
 }
 
+func Revert(rend render.Render, req *http.Request, params martini.Params) {
+
+	id := helper.Int64(params["id"])
+	host, errResponse := getClientWithAliveOrJSONError(id)
+	if host == nil {
+		rend.JSON(200, errResponse)
+		return
+	}
+
+	body, _ := jason.NewObjectFromReader(req.Body)
+	path, _ := body.GetString("path")
+
+	_, err := host.Revert(path)
+	if err != nil {
+		rend.JSON(200, helper.Error(err))
+		return
+	}
+	rend.JSON(200, helper.Success())
+}
+
+func RemoveBackup(rend render.Render, req *http.Request, params martini.Params){
+	id := helper.Int64(params["id"])
+	host, errResponse := getClientWithAliveOrJSONError(id)
+	if host == nil {
+		rend.JSON(200, errResponse)
+		return
+	}
+
+	body, _ := jason.NewObjectFromReader(req.Body)
+	path, _ := body.GetString("path")
+
+	_, err := host.RemoveBackup(path)
+	if err != nil {
+		rend.JSON(200, helper.Error(err))
+		return
+	}
+	rend.JSON(200, helper.Success())
+}
+
 func Refresh(rend render.Render) {
 
 	list, err := client.Fetch()
