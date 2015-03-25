@@ -4,18 +4,18 @@
 
 define(['kernel', 'angular', './module'],
 function( core, ng, service){
-    service.factory('SvnService', ['$http', 'Helper',function( $http, Helper ){
+    service.factory('MasterService', ['$http', 'Helper',function( $http, Helper ){
         return {
             svnup: function () {
                 return Helper.result(
-                    $http.post("/aj/svn/update", {
+                    $http.post("/aj/update", {
                         paths: ['_res', 'manage']
                     })
                 )
             },
             getLastVersion: function(){
                 return Helper.result(
-                    $http.get('/aj/svn/lastVersion')
+                    $http.get('/aj/lastVersion')
                 );
             },
             deploy: function( filesId, clientsId, msg ){
@@ -28,9 +28,14 @@ function( core, ng, service){
                     })
                 )
             },
+            compile: function(){
+                return Helper.result(
+                    $http.post('/aj/compile')
+                )
+            },
             getUndeployFileList: function(){
                 return Helper.result(
-                    $http.get('/aj/svn/undeploy/files')
+                    $http.get('/aj/undeploy/files')
                 )
             }
         }

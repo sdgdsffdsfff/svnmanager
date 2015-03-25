@@ -11,7 +11,10 @@ type Task struct {
 	IsRunning bool
 	Enable bool
 	Watch func()
-	Duration time.Duration
+	Timer *time.Timer
+	OnComplete func(*Task)
+	Result interface{}
+	lock chan int
 }
 
 func (r *Task) Stop(){
@@ -30,7 +33,7 @@ var defaultDuration = time.Second * 5
 var taskList = map[string]*Task{}
 var taskLoopEnabled = false
 
-func New(name string, callback func(*Task), duration ...time.Duration){
+func New(name string, callback func(*Task) interface{}, duration ...time.Duration) *Task{
 	d := defaultDuration
 
 	if len(duration) > 0 {
@@ -40,7 +43,8 @@ func New(name string, callback func(*Task), duration ...time.Duration){
 	task := &Task{
 		IsRunning: false,
 		Enable: false,
-		Duration: d,
+		OnComplete: func(*Task){},
+		lock: make(chan int),
 	}
 
 	task.Watch = func(){
@@ -49,26 +53,35 @@ func New(name string, callback func(*Task), duration ...time.Duration){
 		}
 		task.IsRunning = true
 		for {
-			if task.IsRunning == false {
-				break
-			}
 			if taskLoopEnabled && task.Enable {
-				callback(task)
+				task.Result = nil
+				task.Result = callback(task)
+				task.OnComplete(task)
+				go func(){
+					time.Sleep( d )
+					task.lock <- 1
+				}()
 			}
-			time.Sleep(task.Duration)
+			<- task.lock
 		}
 	}
 
 	taskList[name] = task
+
+	return task
 }
 
-func Trigger(name string){
+func Trigger(name string, fn ...func(*Task)){
 
 	StartTask()
 
 	if method, found:= taskList[name]; found {
 		method.Enable = true
 		method.IsRunning = true
+		method.lock <- 1
+		if len(fn) > 0 {
+			method.OnComplete = fn[0]
+		}
 	}
 }
 

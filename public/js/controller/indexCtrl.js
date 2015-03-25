@@ -5,11 +5,11 @@ define([
 'kernel',
 'angular',
 'ui/Toast',
-'directive/svn',
+'directive/master',
 'directive/client',
 'directive/system',
 'service/ClientService',
-'service/SvnService',
+'service/MasterService',
 'service/SocketInstance',
 'ngSanitize'
 ],
@@ -26,7 +26,7 @@ function (core, ng, Toast){
     })
     .value('Status', {
         Die: 0,
-        Connecting: 1,
+        Free: 1,
         Alive: 2,
         Busy: 3
     })
@@ -36,11 +36,17 @@ function (core, ng, Toast){
         Error: 2,
         Finish: 3
     })
-    .controller('svnManagerCtrl', function ($scope, Status, Action, DeployMessage, ClientService, SvnService, SocketInstance, Helper) {
+    .controller('masterCtrl', function ($scope, Status, Action, DeployMessage, ClientService, MasterService, SocketInstance, Helper) {
 
         $scope.version = {
             Version: 0,
             Time: 0
+        };
+
+        $scope.master = {
+            Error: false,
+            Status: Status.Busy,
+            Message: ''
         };
 
         $scope.deployEnable = false;
@@ -66,6 +72,17 @@ function (core, ng, Toast){
             })
         });
 
+        SocketInstance.on('master', function( data ){
+            Helper.data(data).then(function( data ){
+                console.log( data.result )
+            });
+
+            !$scope.$$parse && $scope.$apply();
+            core.delay(function(){
+                SocketInstance.emit('master');
+            }, 5000)
+        });
+
         SocketInstance.on('heartbeat', function( data ){
             var client, status;
             for(var i in data.result) {
@@ -89,8 +106,6 @@ function (core, ng, Toast){
         SocketInstance.on('deploy', function( data ){
             var id = data.Id,
                 message = data.Message;
-
-
 
             var client = $scope.setStatus(id, Status.Busy);
 
@@ -144,7 +159,6 @@ function (core, ng, Toast){
         });
 
         SocketInstance.on('unlock', function(){
-            Toast.makeText('Unlock control!').show();
             $scope.setLockControl(false);
         });
 
@@ -161,6 +175,7 @@ function (core, ng, Toast){
         SocketInstance.emit('heartbeat');
         SocketInstance.emit('procstat');
         SocketInstance.emit('getClientList');
+        SocketInstance.emit('master');
 
         $scope.upgradeVersion = function( version ){
             $scope.version = version;
@@ -293,7 +308,7 @@ function (core, ng, Toast){
             }
         }();
 
-        SvnService.getLastVersion().then(function( data ){
+        MasterService.getLastVersion().then(function( data ){
             $scope.version = data.result;
         });
 

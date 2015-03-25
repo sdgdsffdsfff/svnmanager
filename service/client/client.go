@@ -9,19 +9,11 @@ import (
 	"king/utils/JSON"
 	"king/bootstrap"
 	"sync"
-	"king/service/svn"
+	"king/service/master"
 	"king/service/task"
 	"king/service/webSocket"
 	"time"
-)
-
-type Status int
-
-const (
-	Die Status = iota
-	Connecting
-	Alive
-	Busy
+	"king/enum/status"
 )
 
 type ProcStat struct {
@@ -31,7 +23,7 @@ type ProcStat struct {
 
 type HostClient struct{
 	*model.WebServer
-	Status Status
+	Status status.Status
 	Proc *ProcStat
 	Message string
 	Error string
@@ -43,9 +35,9 @@ func (r *HostClient) SetBusy(yes ...bool) {
 		isBusy = yes[0]
 	}
 	if !isBusy {
-		r.Status = Alive
+		r.Status = status.Alive
 	} else {
-		r.Status = Busy
+		r.Status = status.Busy
 	}
 }
 
@@ -84,12 +76,12 @@ func (r *HostClient) ReportMeUsage() interface{} {
 	return result
 }
 
-func (r *HostClient) GetStatus() Status {
+func (r *HostClient) GetStatus() status.Status {
 	isConnect, _ := utils.Ping( r.GetAvailableIp() + ":" + r.Port )
 	if isConnect {
-		return Alive
+		return status.Alive
 	}
-	return Die
+	return status.Die
 }
 
 func (r *HostClient) GetAvailableIp() string {
@@ -115,7 +107,7 @@ func (r *HostClient) Deploy() (interface{},error) {
 
 func (r *HostClient) Update(fileIds []int64) (JSON.Type, error){
 	result := JSON.Type{}
-	fileList, err := svn.GetUnDeployFileList(fileIds)
+	fileList, err := master.GetUnDeployFileList(fileIds)
 	if err != nil {
 		return result, err
 	}
@@ -127,7 +119,7 @@ func (r *HostClient) Update(fileIds []int64) (JSON.Type, error){
 		return result, err
 	}
 
-	r.Version = svn.Version
+	r.Version = master.Version
 	err = Edit(r.WebServer, "Version")
 
 	result["Version"] = r.Version
@@ -209,7 +201,7 @@ func Fetch() (HostMap, error) {
 	_, err := db.Orm().QueryTable("web_server").All(&list)
 	if err == nil {
 		for _, webServer := range list {
-			hostMap[webServer.Id] = &HostClient{webServer, Die, &ProcStat{}, "", ""}
+			hostMap[webServer.Id] = &HostClient{webServer, status.Die, &ProcStat{}, "", ""}
 		}
 	}
 	return hostMap, err
@@ -254,13 +246,13 @@ func FindOrAppend(client *model.WebServer) int64 {
 	found := false
 	for _, c := range hostMap {
 		if c.Ip == client.Ip && c.Port == client.Port {
-			c.Status = Alive
+			c.Status = status.Alive
 			found = true
 			return c.Id
 		}
 	}
 	if !found {
-		hostMap[client.Id] = &HostClient{client, Connecting, &ProcStat{}, "", ""}
+		hostMap[client.Id] = &HostClient{client, status.Die, &ProcStat{}, "", ""}
 	}
 	return 0
 }
@@ -268,7 +260,7 @@ func FindOrAppend(client *model.WebServer) int64 {
 func GetAliveList() HostMap {
 	aliveHostMap := HostMap{}
 	for id, c := range hostMap {
-		if c.Status == Alive {
+		if c.Status == status.Alive {
 			aliveHostMap[id] = c
 		}
 	}
@@ -290,17 +282,17 @@ func Count() int {
 func Refresh() {
 	helper.AsyncMap(hostMap, func(key, value interface{}) bool {
 		c := value.(*HostClient)
-		status := c.GetStatus()
-		if status == Die {
+		s := c.GetStatus()
+		if s == status.Die {
 			c.Proc.CPUPercent = 0
 			c.Proc.MEMPercent = 0
-		} else if c.Status == Die && status == Alive {
+		} else if c.Status == status.Die && s == status.Alive {
 			c.ReportMeUsage()
 		}
-		if c.Status == Busy && status == Alive {
+		if c.Status == status.Busy && s == status.Alive {
 
 		} else {
-			c.Status = status
+			c.Status = s
 		}
 		return false
 	})

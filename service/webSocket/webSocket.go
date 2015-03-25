@@ -8,6 +8,15 @@ import(
 	"king/utils/JSON"
 )
 
+type MessageType int
+
+const (
+	Info MessageType = iota
+	Success
+	Warning
+	Danger
+)
+
 var onEmitCallback = map[string]func()JSON.Type{}
 var onAppend = func(int){}
 var onOut = func(int){}
@@ -85,6 +94,20 @@ func BroadCastAll(msg *Message){
 	}
 }
 
+func LockMaster(){
+	msg := &Message{ Method: "lock" }
+	for _, xc := range clients {
+		xc.out <- msg
+	}
+}
+
+func UnlockMaster(){
+	msg := &Message{ Method: "unlock" }
+	for _, xc := range clients {
+		xc.out <- msg
+	}
+}
+
 //客户端调用其他客户端方法
 func BroadCast(client *socketClient, msg *Message){
 	for _, xc := range clients {
@@ -94,8 +117,17 @@ func BroadCast(client *socketClient, msg *Message){
 	}
 }
 
-func Notify(text string) {
-	BroadCastAll(&Message{"notify", text})
+func Notify(text string, t ...MessageType ) {
+
+	t1 := Info
+	if len(t) > 0 {
+		t1 = t[0]
+	}
+
+	BroadCastAll(&Message{"notify", JSON.Type{
+		"Message": text,
+		"Type": t1,
+	}})
 }
 
 func NotifyOther(client *socketClient,text string) {

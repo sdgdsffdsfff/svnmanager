@@ -7,6 +7,7 @@ import(
 	"king/service/client"
 	"king/helper"
 	"king/service/group"
+	"king/service/master"
 )
 
 func Socket( params martini.Params, receiver <-chan *webSocket.Message, sender chan<- *webSocket.Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string) {
@@ -49,6 +50,14 @@ func init(){
 
 		return helper.Success(result)
 	});
+
+	webSocket.OnEmit("master", func() JSON.Type {
+		return helper.Success(JSON.Type{
+			"Message": master.Message,
+			"Error": master.Error,
+			"Status": master.Status,
+		})
+	})
 
 	webSocket.OnEmit("getClientList", func() JSON.Type{
 		result := map[string]JSON.Type{}

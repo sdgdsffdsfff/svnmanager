@@ -9,12 +9,12 @@ define([
 'ui/Toast',
 'react',
 'components/ui/upgradeDialog',
-'service/SvnService',
+'service/MasterService',
 'service/GlobalControlUI'
 ],
 function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgradeDialog ){
     directive
-        .factory('DeployDialog', function( SvnService ){
+        .factory('DeployDialog', function( MasterService ){
             var dialog = upgradeDialog({
                 confirm: function( btn ){
                     btn.loading();
@@ -42,7 +42,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                 },
                 getUnDeployFiles: function(){
                     var self = this;
-                    return SvnService.getUndeployFileList().then(function( data ){
+                    return MasterService.getUndeployFileList().then(function( data ){
                         self.upfileList.setList(data.result);
                         self.show();
                     })
@@ -55,7 +55,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
 
             return dialog;
         })
-        .directive('svnUpdate', function (SvnService, DeployDialog) {
+        .directive('update', function (MasterService, DeployDialog) {
             return {
                 controller: function ($scope) {
 
@@ -64,7 +64,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                     };
 
                     $scope.svnUpdate = function () {
-                        return SvnService.svnup().then(function (data) {
+                        return MasterService.svnup().then(function (data) {
                             DeployDialog.getUnDeployFiles();
                             return data;
                         })
@@ -103,13 +103,22 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                 }
             }
         })
-        .directive('svnDeploy', function (ClientService, SvnService, DeployDialog, GlobalControlUI) {
+        .directive('compile', function( MasterService ){
+            return {
+                link: function( scope, elem ){
+                    elem.click(function(){
+                        MasterService.compile();
+                    })
+                }
+            }
+        })
+        .directive('deploy', function (ClientService, MasterService, DeployDialog, GlobalControlUI) {
             return {
                 controller: function( $scope ){
                     $scope.readyToDeploy = function( msg, filesId ){
                         $scope.clientSelectable = true;
 
-                        //选择在线的主机
+                        //选择在线的机
                         GlobalControlUI.show('Select the client which you want to deploy.', function(){
 
                             var ids = $scope.getSelectedClient().map(function( client ){
@@ -122,7 +131,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                                         return t.Id;
                                     });
                                 }
-                                SvnService.deploy(filesId, ids, msg).then(function (data) {
+                                MasterService.deploy(filesId, ids, msg).then(function (data) {
                                     GlobalControlUI.hide();
                                     $scope.clientSelectable = false;
                                     //$scope.setClientSelectable(false);
@@ -149,31 +158,6 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                                 classStyle: 'warning'
                             })
                         });
-                    })
-                }
-            }
-        })
-        .directive('svnBackup', function(){
-            return {
-                controller: function($scope){
-
-                },
-                link: function( scope, elem ){
-                    elem.click(function(){
-
-                    })
-                }
-            }
-        })
-        .directive('svnRevert', function( SvnService ){
-
-            return {
-                controller: function( $scope ){
-
-                },
-                link: function( scope, elem ){
-                    elem.click(function(){
-
                     })
                 }
             }

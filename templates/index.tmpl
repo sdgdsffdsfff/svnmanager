@@ -4,20 +4,21 @@
     <title>Index</title>
     ${template "basic"}
 </head>
-<body ng-controller="svnManagerCtrl" class="index">
+<body ng-controller="masterCtrl" class="index">
     <div class="container-fluid">
         ${template "header"}
         <div class="version-control-bar">
             <div id="version" class="version">
                 <p class="number">Version: {{ version.Version }}</p>
                 <p class="time">Time: {{ formatTime(version.Time) }}</p>
+                {{}}
             </div>
             <div class="page-controls" ng-class="{'disable-control' : lockControl || clientSelectable }">
-                <button class="btn btn-sm btn-primary" svn-update>
+                <button class="btn btn-sm btn-primary" update>
                     <i class="fa fa-arrow-down loader"></i> Update
                 </button>
-                <button class="btn btn-sm btn-success" svn-deploy>
-                    <i class="glyphicon glyphicon-transfer"></i> Deplpy
+                <button class="btn btn-sm btn-success" compile>
+                    <i class="glyphicon glyphicon-compressed"></i> Compile
                 </button>
             </div>
         </div>

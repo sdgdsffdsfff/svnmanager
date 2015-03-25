@@ -1,5 +1,4 @@
-package svn
-
+package master
 
 import (
 	"github.com/go-martini/martini"
@@ -7,11 +6,18 @@ import (
 	"king/helper"
 	"king/utils/JSON"
 	"net/http"
-	"king/service/svn"
+	"king/service/master"
 	_ "github.com/antonholmquist/jason"
+	"king/service/task"
 )
 
 func Update(rend render.Render, req *http.Request){
+
+	if master.IsLock() {
+		rend.JSON(200, helper.Error(helper.BusyError))
+		return
+	}
+
 	result, err := update()
 	if err != nil {
 		rend.JSON(200, helper.Error(err, result))
@@ -21,6 +27,17 @@ func Update(rend render.Render, req *http.Request){
 	rend.JSON(200, helper.Success(result))
 }
 
+func Compile(rend render.Render, req *http.Request) {
+
+	if master.IsLock() {
+		rend.JSON(200, helper.Error(helper.BusyError))
+		return
+	}
+
+	task.Trigger("compile")
+	rend.JSON(200, helper.Success())
+}
+
 func Revert(rend render.Render, params martini.Params){
 	rend.JSON(200, JSON.Type{
 		"code": params["version"],
@@ -28,7 +45,7 @@ func Revert(rend render.Render, params martini.Params){
 }
 
 func GetLastVersion(rend render.Render){
-	version, err := svn.GetLastVersion()
+	version, err := master.GetLastVersion()
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
 		return
@@ -39,7 +56,7 @@ func GetLastVersion(rend render.Render){
 }
 
 func GetUndeployFiles(rend render.Render){
-	list, err := svn.GetUnDeployFileList()
+	list, err := master.GetUnDeployFileList()
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
 	} else if len(list) == 0 {

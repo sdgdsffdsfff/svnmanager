@@ -5,7 +5,7 @@ import (
 	"github.com/go-martini/martini"
 	"king/controller/client"
 	"king/controller/group"
-	"king/controller/svn"
+	"king/controller/master"
 	"king/controller/config"
 	ctrlWebSocket "king/controller/webSocket"
 	"github.com/martini-contrib/render"
@@ -47,11 +47,12 @@ func (ctn *Routes) SetRouter(m *martini.ClassicMartini){
 		r.Post("/add", group.Add)
 	})
 
-	m.Group("/aj/svn", func(r martini.Router){
-		r.Get("/lastVersion", svn.GetLastVersion)
-		r.Get("/undeploy/files", svn.GetUndeployFiles)
-		r.Post("/update", svn.Update)
-		r.Post("/revert/:version", svn.Revert)
+	m.Group("/aj", func(r martini.Router){
+		r.Get("/lastVersion", master.GetLastVersion)
+		r.Get("/undeploy/files", master.GetUndeployFiles)
+		r.Post("/update", master.Update)
+		r.Post("/compile", master.Compile)
+		r.Post("/revert/:version", master.Revert)
 	})
 
 	m.Group("/aj/config", func(r martini.Router){

@@ -1,4 +1,4 @@
-package svn
+package master
 
 import (
 	"king/model"
@@ -6,7 +6,9 @@ import (
 	"king/utils/JSON"
 	"king/utils/db"
 	"github.com/astaxie/beego/orm"
+	status "king/enum/status"
 	"fmt"
+	"king/service/webSocket"
 )
 
 const (
@@ -20,6 +22,10 @@ const (
 var Version int
 var LastVersion model.Version
 var isLock bool
+var Message string
+var Error bool
+var ErrorLog string
+var Status status.Status
 
 //获取最新版本
 func GetLastVersion() (model.Version, error) {
@@ -49,7 +55,6 @@ func UpdateVersion(data *model.Version) error{
 	return nil
 }
 
-//
 func DeployMessage( message string ) error {
 	LastVersion.Comment = message
 	if _, err := db.Orm().Update(&LastVersion, "Comment"); err != nil {
@@ -57,6 +62,41 @@ func DeployMessage( message string ) error {
 		return err
 	}
 	return nil
+}
+
+func SetBusy(yes ...bool) {
+	isBusy := true
+	if len(yes) > 0 {
+		isBusy = yes[0]
+	}
+	if !isBusy {
+		Status = status.Alive
+	} else {
+		Status = status.Busy
+	}
+}
+
+func SetMessage(message ...string) {
+	if len(message) > 0 {
+		Message = message[0]
+	} else {
+		Message = ""
+	}
+}
+
+func SetError(params ...interface{}) {
+	err := false
+	msg := ""
+
+	if len(params) > 0 {
+		err = params[0].(bool)
+		if len(params) > 1 {
+			msg = params[1].(string)
+		}
+	}
+
+	Error = err
+	ErrorLog = msg
 }
 
 //获取未部署列表
@@ -81,16 +121,18 @@ func ClearDeployFile() error {
 	return db.Truncate("up_file");
 }
 
-func GetLock() bool {
+func Lock() bool {
 	if IsLock() {
 		return false
 	}
 	isLock = true;
+	webSocket.LockMaster()
 	return true
 }
 
-func Release(){
+func Unlock(){
 	isLock = false
+	webSocket.UnlockMaster()
 }
 
 func IsLock() bool{

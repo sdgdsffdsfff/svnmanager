@@ -1,14 +1,4 @@
 #!/bin/bash
-cd /opt/wings
-echo "cd /opt/wings"
-echo "--------------------svn up---------------------------"
-#svn up
-#sleep 3
-echo "--------------------mvn clean start------------------"
-mvn clean:clean compile 
-echo "--------------------mvn clean end--------------------"
-sleep 5
-echo "--------------------kill tomcat----------------------"
 
 times=0;
 while [ `ps aux|grep java | wc -l` -gt 1 ]
@@ -27,6 +17,20 @@ done
 sleep 1
 echo "--------------------mv ROOT 2 /opt/bak---------------"
 mv /usr/local/tomcat6/webapps/ROOT /opt/bak/ROOT_$(date +%Y-%m-%d-%H:%M:%S)
+
+cd /opt/wings
+
+echo "cd /opt/wings"
+echo "--------------------svn up---------------------------"
+svn up
+#sleep 3
+echo "--------------------mvn clean start------------------"
+mvn clean:clean compile war:exploded
+echo "--------------------mvn clean end--------------------"
+sleep 5
+echo "--------------------kill tomcat----------------------"
+
+
 echo "--------------------mvn war start--------------------"
 mvn war:exploded
 # 60 = 1 minute

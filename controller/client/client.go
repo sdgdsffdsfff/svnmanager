@@ -2,15 +2,16 @@ package client
 
 import (
 	"github.com/martini-contrib/render"
-	"github.com/go-martini/martini"
 	"github.com/antonholmquist/jason"
+	"github.com/go-martini/martini"
 	"king/service/client"
 	"king/service/group"
+	"king/enum/status"
 	"king/utils/JSON"
 	"king/helper"
+	"king/model"
 	"net/http"
 	"king/rpc"
-	"king/model"
 )
 
 func List(rend render.Render){
@@ -262,12 +263,12 @@ func getClientWithAliveOrJSONError(id int64) (*client.HostClient, JSON.Type) {
 	host, err := getClientOrJSONError(id)
 	if host != nil {
 		switch host.Status {
-		case client.Alive:
+		case status.Alive:
 			return host, nil
-		case client.Die:
+		case status.Die:
 			err = helper.Error(helper.OfflineError)
 			break
-		case client.Busy:
+		case status.Busy:
 			err = helper.Error(helper.BusyError)
 			break
 		}
@@ -279,7 +280,7 @@ func getClientWithNoBusyOrJSONError(id int64) (*client.HostClient, JSON.Type) {
 	host, err := getClientOrJSONError(id)
 	if host != nil {
 		switch host.Status {
-		case client.Busy:
+		case status.Busy:
 			err = helper.Error(helper.BusyError)
 			break
 		default:

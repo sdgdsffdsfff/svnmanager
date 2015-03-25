@@ -74,3 +74,15 @@ func UpperCaseFirstLetter(str string) string {
 func Itoa64(i int64) string {
 	return strconv.FormatInt(i, 10)
 }
+
+func GetCMDOutputWithComplete(output []byte, err error) error {
+	if err != nil {
+		return err
+	}
+	lines := strings.Split(Trim(string(output)), "\n")
+	lastLine := lines[len(lines)-1]
+	if lastLine != "complete" {
+		return NewError(lastLine)
+	}
+	return nil
+}
