@@ -5,6 +5,7 @@ import (
 	"king/utils/JSON"
 	"king/service/master"
 	"king/service/webSocket"
+	"king/enum/action"
 	sh "github.com/codeskyblue/go-sh"
 	"king/model"
 	"time"
@@ -86,11 +87,11 @@ func svnup(paths ...string) (int, []JSON.Type, error){
 	for _, line := range lines {
 		if matches := regLine.FindAllStringSubmatch(line, -1); matches != nil {
 			for _, match := range matches {
-				action := match[1]
+				a := match[1]
 				path := match[2]
 				path = path[len(svnDir):]
 				list = append(list, JSON.Type{
-						"Action": master.ParseAction(action),
+						"Action": action.ParseAction(a),
 						"Path": path,
 					})
 			}

@@ -7,7 +7,7 @@ import (
 	"sync"
 	"king/utils/JSON"
 	"king/helper"
-	"king/service/svn"
+	"king/enum/action"
 	"king/model"
 	"net/url"
 	"path/filepath"
@@ -65,7 +65,7 @@ func Update(fileList []*model.UpFile, dpath ...string) []JSON.Type {
 		file := value.(*model.UpFile)
 
 		//添加和更新直接下载覆盖
-		if file.Action == svn.Add || file.Action == svn.Update{
+		if file.Action == action.Add || file.Action == action.Update{
 			fileUrl := config.ResServer() + file.Path
 
 			//解析URL错误
@@ -77,7 +77,7 @@ func Update(fileList []*model.UpFile, dpath ...string) []JSON.Type {
 				//下载错误
 				err = utils.Download(fileUrl, path, name)
 			}
-		}else if file.Action == svn.Del {
+		}else if file.Action == action.Del {
 
 			//删除文件错误
 			err = utils.RemovePath(file.Path, deployPath)

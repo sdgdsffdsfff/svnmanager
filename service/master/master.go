@@ -6,17 +6,9 @@ import (
 	"king/utils/JSON"
 	"king/utils/db"
 	"github.com/astaxie/beego/orm"
-	status "king/enum/status"
+	"king/enum/status"
 	"fmt"
 	"king/service/webSocket"
-)
-
-const (
-	None int = iota
-	Add
-	Update
-	Del
-	Wait
 )
 
 var Version int
@@ -188,19 +180,4 @@ func SaveUpFile(list []JSON.Type) error {
 		})
 	}
 	return nil
-}
-
-func ParseAction(t string) int {
-	switch t {
-	case "A":
-		return Add
-	case "U":
-		return Update
-	case "D":
-		return Del
-	case "W":
-		return Wait
-	default:
-		return None
-	}
 }
