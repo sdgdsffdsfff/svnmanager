@@ -14,7 +14,6 @@ type Task struct {
 	Timer *time.Timer
 	OnComplete func(*Task)
 	Result interface{}
-	lock chan int
 }
 
 func (r *Task) Stop(){
@@ -44,7 +43,6 @@ func New(name string, callback func(*Task) interface{}, duration ...time.Duratio
 		IsRunning: false,
 		Enable: false,
 		OnComplete: func(*Task){},
-		lock: make(chan int),
 	}
 
 	task.Watch = func(){
@@ -57,12 +55,8 @@ func New(name string, callback func(*Task) interface{}, duration ...time.Duratio
 				task.Result = nil
 				task.Result = callback(task)
 				task.OnComplete(task)
-				go func(){
-					time.Sleep( d )
-					task.lock <- 1
-				}()
 			}
-			<- task.lock
+			time.Sleep( d )
 		}
 	}
 
@@ -78,7 +72,6 @@ func Trigger(name string, fn ...func(*Task)){
 	if method, found:= taskList[name]; found {
 		method.Enable = true
 		method.IsRunning = true
-		method.lock <- 1
 		if len(fn) > 0 {
 			method.OnComplete = fn[0]
 		}

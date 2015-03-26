@@ -24,6 +24,7 @@ function( core, React, DialogComponent ){
                 onShown: $.noop,
                 onHide: $.noop,
                 onHidden: $.noop,
+                onRendered: $.noop,
                 hideClass: ''
             }, options);
 
@@ -50,6 +51,8 @@ function( core, React, DialogComponent ){
             this.element.on('hidden.bs.modal', function(){
                 self.options.onHidden.apply(self, arguments);
             });
+
+            this.options.onRendered.call(self)
         },
         _reactElement: null,
         getReact: function(){
@@ -70,14 +73,17 @@ function( core, React, DialogComponent ){
         },
         setTitle: function( title ){
             this.title.html( title );
+            return this;
         },
         show: function(){
             this.options.onShow.apply(this, arguments);
             this.element.modal('show');
+            return this
         },
         hide: function(){
             this.options.onHide.apply(this, arguments);
             this.element.modal('hide');
+            return this
         }
     });
 

@@ -455,21 +455,13 @@ ul, li {
   -webkit-flex-flow: row;
   -moz-flex-flow: row;
   flex-flow: row; }
-  .index .version-control-bar .version {
-    -webkit-box-flex: 1;
-    -moz-box-flex: 1;
-    box-flex: 1;
-    -webkit-flex: 1;
-    -moz-flex: 1;
-    -ms-flex: 1;
-    flex: 1; }
-    .index .version-control-bar .version p {
-      margin: 0; }
-    .index .version-control-bar .version .number {
-      color: #FFCB00; }
-    .index .version-control-bar .version .time {
-      color: #AAAAAA;
-      font-size: 12px; }
+  .index .version-control-bar .version p {
+    margin: 0; }
+  .index .version-control-bar .version .number {
+    color: #FFCB00; }
+  .index .version-control-bar .version .time {
+    color: #AAAAAA;
+    font-size: 12px; }
   .index .version-control-bar .page-controls {
     -webkit-box-flex: 1;
     -moz-box-flex: 1;
@@ -498,7 +490,7 @@ ul, li {
   .index .version-control-bar .page-controls {
     float: none;
     text-align: right;
-    margin-top: 10px; } }
+    margin-top: 5px; } }
 .ui-flyout {
   display: none; }
   .ui-flyout.box {
@@ -1296,3 +1288,26 @@ pre {
     color: #999; }
   .revert-dialog .more:active {
     box-shadow: inset 0 1px 2px #333; }
+
+.master-notify {
+  position: fixed;
+  top: -30px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 50;
+  -webkit-transform: top 1s ease;
+  -moz-transform: top 1s ease;
+  -ms-transform: top 1s ease;
+  -o-transform: top 1s ease;
+  transform: top 1s ease; }
+  .master-notify div {
+    display: inline-block;
+    padding: 3px 15px;
+    max-width: 80%;
+    font-size: 1.2rem;
+    color: #fff;
+    background: #219995;
+    border-radius: 0 0 4px 4px; }
+  .master-notify.show {
+    top: 0px; }

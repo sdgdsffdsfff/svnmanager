@@ -67,11 +67,6 @@ define(['kernel', 'angular', './module'],
                         $http.post('/aj/client/'+id+'/deploy')
                     )
                 },
-                getBackupList: function(id){
-                    return Helper.result(
-                        $http.get('/aj/client/'+id+'/backuplist')
-                    )
-                },
                 log: function( id ){
                     return Helper.result(
                         $http.get('/aj/client/'+id+'/log')

@@ -7,19 +7,23 @@
 <body ng-controller="masterCtrl" class="index">
     <div class="container-fluid">
         ${template "header"}
+        <div id="Notify" class="master-notify" ng-class="{ show: master.Message }">
+            <div>{{master.Message}}</div>
+        </div>
+
         <div class="version-control-bar">
             <div id="version" class="version">
                 <p class="number">Version: {{ version.Version }}</p>
-                <p class="time">Time: {{ formatTime(version.Time) }}</p>
-                {{}}
+                <p class="time">{{ formatTime(version.Time) }}</p>
             </div>
-            <div class="page-controls" ng-class="{'disable-control' : lockControl || clientSelectable }">
+            <div class="page-controls" ng-class="{'disable-control' : lockControl || master.Status == Status.Busy }">
                 <button class="btn btn-sm btn-primary" update>
                     <i class="fa fa-arrow-down loader"></i> Update
                 </button>
                 <button class="btn btn-sm btn-success" compile>
                     <i class="glyphicon glyphicon-compressed"></i> Compile
                 </button>
+                <button class="btn btn-sm btn-danger" ng-show="master.Error" show-error><i class="fa fa-exclamation"></i></button>
             </div>
         </div>
 

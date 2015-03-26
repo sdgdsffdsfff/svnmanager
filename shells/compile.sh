@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd /home/languid/svn/wings
+cd /opt/wings
 mvn clean:clean install

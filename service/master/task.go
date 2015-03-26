@@ -18,8 +18,6 @@ func init() {
 			return nil
 		}
 
-		Lock()
-		SetBusy()
 		SetMessage("Compiling")
 
 		this.Enable = false
@@ -32,6 +30,7 @@ func init() {
 			compiling = false
 			Unlock()
 			SetBusy(false)
+			SetMessage()
 			if err != nil {
 				SetError(true, string(output))
 			}

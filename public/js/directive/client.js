@@ -404,15 +404,7 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, Dialog, con
                 }
             }
         })
-        .directive('clientLog', function( ClientService ) {
-            var dialog = new Dialog({
-                title: "Log (catalina.out)",
-                size: "modal-lg"
-            });
-
-            var pre = $('<pre />');
-            dialog.body.append( pre );
-
+        .directive('clientLog', function( ClientService, LogDialogUI ) {
             var lastDefer;
 
             return {
@@ -423,8 +415,7 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, Dialog, con
                             return;
                         }
                         lastDefer = ClientService.log( scope.client.Id ).then(function( data ){
-                            pre.html(data.message);
-                            dialog.show();
+                            LogDialogUI.setTitle('Server Start log').setContent(data.message).show();
                         }, function( data ){
                             console.error('client:'+scope.client.Id+'/'+scope.client.Ip, data.message);
                             tips(elem, 'Can not open log file!', 'warning');

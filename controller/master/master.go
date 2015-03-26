@@ -34,6 +34,10 @@ func Compile(rend render.Render, req *http.Request) {
 		return
 	}
 
+	master.Lock()
+	master.SetBusy()
+	master.SetMessage("ready to compile")
+
 	task.Trigger("compile")
 	rend.JSON(200, helper.Success())
 }
@@ -63,5 +67,13 @@ func GetUndeployFiles(rend render.Render){
 		rend.JSON(200, helper.Error(helper.EmptyError) )
 	}else{
 		rend.JSON(200, helper.Success(list))
+	}
+}
+
+func ShowError(rend render.Render) {
+	if master.Error {
+		rend.JSON(200, helper.Success(master.ErrorLog))
+	} else {
+		rend.JSON(200, helper.Error())
 	}
 }

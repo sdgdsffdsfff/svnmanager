@@ -58,23 +58,9 @@ function (core, ng, Toast){
 
         SocketInstance.setScope( $scope );
 
-        SocketInstance.on('getClientList', function(data){
-            Helper.data(data).then(function( data ){
-                $scope.groupList = data.result;
-                $scope.mapClients(function(client){
-                    client._lock = false;
-                    client._error = false;
-                    if( client.Status == Status.Die ){
-                        $scope.notify(client, "connecting..")
-                    }
-                });
-                $scope.$apply();
-            })
-        });
-
         SocketInstance.on('master', function( data ){
             Helper.data(data).then(function( data ){
-                console.log( data.result )
+                $scope.master = data.result;
             });
 
             !$scope.$$parse && $scope.$apply();
@@ -174,12 +160,24 @@ function (core, ng, Toast){
 
         SocketInstance.emit('heartbeat');
         SocketInstance.emit('procstat');
-        SocketInstance.emit('getClientList');
         SocketInstance.emit('master');
 
         $scope.upgradeVersion = function( version ){
             $scope.version = version;
         };
+
+        ($scope.refresh = function(){
+            ClientService.list().then(function( data ){
+                $scope.groupList = data.result;
+                $scope.mapClients(function(client){
+                    client._lock = false;
+                    client._error = false;
+                    if( client.Status == Status.Die ){
+                        $scope.notify(client, "connecting..")
+                    }
+                });
+            })
+        })();
 
         /**
          * 移动主机到其他组并更新UI

@@ -33,6 +33,11 @@ function( core, ng, service){
                     $http.post('/aj/compile')
                 )
             },
+            getError: function(){
+                return Helper.result(
+                    $http.get('/aj/error')
+                )
+            },
             getUndeployFileList: function(){
                 return Helper.result(
                     $http.get('/aj/undeploy/files')

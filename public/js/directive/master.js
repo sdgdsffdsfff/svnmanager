@@ -10,7 +10,8 @@ define([
 'react',
 'components/ui/upgradeDialog',
 'service/MasterService',
-'service/GlobalControlUI'
+'service/GlobalControlUI',
+'service/LogDialogUI'
 ],
 function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgradeDialog ){
     directive
@@ -158,6 +159,21 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                                 classStyle: 'warning'
                             })
                         });
+                    })
+                }
+            }
+        })
+        .directive('showError', function( MasterService, LogDialogUI ){
+            return {
+                link: function(scope, elem){
+                    var lastDefer;
+                    elem.click(function(){
+                        if( lastDefer && lastDefer.state() == 'pending' ){
+                            return
+                        }
+                        lastDefer = MasterService.getError().then(function( data ){
+                            LogDialogUI.setTitle('Compile Error').setContent( data.message ).show();
+                        })
                     })
                 }
             }
