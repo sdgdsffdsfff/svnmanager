@@ -12,15 +12,16 @@ import (
 	"strings"
 	"regexp"
 	"strconv"
+	"king/service/task"
 )
 
-var svnDir string = "/home/languid/svn/wings"
+var svnDir string = "/home/languid/svn/project/king/"
 
 func update() (model.Version, error){
 	now := time.Now()
 	version := model.Version{}
 
-	num, list, err := svnup()
+	num, list, err := svnUp()
 	if err != nil {
 		return version, err
 	}
@@ -28,6 +29,8 @@ func update() (model.Version, error){
 	if master.IsChanged(num) == false {
 		return version, helper.NewError("no change")
 	}
+
+	master.Version = num
 
 	version = model.Version{
 		Version: num,
@@ -39,9 +42,9 @@ func update() (model.Version, error){
 		return version, err
 	}
 
-	if err := master.SaveUpFile(list); err != nil {
-		return version, err
-	}
+	master.SetUnDeployFile(list)
+
+	task.Trigger("UpdateHostUnDeployList")
 
 	webSocket.BroadCastAll(&webSocket.Message{
 		"svnup",
@@ -51,36 +54,24 @@ func update() (model.Version, error){
 	return version, nil
 }
 
-/**
-	return JSON.Type{
-		"reversion": "10344",
-		"list": []JSON.Type{
-			JSON.Type{
-				"path": "/_res/js/"
-				"type": "U"
-			}
-		}
-	}
- */
-
-func svnup(paths ...string) (int, []JSON.Type, error){
+func svnUp(paths ...string) (int, JSON.Type, error){
 
 	var path string
 
 	if len(paths) > 0 {
-
+		path = paths[0]
 	}else{
 		path = svnDir
 	}
 
-	output, err := sh.Command("svn", "up", path).Output()
+	output, err := sh.Command("svn", "up", path).SetTimeout( time.Second * 30 ).Output()
 	if err != nil {
 		return -1, nil, helper.NewError("svn up command error", err)
 	}
 
 	lines := strings.Split(helper.Trim(string(output)), "\n")
 
-	list := []JSON.Type{}
+	list := JSON.Type{}
 	regLine := regexp.MustCompile(`^([U|D|A])\s+(.*)`)
 	version := getVersion( lines[len(lines)-1] )
 
@@ -90,10 +81,7 @@ func svnup(paths ...string) (int, []JSON.Type, error){
 				a := match[1]
 				path := match[2]
 				path = path[len(svnDir):]
-				list = append(list, JSON.Type{
-						"Action": action.ParseAction(a),
-						"Path": path,
-					})
+				list[path] = action.ParseAction(a)
 			}
 		}
 	}

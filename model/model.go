@@ -36,6 +36,7 @@ type WebServer struct {
 	InternalIp  	string 	//内网IP
   	DeployPath		string  //部署地址
     BackupPath 		string  //备份地址
+  	UndeployList	string  //未部署列表
 }
 
 type Group struct {

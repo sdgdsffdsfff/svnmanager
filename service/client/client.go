@@ -14,6 +14,7 @@ import (
 	"king/service/webSocket"
 	"time"
 	"king/enum/status"
+	"fmt"
 )
 
 type ProcStat struct {
@@ -169,6 +170,13 @@ func (r *HostClient) RemoveBackup(path string) (interface{}, error) {
 	return result, nil
 }
 
+func (r *HostClient) UpdateUnDeployList(list *JSON.Type) error {
+	db.Orm().Read(r.WebServer)
+	fmt.Println(r.WebServer.UndeployList)
+
+	return nil
+}
+
 type HostMap map[int64]*HostClient
 
 var hostMap HostMap
@@ -192,8 +200,6 @@ func BatchCallRpc(clients HostMap, method string, params ...rpc.RpcInterface) JS
 	})
 	return results
 }
-
-
 
 func Fetch() (HostMap, error) {
 	var list []*model.WebServer

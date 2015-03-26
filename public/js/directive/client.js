@@ -415,7 +415,7 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, Dialog, con
                             return;
                         }
                         lastDefer = ClientService.log( scope.client.Id ).then(function( data ){
-                            LogDialogUI.setTitle('Server Start log').setContent(data.message).show();
+                            LogDialogUI.setTitle('Client log').setContent(data.message).show();
                         }, function( data ){
                             console.error('client:'+scope.client.Id+'/'+scope.client.Ip, data.message);
                             tips(elem, 'Can not open log file!', 'warning');
