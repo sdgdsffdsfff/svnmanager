@@ -1,22 +1,22 @@
 package server
 
 import (
-	"net/http"
-	"king/utils/JSON"
-	"king/rpc"
-	"king/model"
-	"king/service/client"
-	"king/helper"
-	"king/service/webSocket"
 	deployEnum "king/enum/deploy"
+	"king/helper"
+	"king/model"
+	"king/rpc"
+	"king/service/client"
+	"king/service/webSocket"
+	"king/utils/JSON"
+	"net/http"
 )
 
 //rpc method
-type RpcServer struct {}
+type RpcServer struct{}
 
 func (h *RpcServer) Status(r *http.Request, args *JSON.Type, reply *rpc.RpcReply) error {
 	reply.Response = JSON.Type{
-		"Ip": "ok",
+		"Ip":     "ok",
 		"Status": "ok",
 	}
 	return nil
@@ -25,9 +25,9 @@ func (h *RpcServer) Status(r *http.Request, args *JSON.Type, reply *rpc.RpcReply
 //客户端启动通知，保存客户端入库
 func (h *RpcServer) Active(r *http.Request, args *rpc.ActiveArgs, reply *rpc.RpcReply) error {
 	id, err := client.Active(&model.WebServer{
-		Ip: args.Ip,
+		Ip:         args.Ip,
 		InternalIp: args.InternalIp,
-		Port: args.Port,
+		Port:       args.Port,
 	})
 	if err != nil {
 		return helper.NewError("add client error", err)
@@ -83,7 +83,7 @@ func (h *RpcServer) DeployStatue(r *http.Request, args *rpc.SimpleArgs, reply *r
 }
 
 //controller service
-type report struct{
+type report struct {
 	List []*JSON.Type
 }
 
@@ -91,12 +91,12 @@ func (r report) String() string {
 	return JSON.Stringify(r.Data())
 }
 
-func (r report) Data() interface {} {
-	return r.List;
+func (r report) Data() interface{} {
+	return r.List
 }
 
 var ReportService *report = &report{}
 
-func init(){
+func init() {
 	rpc.AddCtrl(new(RpcServer))
 }

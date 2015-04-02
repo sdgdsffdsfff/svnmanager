@@ -1,11 +1,11 @@
 package webSocket
 
-import(
-	"time"
-	"sync"
+import (
 	"github.com/go-martini/martini"
 	"king/helper"
 	"king/utils/JSON"
+	"sync"
+	"time"
 )
 
 type MessageType int
@@ -17,28 +17,28 @@ const (
 	Danger
 )
 
-var onEmitCallback = map[string]func()JSON.Type{}
-var onAppend = func(int){}
-var onOut = func(int){}
+var onEmitCallback = map[string]func() JSON.Type{}
+var onAppend = func(int) {}
+var onOut = func(int) {}
 
-func OnEmit(name string, callback func()JSON.Type){
+func OnEmit(name string, callback func() JSON.Type) {
 	if _, found := onEmitCallback[name]; found {
 		return
 	}
 	onEmitCallback[name] = callback
 }
 
-func OnAppend(callback func(int)){
+func OnAppend(callback func(int)) {
 	onAppend = callback
 }
 
-func OnOut(callback func(int)){
+func OnOut(callback func(int)) {
 	onOut = callback
 }
 
 type Message struct {
-	Method string `json:"method"`
-	Params interface {} `json:"data"`
+	Method string      `json:"method"`
+	Params interface{} `json:"data"`
 }
 
 type socketClient struct {
@@ -47,7 +47,7 @@ type socketClient struct {
 	done       <-chan bool
 	err        <-chan error
 	disconnect chan<- int
-	message *Message // 为无限通知预留的调用状态，为最后一次请求内容
+	message    *Message // 为无限通知预留的调用状态，为最后一次请求内容
 }
 
 var syncLock = sync.Mutex{}
@@ -88,28 +88,28 @@ func Emit(client *socketClient, msg *Message) {
 }
 
 //服务器调用客户端方法
-func BroadCastAll(msg *Message){
+func BroadCastAll(msg *Message) {
 	for _, xc := range clients {
 		xc.out <- msg
 	}
 }
 
-func LockMaster(){
-	msg := &Message{ Method: "lock" }
+func LockMaster() {
+	msg := &Message{Method: "lock"}
 	for _, xc := range clients {
 		xc.out <- msg
 	}
 }
 
-func UnlockMaster(){
-	msg := &Message{ Method: "unlock" }
+func UnlockMaster() {
+	msg := &Message{Method: "unlock"}
 	for _, xc := range clients {
 		xc.out <- msg
 	}
 }
 
 //客户端调用其他客户端方法
-func BroadCast(client *socketClient, msg *Message){
+func BroadCast(client *socketClient, msg *Message) {
 	for _, xc := range clients {
 		if xc != client {
 			xc.out <- msg
@@ -117,7 +117,7 @@ func BroadCast(client *socketClient, msg *Message){
 	}
 }
 
-func Notify(text string, t ...MessageType ) {
+func Notify(text string, t ...MessageType) {
 
 	t1 := Info
 	if len(t) > 0 {
@@ -126,11 +126,11 @@ func Notify(text string, t ...MessageType ) {
 
 	BroadCastAll(&Message{"notify", JSON.Type{
 		"Message": text,
-		"Type": t1,
+		"Type":    t1,
 	}})
 }
 
-func NotifyOther(client *socketClient,text string) {
+func NotifyOther(client *socketClient, text string) {
 	Emit(client, &Message{
 		"notify", text,
 	})
@@ -138,11 +138,11 @@ func NotifyOther(client *socketClient,text string) {
 
 /*
 主动推送方法，将会根据method不停向客户端推送内容
- */
-func loopPushFrame(){
+*/
+func loopPushFrame() {
 	for {
 		syncLock.Lock()
-		helper.AsyncMap(clients, func(key, value interface{}) bool{
+		helper.AsyncMap(clients, func(key, value interface{}) bool {
 			client := value.(*socketClient)
 			if client != nil && client.message != nil {
 				if method := client.message.Method; method != "" {
@@ -152,11 +152,11 @@ func loopPushFrame(){
 			return false
 		})
 		syncLock.Unlock()
-		time.Sleep(3*time.Second)
+		time.Sleep(3 * time.Second)
 	}
 }
 
-func Listen( params martini.Params, receiver <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string){
+func Listen(params martini.Params, receiver <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error) (int, string) {
 	client := &socketClient{receiver, sender, done, err, disconnect, nil}
 	AppendClient(client)
 	// 暂停使用无限通知，让客户端自己通过循环调用

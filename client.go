@@ -5,9 +5,9 @@ import (
 	"king/config"
 	_ "king/routes/client"
 	_ "king/rpc/client"
+	"king/service/host"
 	"log"
 	"os"
-	"king/service/host"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	//设置Rpc地址
 	config.Set("rpc", config.GetString("master")+"/rpc")
 
-	bootstrap.Start(port, func(){
+	bootstrap.Start(port, func() {
 		//在服务器上添加自己，必须确定唯一属性
 		host.Detail.Ip = "192.168.1.111"
 		host.Detail.InternalIp = "192.168.1.111"

@@ -21,5 +21,5 @@ func main() {
 	log.Println("Running server on port", port)
 
 	db.Connect()
-	bootstrap.Start(port, func(){})
+	bootstrap.Start(port, func() {})
 }

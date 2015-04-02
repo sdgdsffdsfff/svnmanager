@@ -1,25 +1,25 @@
 package server
 
 import (
-	sysConfig "king/config"
+	sockets "github.com/beatrichartz/martini-sockets"
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/render"
+	sysConfig "king/config"
 	"king/controller/client"
+	"king/controller/config"
 	"king/controller/group"
 	"king/controller/master"
-	"king/controller/config"
 	ctrlWebSocket "king/controller/webSocket"
-	"github.com/martini-contrib/render"
-	sockets "github.com/beatrichartz/martini-sockets"
 	"king/service/webSocket"
 )
 
-type Routes struct {}
+type Routes struct{}
 
 func init() {
 	sysConfig.AppendValue(sysConfig.Controller, &Routes{})
 }
 
-func (ctn *Routes) SetRouter(m *martini.ClassicMartini){
+func (ctn *Routes) SetRouter(m *martini.ClassicMartini) {
 
 	m.Get("/", func(rend render.Render) {
 		rend.HTML(200, "index", nil)
@@ -28,7 +28,7 @@ func (ctn *Routes) SetRouter(m *martini.ClassicMartini){
 	m.Get("/socket", sockets.JSON(webSocket.Message{}), ctrlWebSocket.Socket)
 
 	m.Group("/aj/client", func(r martini.Router) {
-		r.Get("/list",  client.List)
+		r.Get("/list", client.List)
 		r.Get("/:id/backuplist", client.GetBackupList)
 		r.Post("/check", client.Check)
 		r.Post("/add", client.Add)
@@ -43,11 +43,11 @@ func (ctn *Routes) SetRouter(m *martini.ClassicMartini){
 		r.Post("/:id/removebackup", client.RemoveBackup)
 	})
 
-	m.Group("/aj/group", func(r martini.Router){
+	m.Group("/aj/group", func(r martini.Router) {
 		r.Post("/add", group.Add)
 	})
 
-	m.Group("/aj", func(r martini.Router){
+	m.Group("/aj", func(r martini.Router) {
 		r.Get("/error", master.ShowError)
 		r.Get("/lastVersion", master.GetLastVersion)
 		r.Get("/undeploy/files", master.GetUndeployFiles)
@@ -55,9 +55,8 @@ func (ctn *Routes) SetRouter(m *martini.ClassicMartini){
 		r.Post("/compile", master.Compile)
 	})
 
-	m.Group("/aj/config", func(r martini.Router){
+	m.Group("/aj/config", func(r martini.Router) {
 		r.Get("/aj/config/add", config.Add)
 	})
-
 
 }

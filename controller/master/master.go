@@ -1,17 +1,17 @@
 package master
 
 import (
+	_ "github.com/antonholmquist/jason"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
 	"king/helper"
+	"king/service/master"
+	"king/service/task"
 	"king/utils/JSON"
 	"net/http"
-	"king/service/master"
-	_ "github.com/antonholmquist/jason"
-	"king/service/task"
 )
 
-func Update(rend render.Render, req *http.Request){
+func Update(rend render.Render, req *http.Request) {
 
 	if master.IsLock() {
 		rend.JSON(200, helper.Error(helper.BusyError))
@@ -42,13 +42,13 @@ func Compile(rend render.Render, req *http.Request) {
 	rend.JSON(200, helper.Success())
 }
 
-func Revert(rend render.Render, params martini.Params){
+func Revert(rend render.Render, params martini.Params) {
 	rend.JSON(200, JSON.Type{
 		"code": params["version"],
 	})
 }
 
-func GetLastVersion(rend render.Render){
+func GetLastVersion(rend render.Render) {
 	version, err := master.GetLastVersion()
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
@@ -59,13 +59,13 @@ func GetLastVersion(rend render.Render){
 	rend.JSON(200, helper.Success(result))
 }
 
-func GetUndeployFiles(rend render.Render){
+func GetUndeployFiles(rend render.Render) {
 	list, err := master.GetUnDeployFileList()
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
 	} else if len(list) == 0 {
-		rend.JSON(200, helper.Error(helper.EmptyError) )
-	}else{
+		rend.JSON(200, helper.Error(helper.EmptyError))
+	} else {
 		rend.JSON(200, helper.Success(list))
 	}
 }

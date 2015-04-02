@@ -1,20 +1,20 @@
 package client
 
 import (
-	"github.com/martini-contrib/render"
 	"github.com/antonholmquist/jason"
 	"github.com/go-martini/martini"
-	"king/service/client"
-	"king/service/group"
+	"github.com/martini-contrib/render"
 	"king/enum/status"
-	"king/utils/JSON"
 	"king/helper"
 	"king/model"
-	"net/http"
 	"king/rpc"
+	"king/service/client"
+	"king/service/group"
+	"king/utils/JSON"
+	"net/http"
 )
 
-func List(rend render.Render){
+func List(rend render.Render) {
 	result := map[string]JSON.Type{}
 	clientsDict := map[string]JSON.Type{}
 
@@ -47,15 +47,15 @@ func Check(rend render.Render, req *http.Request) {
 	for _, c := range clientList {
 		result, err := c.CallRpc("CheckDeployPath", rpc.CheckDeployPathArgs{c.Id, c.DeployPath})
 		if err != nil {
-			results[ helper.Itoa64(c.Id) ] = helper.Error(err)
+			results[helper.Itoa64(c.Id)] = helper.Error(err)
 		} else {
-			results[ helper.Itoa64(c.Id) ] = result
+			results[helper.Itoa64(c.Id)] = result
 		}
 	}
 	rend.JSON(200, helper.Success(results))
 }
 
-func Add(rend render.Render, req *http.Request){
+func Add(rend render.Render, req *http.Request) {
 	c := &model.WebServer{}
 	body := JSON.FormRequest(req.Body)
 
@@ -72,7 +72,7 @@ func Add(rend render.Render, req *http.Request){
 	rend.JSON(200, helper.Success(c))
 }
 
-func Edit(rend render.Render, req *http.Request, params martini.Params){
+func Edit(rend render.Render, req *http.Request, params martini.Params) {
 
 	id := helper.Int64(params["id"])
 	host, errResponse := getClientWithNoBusyOrJSONError(id)
@@ -96,7 +96,7 @@ func Edit(rend render.Render, req *http.Request, params martini.Params){
 	rend.JSON(200, helper.Success(client.FindFromCache(c.Id)))
 }
 
-func Del(rend render.Render, params martini.Params){
+func Del(rend render.Render, params martini.Params) {
 
 	id := helper.Int64(params["id"])
 	host, errResponse := getClientWithNoBusyOrJSONError(id)
@@ -126,7 +126,7 @@ func Move(rend render.Render, params martini.Params) {
 	rend.JSON(200, helper.Success())
 }
 
-func Update(rend render.Render, req *http.Request, params martini.Params){
+func Update(rend render.Render, req *http.Request, params martini.Params) {
 
 	id := helper.Int64(params["id"])
 	host, errResponse := getClientWithAliveOrJSONError(id)
@@ -147,7 +147,7 @@ func Update(rend render.Render, req *http.Request, params martini.Params){
 	rend.JSON(200, helper.Success(result))
 }
 
-func Deploy(rend render.Render, req *http.Request, params martini.Params){
+func Deploy(rend render.Render, req *http.Request, params martini.Params) {
 
 	id := helper.Int64(params["id"])
 	host, errResponse := getClientWithAliveOrJSONError(id)
@@ -159,7 +159,7 @@ func Deploy(rend render.Render, req *http.Request, params martini.Params){
 	host.SetBusy()
 	result, err := host.Deploy()
 	if err != nil {
-		rend.JSON(200, helper.Error( err ))
+		rend.JSON(200, helper.Error(err))
 		return
 	}
 
@@ -186,7 +186,7 @@ func Revert(rend render.Render, req *http.Request, params martini.Params) {
 	rend.JSON(200, helper.Success())
 }
 
-func RemoveBackup(rend render.Render, req *http.Request, params martini.Params){
+func RemoveBackup(rend render.Render, req *http.Request, params martini.Params) {
 	id := helper.Int64(params["id"])
 	host, errResponse := getClientWithAliveOrJSONError(id)
 	if host == nil {
@@ -233,7 +233,7 @@ func ShowLog(rend render.Render, params martini.Params) {
 	rend.JSON(200, helper.Success(result))
 }
 
-func GetBackupList(rend render.Render, params martini.Params){
+func GetBackupList(rend render.Render, params martini.Params) {
 
 	id := helper.Int64(params["id"])
 	host, errResponse := getClientWithNoBusyOrJSONError(id)

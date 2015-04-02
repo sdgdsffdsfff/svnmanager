@@ -31,7 +31,7 @@ func CallMethod(i interface{}, methodName string) interface{} {
 		finalMethod = method
 	}
 
-	if (finalMethod.IsValid()) {
+	if finalMethod.IsValid() {
 		return finalMethod.Call([]reflect.Value{})[0].Interface()
 	}
 

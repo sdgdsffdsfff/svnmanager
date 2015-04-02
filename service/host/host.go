@@ -1,22 +1,22 @@
 package host
 
 import (
-	"time"
-	"king/rpc"
+	sh "github.com/codeskyblue/go-sh"
+	"github.com/golang/glog"
+	"io/ioutil"
 	"king/config"
-	"sync"
-	"king/utils/JSON"
-	"king/helper"
 	"king/enum/action"
+	"king/helper"
 	"king/model"
+	"king/rpc"
+	"king/utils"
+	"king/utils/JSON"
+	"log"
 	"net/url"
 	"path/filepath"
-	"king/utils"
-	"github.com/golang/glog"
-	sh "github.com/codeskyblue/go-sh"
-	"log"
-	"io/ioutil"
 	"strings"
+	"sync"
+	"time"
 )
 
 var Detail = rpc.ActiveArgs{}
@@ -29,7 +29,7 @@ var backupPath = "/opt/bak"
 var deployPath = "/usr/local/tomcat6/webapps/ROOT"
 var webrootPath = "/usr/local/tomcat6/webapps"
 
-func Connect(){
+func Connect() {
 	result, err := CallRpc("Active", Detail)
 	if err != nil {
 		retryTimes++
@@ -46,7 +46,7 @@ func Connect(){
 	}
 }
 
-func Active(id int64){
+func Active(id int64) {
 	if IsConnected {
 		return
 	}
@@ -60,12 +60,12 @@ func Update(fileList []*model.UpFile, dpath ...string) []JSON.Type {
 
 	results := []JSON.Type{}
 
-	helper.AsyncMap(fileList, func(key, value interface{}) bool{
+	helper.AsyncMap(fileList, func(key, value interface{}) bool {
 		var err error
 		file := value.(*model.UpFile)
 
 		//添加和更新直接下载覆盖
-		if file.Action == action.Add || file.Action == action.Update{
+		if file.Action == action.Add || file.Action == action.Update {
 			fileUrl := config.ResServer() + file.Path
 
 			//解析URL错误
@@ -77,7 +77,7 @@ func Update(fileList []*model.UpFile, dpath ...string) []JSON.Type {
 				//下载错误
 				err = utils.Download(fileUrl, path, name)
 			}
-		}else if file.Action == action.Del {
+		} else if file.Action == action.Del {
 
 			//删除文件错误
 			err = utils.RemovePath(file.Path, deployPath)
@@ -85,7 +85,7 @@ func Update(fileList []*model.UpFile, dpath ...string) []JSON.Type {
 
 		results = append(results, JSON.Type{
 			"UpFile": file,
-			"error": err,
+			"error":  err,
 		})
 		return false
 	})
@@ -93,9 +93,9 @@ func Update(fileList []*model.UpFile, dpath ...string) []JSON.Type {
 	return results
 }
 
-func Revert( path string ) error {
+func Revert(path string) error {
 	root := filepath.Join(backupPath, path)
-	err := utils.PathEnable( root )
+	err := utils.PathEnable(root)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func Revert( path string ) error {
 	return nil
 }
 
-func RemoveBackup( path string ) error {
+func RemoveBackup(path string) error {
 	root := filepath.Join(backupPath, path)
 	err := utils.PathEnable(root)
 	if err != nil {
@@ -127,7 +127,7 @@ func RemoveBackup( path string ) error {
 	return nil
 }
 
-func ShowLog() (string, error){
+func ShowLog() (string, error) {
 	output, err := sh.Command("sh", "shells/log.sh").Output()
 	if err != nil {
 		return "", err
@@ -157,7 +157,7 @@ func GetBackupList() ([]string, error) {
 	return result, nil
 }
 
-func CallRpc(method string, params interface{})(interface{}, error) {
+func CallRpc(method string, params interface{}) (interface{}, error) {
 	result, err := rpc.Send(config.MasterRpc(), "RpcServer."+method, params)
 	if err != nil {
 		IsConnected = false

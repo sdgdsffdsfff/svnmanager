@@ -1,14 +1,13 @@
 package client
 
 import (
-	"king/service/task"
+	"fmt"
 	"king/helper"
 	"king/service/master"
-	"fmt"
-	"king/service/webSocket"
+	"king/service/task"
 )
 
-func init(){
+func init() {
 	task.New("Heartbeat", func(this *task.Task) interface{} {
 		Refresh()
 		return nil
@@ -19,14 +18,13 @@ func init(){
 	task.New("UpdateHostUnDeployList", func(this *task.Task) interface{} {
 
 		if updating {
-			return
+			return nil
 		}
 
-		this.Enable = false
 		updating = true
 
-		defer func(){
-			this.Enable = true
+		defer func() {
+			this.Enable = false
 			updating = false
 		}()
 
@@ -35,8 +33,6 @@ func init(){
 				c := value.(*HostClient)
 				if err := c.UpdateUnDeployList(&master.UnDeployList); err != nil {
 					fmt.Println(err)
-				} else {
-					webSocket.Notify("Update")
 				}
 				return false
 			})

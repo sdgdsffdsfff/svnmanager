@@ -2,13 +2,13 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/Go-SQL-Driver/MySQL"
 	"github.com/astaxie/beego/orm"
-	"king/config"
 	"github.com/golang/glog"
-	"log"
+	"king/config"
 	"king/model"
-	"fmt"
+	"log"
 )
 
 type dbm struct {
@@ -41,7 +41,7 @@ func Connect() {
 	Db.Db, _ = orm.GetDB()
 }
 
-func Close(){
+func Close() {
 	Db.Db.Close()
 }
 

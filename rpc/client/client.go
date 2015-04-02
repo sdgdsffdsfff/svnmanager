@@ -2,10 +2,10 @@ package client
 
 import (
 	"king/rpc"
-	"net/http"
+	"king/service/host"
 	"king/service/task"
 	"king/utils"
-	"king/service/host"
+	"net/http"
 )
 
 //rpc method
@@ -71,6 +71,6 @@ func (h *RpcClient) ShowLog(r *http.Request, args *rpc.SimpleArgs, reply *rpc.Rp
 	return err
 }
 
-func init(){
+func init() {
 	rpc.AddCtrl(new(RpcClient))
 }

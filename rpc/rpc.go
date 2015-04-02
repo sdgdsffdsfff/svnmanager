@@ -1,18 +1,18 @@
 package rpc
 
-import(
+import (
 	"bytes"
 	"github.com/gorilla/rpc"
 	rpcJSON "github.com/gorilla/rpc/json"
 	"io/ioutil"
+	"king/helper"
 	"king/utils/JSON"
 	"net"
 	"net/http"
 	"time"
-	"king/helper"
 )
 
-type RpcArgs interface{
+type RpcArgs interface {
 	String() string
 }
 
@@ -22,13 +22,13 @@ type RpcReply struct {
 	Response interface{}
 }
 
-var rpcCtrlList []interface {}
+var rpcCtrlList []interface{}
 
 func AddCtrl(ctrl interface{}) {
 	rpcCtrlList = append(rpcCtrlList, ctrl)
 }
 
-func GetServer() *rpc.Server{
+func GetServer() *rpc.Server {
 	s := rpc.NewServer()
 	s.RegisterCodec(rpcJSON.NewCodec(), "application/json")
 
@@ -43,7 +43,7 @@ func dial(network, addr string) (net.Conn, error) {
 }
 
 func Send(url string, method string, params interface{}) (interface{}, error) {
-	contentString := `{"method": "` + method + `", "params":[` + JSON.Stringify(params) + `], "id":"`+helper.RandString(10)+`"}`
+	contentString := `{"method": "` + method + `", "params":[` + JSON.Stringify(params) + `], "id":"` + helper.RandString(10) + `"}`
 	contentBody := []byte(contentString)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(contentBody))
@@ -55,11 +55,11 @@ func Send(url string, method string, params interface{}) (interface{}, error) {
 
 	req.Header.Set("Content-Type", "application/json")
 
-	transport := http.Transport {
+	transport := http.Transport{
 		Dial: dial,
 	}
 
-	client := &http.Client {
+	client := &http.Client{
 		Transport: &transport,
 	}
 
@@ -68,7 +68,7 @@ func Send(url string, method string, params interface{}) (interface{}, error) {
 		return nil, helper.NewError("rpc request error", err)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body);
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func Send(url string, method string, params interface{}) (interface{}, error) {
 	}
 
 	if result["error"] != nil {
-		return nil, helper.NewError(method+":"+result["error"].(string))
+		return nil, helper.NewError(method + ":" + result["error"].(string))
 	}
 	//无返回内容
 	if result["result"] == nil {

@@ -2,20 +2,20 @@ package config
 
 import (
 	"github.com/martini-contrib/render"
-	"net/http"
 	"king/helper"
-	"king/utils/db"
 	"king/model"
 	"king/utils/JSON"
+	"king/utils/db"
+	"net/http"
 )
 
-func Add(rend render.Render, req *http.Request){
+func Add(rend render.Render, req *http.Request) {
 	cfg := model.Config{
 		Name: "hahaha",
 		Content: JSON.Stringify(JSON.Type{
-			"Name": "languid",
-			"XX": "jeremy",
-			"isTest": true,
+			"Name":    "languid",
+			"XX":      "jeremy",
+			"isTest":  true,
 			"clients": []int{1, 2, 3, 4, 5},
 		}),
 	}

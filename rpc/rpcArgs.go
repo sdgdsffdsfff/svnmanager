@@ -8,44 +8,44 @@ type RpcInterface interface {
 }
 
 type SimpleArgs struct {
-	Id int64
+	Id      int64
 	Message string
 	IsError bool
-	Data interface{}
-	What int
+	Data    interface{}
+	What    int
 }
 
 /***** Server Rpc Arguments ******/
 type UpdateArgs struct {
-	Id int64
-	FileUrl []*model.UpFile
+	Id         int64
+	FileUrl    []*model.UpFile
 	DeployPath string
 }
 
 type UsageArgs struct {
-	Id int64
+	Id         int64
 	CPUPercent float64
 	MEMPercent float64
 }
 
 type MessageArgs struct {
-	Id int64
+	Id     int64
 	Method string
-	Params interface {}
+	Params interface{}
 }
 
 /***** Client Rpc Arguments ******/
 
 type CheckDeployPathArgs struct {
-	Id int64
+	Id   int64
 	Path string
 }
 
 type ActiveArgs struct {
-	Ip string
+	Ip         string
 	InternalIp string
-	Port string
-	Id int64
+	Port       string
+	Id         int64
 }
 
 /***** Interface method ******/

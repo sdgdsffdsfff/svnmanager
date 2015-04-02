@@ -1,11 +1,11 @@
 package helper
 
 import (
-	"strconv"
 	"crypto/rand"
-	"strings"
 	"fmt"
 	"reflect"
+	"strconv"
+	"strings"
 )
 
 func RandString(length int) string {
@@ -29,7 +29,7 @@ func Random(length int) int {
 	return n
 }
 
-func AppendString(args ...interface{}) string{
+func AppendString(args ...interface{}) string {
 	argLen := len(args)
 	if argLen == 0 {
 		return ""
@@ -39,7 +39,7 @@ func AppendString(args ...interface{}) string{
 	i := 0
 	for i < argLen {
 		i++
-		format+= "%v"
+		format += "%v"
 	}
 	str := fmt.Sprintf(format, args...)
 	return str
@@ -63,7 +63,7 @@ func Num(arg interface{}) int {
 	return 0
 }
 
-func Int64(arg interface{}) int64{
+func Int64(arg interface{}) int64 {
 	return int64(Num(arg))
 }
 

@@ -1,16 +1,15 @@
 package master
 
 import (
-	"king/service/task"
 	sh "github.com/codeskyblue/go-sh"
-	"time"
+	"king/service/task"
 	"king/service/webSocket"
+	"time"
 )
 
 var compiling = false
 
 func init() {
-
 
 	task.New("compile", func(this *task.Task) interface{} {
 
@@ -26,7 +25,7 @@ func init() {
 		var err error
 		var output []byte
 
-		defer func(){
+		defer func() {
 			compiling = false
 			Unlock()
 			SetBusy(false)
@@ -38,7 +37,7 @@ func init() {
 
 		this.Enable = false
 
-		output, err = sh.Command("sh", "shells/compile.sh").SetTimeout( time.Minute * 1 ).Output()
+		output, err = sh.Command("sh", "shells/compile.sh").SetTimeout(time.Minute * 1).Output()
 		if err != nil {
 			webSocket.Notify("Compile failur!", webSocket.Warning)
 		}

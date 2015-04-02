@@ -1,12 +1,12 @@
 package JSON
 
-import(
+import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
-	"fmt"
-	"reflect"
 	"king/utils"
+	"reflect"
 )
 
 type Type map[string]interface{}
@@ -48,7 +48,7 @@ func Parse(data interface{}) Type {
 		x := reflect.ValueOf(data)
 		for _, v := range x.MapKeys() {
 			var key string
-			switch v.Type().Kind(){
+			switch v.Type().Kind() {
 			case reflect.String:
 				key = v.String()
 			case reflect.Struct:
@@ -68,7 +68,7 @@ func Parse(data interface{}) Type {
 func ParseToStruct(data interface{}, m interface{}) error {
 	real := reflect.Indirect(reflect.ValueOf(data))
 	t := reflect.TypeOf(real.Interface())
-	switch t.Kind(){
+	switch t.Kind() {
 	case reflect.String:
 		return json.Unmarshal([]byte(data.(string)), m)
 	case reflect.Map, reflect.Struct:
@@ -128,7 +128,7 @@ func FormRequest(body io.Reader) Type {
 	return Parse(string(json))
 }
 
-func ConvertMap(data Type) map[string]interface{}{
+func ConvertMap(data Type) map[string]interface{} {
 	return map[string]interface{}(data)
 }
 

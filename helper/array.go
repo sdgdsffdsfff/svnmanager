@@ -85,7 +85,7 @@ func AsyncMap(list interface{}, do func(key, value interface{}) bool) {
 //TODO
 //添加所有类型
 //目前指支持int, string
-func ExtendStruct(d, s interface{}, fields ...string ) error {
+func ExtendStruct(d, s interface{}, fields ...string) error {
 
 	dst := reflect.ValueOf(d).Elem()
 	src := reflect.ValueOf(s).Elem()

@@ -1,9 +1,9 @@
 package helper
 
 import (
+	"king/utils"
 	"king/utils/JSON"
 	"reflect"
-	"king/utils"
 )
 
 func Error(args ...interface{}) JSON.Type {
@@ -20,7 +20,7 @@ func Error(args ...interface{}) JSON.Type {
 		t := reflect.Indirect(reflect.ValueOf(msg)).Interface()
 		kind := reflect.TypeOf(t).Kind()
 
-		if index == 0 && reflect.TypeOf(msg).Name() == "ErrorType"  {
+		if index == 0 && reflect.TypeOf(msg).Name() == "ErrorType" {
 			res["type"] = msg
 			return false
 		}
@@ -38,10 +38,10 @@ func Error(args ...interface{}) JSON.Type {
 			if index == 1 || length == 1 {
 				if d := utils.CallMethod(msg, "Error").(string); d != "" {
 					res["message"] = d
-			}else {
-				res["result"] = msg
-			}
-			}else {
+				} else {
+					res["result"] = msg
+				}
+			} else {
 				res["result"] = msg
 			}
 		}

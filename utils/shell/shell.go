@@ -6,11 +6,11 @@ import (
 )
 
 type cmd struct {
-	cmd *exec.Cmd
+	cmd  *exec.Cmd
 	next *cmd
 }
 
-func (r *cmd) Pipe( command string ) *cmd {
+func (r *cmd) Pipe(command string) *cmd {
 	r.next = Cmd(command)
 	return r.next
 }
@@ -42,7 +42,7 @@ func (r *cmd) Output() (string, error) {
 }
 
 func Cmd(command string) *cmd {
-	parts := strings.Fields( command )
+	parts := strings.Fields(command)
 	head := parts[0]
 	parts = parts[1:len(parts)]
 

@@ -1,17 +1,15 @@
 package utils
 
-import(
-	"net/http"
-	"net"
-	"time"
+import (
 	"fmt"
+	"net"
+	"net/http"
+	"time"
 )
-
-
 
 var Client *http.Client
 
-func init(){
+func init() {
 
 	Client = &http.Client{
 		Transport: &http.Transport{
@@ -28,4 +26,3 @@ func init(){
 		},
 	}
 }
-

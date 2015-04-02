@@ -1,25 +1,25 @@
 package webSocket
 
-import(
+import (
 	"github.com/go-martini/martini"
+	"king/helper"
+	"king/service/client"
+	"king/service/master"
 	"king/service/webSocket"
 	"king/utils/JSON"
-	"king/service/client"
-	"king/helper"
-	"king/service/master"
 )
 
-func Socket( params martini.Params, receiver <-chan *webSocket.Message, sender chan<- *webSocket.Message, done <-chan bool, disconnect chan<- int, err <-chan error ) (int, string) {
+func Socket(params martini.Params, receiver <-chan *webSocket.Message, sender chan<- *webSocket.Message, done <-chan bool, disconnect chan<- int, err <-chan error) (int, string) {
 	return webSocket.Listen(params, receiver, sender, done, disconnect, err)
 }
 
-func init(){
+func init() {
 
-	webSocket.OnAppend(func(clientLength int){
+	webSocket.OnAppend(func(clientLength int) {
 		client.StartTask()
 	})
 
-	webSocket.OnOut(func(clientLength int){
+	webSocket.OnOut(func(clientLength int) {
 		if clientLength == 0 {
 			client.StopTask()
 		}
@@ -31,9 +31,9 @@ func init(){
 
 		for _, c := range list {
 			result[helper.Itoa64(c.Id)] = JSON.Type{
-				"Status": c.Status,
+				"Status":  c.Status,
 				"Message": c.Message,
-				"Error": c.Error,
+				"Error":   c.Error,
 			}
 		}
 		return helper.Success(result)
@@ -48,13 +48,13 @@ func init(){
 		}
 
 		return helper.Success(result)
-	});
+	})
 
 	webSocket.OnEmit("master", func() JSON.Type {
 		return helper.Success(JSON.Type{
 			"Message": master.Message,
-			"Error": master.Error,
-			"Status": master.Status,
+			"Error":   master.Error,
+			"Status":  master.Status,
 		})
 	})
 }

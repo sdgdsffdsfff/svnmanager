@@ -9,7 +9,7 @@ var resIp string
 
 func init() {
 	masterIp = GetString("master")
-	masterRpc = masterIp+"/rpc"
+	masterRpc = masterIp + "/rpc"
 	resIp = GetString("resServer")
 }
 

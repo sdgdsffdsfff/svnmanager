@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"io"
 	"net"
 	"time"
-	"io"
 )
 
 func Ping(ip string) (bool, error) {
@@ -21,6 +21,6 @@ func Ping(ip string) (bool, error) {
 	return false, err
 }
 
-func GetLocalIp()(string, error) {
+func GetLocalIp() (string, error) {
 	return "", nil
 }

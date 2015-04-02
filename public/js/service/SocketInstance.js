@@ -18,7 +18,7 @@ function( core, ng, service, Toast){
             this.scope = s;
         };
         socket.on('notify', function( msg ){
-            Toast.makeText( msg ).show();
+            Toast.makeText( msg.Message ).show();
         });
         return socket.listen();
     })

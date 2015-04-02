@@ -1,20 +1,19 @@
 package client
 
 import (
-	"king/model"
-	"king/utils/db"
-	"king/utils"
-	"king/rpc"
-	"king/helper"
-	"king/utils/JSON"
 	"king/bootstrap"
-	"sync"
+	"king/enum/status"
+	"king/helper"
+	"king/model"
+	"king/rpc"
 	"king/service/master"
 	"king/service/task"
 	"king/service/webSocket"
+	"king/utils"
+	"king/utils/JSON"
+	"king/utils/db"
+	"sync"
 	"time"
-	"king/enum/status"
-	"fmt"
 )
 
 type ProcStat struct {
@@ -22,12 +21,12 @@ type ProcStat struct {
 	MEMPercent float64
 }
 
-type HostClient struct{
+type HostClient struct {
 	*model.WebServer
-	Status status.Status
-	Proc *ProcStat
+	Status  status.Status
+	Proc    *ProcStat
 	Message string
-	Error string
+	Error   string
 }
 
 func (r *HostClient) SetBusy(yes ...bool) {
@@ -58,7 +57,7 @@ func (r *HostClient) SetError(err ...string) {
 	}
 }
 
-func (r *HostClient) CallRpc(method string, params ...rpc.RpcInterface)(interface{}, error) {
+func (r *HostClient) CallRpc(method string, params ...rpc.RpcInterface) (interface{}, error) {
 	var param rpc.RpcInterface = &rpc.SimpleArgs{Id: r.Id}
 
 	if len(params) > 0 && params[0] != nil {
@@ -78,7 +77,7 @@ func (r *HostClient) ReportMeUsage() interface{} {
 }
 
 func (r *HostClient) GetStatus() status.Status {
-	isConnect, _ := utils.Ping( r.GetAvailableIp() + ":" + r.Port )
+	isConnect, _ := utils.Ping(r.GetAvailableIp() + ":" + r.Port)
 	if isConnect {
 		return status.Alive
 	}
@@ -95,10 +94,9 @@ func (r *HostClient) GetAvailableIp() string {
 	return ip
 }
 
-
-func (r *HostClient) Deploy() (interface{},error) {
+func (r *HostClient) Deploy() (interface{}, error) {
 	r.Message = "ready to deploy.."
-	result, err := r.CallRpc("Deploy" , rpc.SimpleArgs{Id: r.Id})
+	result, err := r.CallRpc("Deploy", rpc.SimpleArgs{Id: r.Id})
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +104,7 @@ func (r *HostClient) Deploy() (interface{},error) {
 	return result, nil
 }
 
-func (r *HostClient) Update(fileIds []int64) (JSON.Type, error){
+func (r *HostClient) Update(fileIds []int64) (JSON.Type, error) {
 	result := JSON.Type{}
 	fileList, err := master.GetUnDeployFileList(fileIds)
 	if err != nil {
@@ -115,7 +113,7 @@ func (r *HostClient) Update(fileIds []int64) (JSON.Type, error){
 
 	webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
 
-	data, err := r.CallRpc("Update", rpc.UpdateArgs{r.Id,fileList, r.DeployPath})
+	data, err := r.CallRpc("Update", rpc.UpdateArgs{r.Id, fileList, r.DeployPath})
 	if err != nil {
 		return result, err
 	}
@@ -136,16 +134,16 @@ func (r *HostClient) Revert(path string) (interface{}, error) {
 	defer r.SetBusy(false)
 
 	result, err := r.CallRpc("Revert", rpc.SimpleArgs{
-		Id: r.Id,
+		Id:      r.Id,
 		Message: path,
 	})
 
 	if err != nil {
-		r.SetError("revert to " + path +" failure")
+		r.SetError("revert to " + path + " failure")
 		return nil, err
 	}
 	r.SetMessage("revert complete")
-	time.Sleep( time.Second * 2 )
+	time.Sleep(time.Second * 2)
 	r.SetMessage()
 	return result, nil
 }
@@ -156,24 +154,28 @@ func (r *HostClient) RemoveBackup(path string) (interface{}, error) {
 	defer r.SetBusy(false)
 
 	result, err := r.CallRpc("RemoveBackup", rpc.SimpleArgs{
-		Id: r.Id,
+		Id:      r.Id,
 		Message: path,
 	})
 
 	if err != nil {
-		r.SetError("remove " + path +" failure")
+		r.SetError("remove " + path + " failure")
 		return nil, err
 	}
 	r.SetMessage("remove complete")
-	time.Sleep( time.Second * 2 )
+	time.Sleep(time.Second * 2)
 	r.SetMessage()
 	return result, nil
 }
 
 func (r *HostClient) UpdateUnDeployList(list *JSON.Type) error {
 	db.Orm().Read(r.WebServer)
-	fmt.Println(r.WebServer.UndeployList)
-
+	newList := JSON.Extend(r.WebServer.UnDeployList, list)
+	r.WebServer.UnDeployList = JSON.Stringify(newList)
+	_, err := db.Orm().Update(r.WebServer, "UnDeployList")
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -192,9 +194,9 @@ func BatchCallRpc(clients HostMap, method string, params ...rpc.RpcInterface) JS
 		c := value.(*HostClient)
 		result, err := c.CallRpc(method, params...)
 		if err != nil {
-			results[ helper.Itoa64(c.Id) ] = helper.Error(err)
+			results[helper.Itoa64(c.Id)] = helper.Error(err)
 		} else {
-			results[ helper.Itoa64(c.Id) ] = result
+			results[helper.Itoa64(c.Id)] = result
 		}
 		return false
 	})
@@ -214,11 +216,11 @@ func Fetch() (HostMap, error) {
 }
 
 //参数为空或者是[0]代表获取所有主机
-func List( ids ...[]int64 ) (HostMap) {
+func List(ids ...[]int64) HostMap {
 	if len(ids) == 1 && len(ids[0]) > 0 && ids[0][0] != 0 {
 		list := HostMap{}
 		idList := ids[0]
-		helper.AsyncMap(idList, func(key, value interface{}) bool{
+		helper.AsyncMap(idList, func(key, value interface{}) bool {
 			if c := FindFromCache(value.(int64)); c != nil {
 				list[c.Id] = c
 			}
@@ -320,7 +322,7 @@ func Edit(client *model.WebServer, fields ...string) error {
 	return nil
 }
 
-func Del(client *model.WebServer) (error) {
+func Del(client *model.WebServer) error {
 	id := client.Id
 	if _, err := db.Orm().Delete(client); err != nil {
 		return err
@@ -329,10 +331,9 @@ func Del(client *model.WebServer) (error) {
 	return nil
 }
 
-
 func Active(client *model.WebServer) (int64, error) {
-	created, id, err := db.Orm().ReadOrCreate(client, "Ip", "InternalIp", "Port");
-	if  err != nil {
+	created, id, err := db.Orm().ReadOrCreate(client, "Ip", "InternalIp", "Port")
+	if err != nil {
 		return id, err
 	}
 	if created || id > 0 {
@@ -340,11 +341,10 @@ func Active(client *model.WebServer) (int64, error) {
 		return id, nil
 	}
 
-	return id, helper.NewError( helper.AppendString("already exisits client, id: ", id))
+	return id, helper.NewError(helper.AppendString("already exisits client, id: ", id))
 }
 
-
-func StartTask(){
+func StartTask() {
 	if taskStarted {
 		return
 	}
@@ -352,15 +352,15 @@ func StartTask(){
 	task.Trigger("Heartbeat")
 }
 
-func StopTask(){
+func StopTask() {
 	if !taskStarted {
 		return
 	}
 	taskStarted = false
 }
 
-func init(){
-	bootstrap.Register(func(){
+func init() {
+	bootstrap.Register(func() {
 		if db.IsConnected() {
 			Fetch()
 		}

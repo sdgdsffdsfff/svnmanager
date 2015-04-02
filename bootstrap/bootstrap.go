@@ -6,15 +6,15 @@ import (
 	"github.com/golang/glog"
 	"github.com/martini-contrib/render"
 	"king/config"
-	"king/utils/db"
 	"king/rpc"
+	"king/utils/db"
 	"net/http"
 )
 
 var methods = []func(){}
 
-func Register(fn func()){
-	methods = append( methods, fn)
+func Register(fn func()) {
+	methods = append(methods, fn)
 }
 
 func Start(port string, onStart func()) {

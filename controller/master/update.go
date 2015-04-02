@@ -1,23 +1,23 @@
 package master
 
 import (
-	"king/helper"
-	"king/utils/JSON"
-	"king/service/master"
-	"king/service/webSocket"
-	"king/enum/action"
 	sh "github.com/codeskyblue/go-sh"
+	"king/enum/action"
+	"king/helper"
 	"king/model"
-	"time"
-	"strings"
+	"king/service/master"
+	"king/service/task"
+	"king/service/webSocket"
+	"king/utils/JSON"
 	"regexp"
 	"strconv"
-	"king/service/task"
+	"strings"
+	"time"
 )
 
 var svnDir string = "/home/languid/svn/project/king/"
 
-func update() (model.Version, error){
+func update() (model.Version, error) {
 	now := time.Now()
 	version := model.Version{}
 
@@ -34,8 +34,8 @@ func update() (model.Version, error){
 
 	version = model.Version{
 		Version: num,
-		Time: now,
-		List: JSON.Stringify(list),
+		Time:    now,
+		List:    JSON.Stringify(list),
 	}
 
 	if err := master.UpdateVersion(&version); err != nil {
@@ -54,17 +54,17 @@ func update() (model.Version, error){
 	return version, nil
 }
 
-func svnUp(paths ...string) (int, JSON.Type, error){
+func svnUp(paths ...string) (int, JSON.Type, error) {
 
 	var path string
 
 	if len(paths) > 0 {
 		path = paths[0]
-	}else{
+	} else {
 		path = svnDir
 	}
 
-	output, err := sh.Command("svn", "up", path).SetTimeout( time.Second * 30 ).Output()
+	output, err := sh.Command("svn", "up", path).SetTimeout(time.Second * 30).Output()
 	if err != nil {
 		return -1, nil, helper.NewError("svn up command error", err)
 	}
@@ -73,7 +73,7 @@ func svnUp(paths ...string) (int, JSON.Type, error){
 
 	list := JSON.Type{}
 	regLine := regexp.MustCompile(`^([U|D|A])\s+(.*)`)
-	version := getVersion( lines[len(lines)-1] )
+	version := getVersion(lines[len(lines)-1])
 
 	for _, line := range lines {
 		if matches := regLine.FindAllStringSubmatch(line, -1); matches != nil {
@@ -89,8 +89,8 @@ func svnUp(paths ...string) (int, JSON.Type, error){
 	return version, list, nil
 }
 
-func getVersion(str string) int{
-	vIndex := strings.LastIndex(str, " ")+1
-	n, _ := strconv.Atoi(str[vIndex:len(str)-1])
+func getVersion(str string) int {
+	vIndex := strings.LastIndex(str, " ") + 1
+	n, _ := strconv.Atoi(str[vIndex : len(str)-1])
 	return n
 }

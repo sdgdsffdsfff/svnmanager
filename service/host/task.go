@@ -1,28 +1,28 @@
 package host
 
 import (
-	"king/service/proc"
-	"king/rpc"
-	"time"
-	"king/service/task"
 	sh "github.com/codeskyblue/go-sh"
-	"king/helper"
 	. "king/enum/deploy"
+	"king/helper"
+	"king/rpc"
+	"king/service/proc"
+	"king/service/task"
 	"log"
+	"time"
 )
 
 var deploying bool
 var shDir = "shells/deploy/"
 
-func broadcastAll(what int, message string){
+func broadcastAll(what int, message string) {
 	CallRpc("DeployStatue", &rpc.SimpleArgs{
-		Id: Detail.Id,
+		Id:      Detail.Id,
 		Message: message,
-		What: what,
+		What:    what,
 	})
 }
 
-func init(){
+func init() {
 	task.New("ProcStat", func(this *task.Task) interface{} {
 
 		if IsConnected == false {
@@ -33,7 +33,7 @@ func init(){
 		CallRpc("ReportUsage", rpc.UsageArgs{Detail.Id, cpu, mem})
 
 		return nil
-	}, time.Second * 1)
+	}, time.Second*1)
 
 	task.New("Deploy", func(this *task.Task) interface{} {
 
@@ -50,14 +50,14 @@ func init(){
 
 		deploying = true
 		this.Enable = false
-		defer func(){
+		defer func() {
 			deploying = false
 			if err != nil {
 				log.Println(err)
 				broadcastAll(Error, err.Error())
 			} else {
 				broadcastAll(Message, "deploy complete")
-				time.Sleep( time.Second * 2 )
+				time.Sleep(time.Second * 2)
 				broadcastAll(Finish, "")
 			}
 		}()

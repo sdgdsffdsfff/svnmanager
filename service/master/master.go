@@ -1,14 +1,14 @@
 package master
 
 import (
-	"king/model"
-	"king/helper"
-	"king/utils/JSON"
-	"king/utils/db"
+	"fmt"
 	"github.com/astaxie/beego/orm"
 	"king/enum/status"
-	"fmt"
+	"king/helper"
+	"king/model"
 	"king/service/webSocket"
+	"king/utils/JSON"
+	"king/utils/db"
 )
 
 var Version int
@@ -39,7 +39,7 @@ func IsChanged(v int) bool {
 }
 
 //添加更新记录
-func UpdateVersion(data *model.Version) error{
+func UpdateVersion(data *model.Version) error {
 	if _, err := db.Orm().Insert(data); err != nil {
 		return helper.NewError("save version error", err)
 	}
@@ -48,7 +48,7 @@ func UpdateVersion(data *model.Version) error{
 	return nil
 }
 
-func DeployMessage( message string ) error {
+func DeployMessage(message string) error {
 	LastVersion.Comment = message
 	if _, err := db.Orm().Update(&LastVersion, "Comment"); err != nil {
 		fmt.Println("error", err)
@@ -92,7 +92,7 @@ func SetError(params ...interface{}) {
 	ErrorLog = msg
 }
 
-func SetUnDeployFile(params ...JSON.Type){
+func SetUnDeployFile(params ...JSON.Type) {
 	if len(params) > 0 {
 		UnDeployList = params[0]
 	} else {
@@ -102,7 +102,7 @@ func SetUnDeployFile(params ...JSON.Type){
 
 //获取未部署列表
 //参数为空或者是[0]代表获取所有文件
-func GetUnDeployFileList( ids ...[]int64 ) ([]*model.UpFile, error) {
+func GetUnDeployFileList(ids ...[]int64) ([]*model.UpFile, error) {
 	var list []*model.UpFile
 	var qs orm.QuerySeter
 
@@ -119,23 +119,23 @@ func GetUnDeployFileList( ids ...[]int64 ) ([]*model.UpFile, error) {
 }
 
 func ClearDeployFile() error {
-	return db.Truncate("up_file");
+	return db.Truncate("up_file")
 }
 
 func Lock() bool {
 	if IsLock() {
 		return false
 	}
-	isLock = true;
+	isLock = true
 	webSocket.LockMaster()
 	return true
 }
 
-func Unlock(){
+func Unlock() {
 	isLock = false
 	webSocket.UnlockMaster()
 }
 
-func IsLock() bool{
+func IsLock() bool {
 	return isLock
 }

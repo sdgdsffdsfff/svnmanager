@@ -1,30 +1,28 @@
 package utils
 
-import(
+import ()
 
-)
-
-type Promise struct{
+type Promise struct {
 	callbacks []func()
 }
 
-func (r *Promise) Then(){
+func (r *Promise) Then() {
 
 }
 
-func (r *Promise) When(){
+func (r *Promise) When() {
 
 }
 
-func (r *Promise) Success(){
+func (r *Promise) Success() {
 
 }
 
-func (r *Promise) Resolve(){
+func (r *Promise) Resolve() {
 
 }
 
-func (r *Promise) Reject(){
+func (r *Promise) Reject() {
 
 }
 
