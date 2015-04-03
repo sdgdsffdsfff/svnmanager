@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/dlintw/goconf"
 	"king/utils/JSON"
+	"king/utils"
 )
 
 const (
@@ -12,8 +13,8 @@ const (
 
 var configFile *goconf.ConfigFile
 
-func init() {
-	configFile, _ = goconf.ReadConfigFile("config.conf")
+func init(){
+	configFile, _ = goconf.ReadConfigFile(utils.GetRuntimeDir("config.conf"))
 }
 
 func GetString(key string) string {
@@ -45,3 +46,4 @@ func Env() interface{} {
 	}
 	return -1
 }
+

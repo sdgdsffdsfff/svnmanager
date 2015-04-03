@@ -4,7 +4,7 @@ import (
 	sockets "github.com/beatrichartz/martini-sockets"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
-	sysConfig "king/config"
+	"king/controller"
 	"king/controller/client"
 	"king/controller/config"
 	"king/controller/group"
@@ -16,7 +16,7 @@ import (
 type Routes struct{}
 
 func init() {
-	sysConfig.AppendValue(sysConfig.Controller, &Routes{})
+	controller.AddController(&Routes{})
 }
 
 func (ctn *Routes) SetRouter(m *martini.ClassicMartini) {

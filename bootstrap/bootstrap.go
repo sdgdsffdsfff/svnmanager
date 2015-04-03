@@ -6,13 +6,14 @@ import (
 	"github.com/golang/glog"
 	"github.com/martini-contrib/render"
 	"king/config"
+	"king/controller"
 	"king/rpc"
+	"king/utils"
 	"king/utils/db"
 	"net/http"
 )
 
 var methods = []func(){}
-
 func Register(fn func()) {
 	methods = append(methods, fn)
 }
@@ -20,7 +21,7 @@ func Register(fn func()) {
 func Start(port string, onStart func()) {
 
 	// Logging init
-	flag.Set("log_dir", config.GetString("log_dir"))
+	flag.Set("log_dir", utils.GetRuntimeDir(config.GetString("log_dir")))
 	flag.Set("alsologtostderr", "true")
 	flag.Parse()
 	defer glog.Flush()
@@ -29,9 +30,11 @@ func Start(port string, onStart func()) {
 	m.Use(render.Renderer(render.Options{
 		Charset: "UTF-8", // Sets encoding for json and html content-types. Default is "UTF-8".
 		Delims:  render.Delims{"${", "}"},
+		Directory:	utils.GetRuntimeDir("resources/views"),
 	}))
 
-	config.MappingController(m)
+	m.Use(martini.Static(utils.GetRuntimeDir("public")))
+	controller.MappingController(m)
 
 	http.Handle("/rpc", rpc.GetServer())
 	http.Handle("/", m)

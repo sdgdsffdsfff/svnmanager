@@ -2,7 +2,6 @@ package main
 
 import (
 	"king/bootstrap"
-	"king/config"
 	_ "king/routes/server"
 	_ "king/rpc/server"
 	"king/utils/db"
@@ -11,7 +10,8 @@ import (
 )
 
 func main() {
-	port := config.GetString("serverPort")
+
+	port := "3000"
 	argLen := len(os.Args)
 
 	if argLen > 1 {

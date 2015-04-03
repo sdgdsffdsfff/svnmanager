@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	port := config.GetString("clientPort")
+	port := "4000"
 	argLen := len(os.Args)
 
 	if argLen > 1 {
