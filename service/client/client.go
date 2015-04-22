@@ -8,7 +8,7 @@ import (
 	"king/rpc"
 	"king/service/master"
 	"king/service/task"
-	"king/service/webSocket"
+	//"king/service/webSocket"
 	"king/utils"
 	"king/utils/JSON"
 	"king/utils/db"
@@ -94,6 +94,15 @@ func (r *HostClient) GetAvailableIp() string {
 	return ip
 }
 
+func (r *HostClient) GetUnDeployFiles() (JSON.Type, error) {
+	c := model.WebServer{Id: r.Id}
+	err := db.Orm().Read(&c)
+	if err != nil {
+		return nil, err
+	}
+	return JSON.Parse(c.UnDeployList), nil
+}
+
 func (r *HostClient) Deploy() (interface{}, error) {
 	r.Message = "ready to deploy.."
 	result, err := r.CallRpc("Deploy", rpc.SimpleArgs{Id: r.Id})
@@ -111,7 +120,7 @@ func (r *HostClient) Update(fileIds []int64) (JSON.Type, error) {
 		return result, err
 	}
 
-	webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
+	//webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
 
 	data, err := r.CallRpc("Update", rpc.UpdateArgs{r.Id, fileList, r.DeployPath})
 	if err != nil {
@@ -124,6 +133,8 @@ func (r *HostClient) Update(fileIds []int64) (JSON.Type, error) {
 	result["Version"] = r.Version
 	result["Rpc"] = data
 	result["Error"] = err
+
+	//webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
 
 	return result, nil
 }

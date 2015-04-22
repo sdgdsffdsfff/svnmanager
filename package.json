@@ -4,10 +4,11 @@
   "dependencies": {
     "bower":"",
     "gulp":"",
-    "gulp-ruby-sass":"",
+    "gulp-sass":"",
     "gulp-react":"",
     "gulp-minify-css":"",
     "gulp-uglify":"",
+    "colors": "",
     "amd-optimize":""
   }
 }

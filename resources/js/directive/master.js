@@ -66,7 +66,7 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
 
                     $scope.svnUpdate = function () {
                         return MasterService.svnup().then(function (data) {
-                            DeployDialog.getUnDeployFiles();
+                            //DeployDialog.getUnDeployFiles();
                             return data;
                         })
                     }
@@ -101,6 +101,15 @@ function( core, ng, directive, moment, Dialog, tips, confirm, Toast, React, upgr
                             })
                         });
                     });
+                }
+            }
+        })
+        .directive('refresh', function( ClientService ){
+            return {
+                link: function(scope, elem){
+                    elem.click(function(){
+                        scope.refresh();
+                    })
                 }
             }
         })

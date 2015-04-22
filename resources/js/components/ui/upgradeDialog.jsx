@@ -8,10 +8,26 @@ function( core, React, Dialog, FormBtns ){
     var UpfileList = React.createClass({
         getDefaultProps: function(){
             return {
-                list: []
+                list: {}
             }
         },
         render: function(){
+            var list = [], n = 0;
+            $.each(this.props.list, function( path, action ){
+                var li = (
+                    <li key={n++} data-path={path} data-action={action}>
+                        <label>
+                            <span className={"action " + this.getAction(action).toLowerCase()}>{this.getAction(action)}</span>
+                            <span className="path">{path}</span>
+                            <input type="checkbox" className="hidden" onChange={this.check} />
+                            <span className="checkbox">
+                                <i className="fa fa-check"></i>
+                            </span>
+                        </label>
+                    </li>
+                );
+                list.push(li);
+            }.bind(this));
             return (
                 <div>
                     <div className="control">
@@ -19,22 +35,7 @@ function( core, React, Dialog, FormBtns ){
                         <span onClick={this.sortByPath} id="UpFileSortByPath" data-sortby="0"><i className="fa fa-sort"></i> Path</span>
                         <span onClick={this.selectAll} data-all="false" id="UpFileSelectAllBtn">Select All</span>
                     </div>
-                    <ul>
-                        {this.props.list.map(function(item, index){
-                            return (
-                                <li key={index} data-id={item.Id}>
-                                    <label>
-                                        <span className={"action " + this.getAction(item.Action).toLowerCase()}>{this.getAction(item.Action)}</span>
-                                        <span className="path">{item.Path}</span>
-                                        <input type="checkbox" className="hidden" value={item.Id} onChange={this.check} />
-                                        <span className="checkbox">
-                                            <i className="fa fa-check"></i>
-                                        </span>
-                                    </label>
-                                </li>
-                            )
-                        }, this)}
-                    </ul>
+                    <ul>{list}</ul>
                     <div className="info">
                         <span className="add">Add:<b>0</b></span>
                         <span className="update">Update:<b>0</b></span>
@@ -58,7 +59,6 @@ function( core, React, Dialog, FormBtns ){
             this.$selectAllBtn = this.$el.find('#UpFileSelectAllBtn');
             this.$sortByActionBtn = this.$el.find('#UpFileSortByAction');
             this.$sortByPathBtn = this.$el.find('#UpFileSortByPath');
-            this.$sortByVersionBtn = this.$el.find('#UpFileSortByVersion');
             this.$info = this.$el.find('.info');
             this.$nofity = this.$el.find('.nofity');
             this.$message = this.$el.find('textarea');
@@ -74,12 +74,12 @@ function( core, React, Dialog, FormBtns ){
         },
         getActionCount: function(list){
             var an = un = dn = 0;
-            list.map(function( t ){
-                if( t['Action'] == 1 ){
+            $.each(list, function(path, action){
+                if( action == 1 ){
                     an++;
-                }else if( t['Action'] == 2 ){
+                }else if( action == 2 ){
                     un++;
-                }else if( t['Action'] == 3 ){
+                }else if( action == 3 ){
                     dn++;
                 }
             });
@@ -113,9 +113,6 @@ function( core, React, Dialog, FormBtns ){
             this.setProps({
                 list: list
             });
-            list.map(function(t){
-                this.redundancyMap[t.Id] = t;
-            }.bind(this));
             this.forceUpdate();
             this.$oldSort = this.$list.html();
             this.getCheckbox();

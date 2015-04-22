@@ -150,11 +150,7 @@ function (core, ng, Toast){
 
         SocketInstance.on('svnup', function( data ){
             Helper.data(data).then(function( data ){
-                var version = data.result;
-                $scope.upgradeVersion({
-                    Version: version.Version,
-                    Time: version.Time
-                });
+                $scope.version = data.result;
             });
         });
 
@@ -162,21 +158,27 @@ function (core, ng, Toast){
         SocketInstance.emit('procstat');
         SocketInstance.emit('master');
 
-        $scope.upgradeVersion = function( version ){
-            $scope.version = version;
+        $scope.fillList = function( data ){
+            $scope.groupList = data;
+            $scope.mapClients(function(client){
+                client._lock = false;
+                client._error = false;
+                if( client.Status == Status.Die ){
+                    $scope.notify(client, "connecting..")
+                }
+            });
         };
 
-        ($scope.refresh = function(){
-            ClientService.list().then(function( data ){
-                $scope.groupList = data.result;
-                $scope.mapClients(function(client){
-                    client._lock = false;
-                    client._error = false;
-                    if( client.Status == Status.Die ){
-                        $scope.notify(client, "connecting..")
-                    }
-                });
-            })
+        $scope.refresh = function(){
+            return ClientService.refresh().then(function( data ){
+                $scope.fillList(data.result);
+            });
+        };
+
+        ($scope.getList = function(){
+            return ClientService.list().then(function( data ){
+                $scope.fillList(data.result);
+            });
         })();
 
         /**

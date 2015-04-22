@@ -5,14 +5,14 @@ define([
 'components/form/FormFlyout',
 'components/form/FormDialog',
 'components/ui/revertDialog',
+'components/ui/upgradeDialog',
 'ui/Dialog',
 'ui/confirm',
 'ui/tips',
-'ui/Flyout',
 'service/GroupService',
 'service/ClientService'
 ],
-function( core, ng, directive, FormFlyout, FormDialog, revertDialog, Dialog, confirm, tips, Flyout){
+function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDialog, Dialog, confirm, tips){
 
     directive
         .factory('EditClientDialog', function(ClientService){
@@ -323,11 +323,55 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, Dialog, con
             }
         })
         .directive('clientUpdate', function( ClientService ){
+
+            var dialog = upgradeDialog({
+                confirm: function( btn ){
+                    btn.loading();
+                    this.check().then(function(){
+                        btn.reset();
+                    }, function( data ){
+                        btn.reset();
+                        tips(btn.$elem(), data.message, 'warning');
+                    });
+                }
+            }, null, {
+                check: function(){
+                    var self = this;
+                    return this.upfileList.message().then(function( msg ){
+                        return self.upfileList.getReadyToDeployFile().then(function( list ){
+                            self.hide();
+                            core.delay(function(){
+                                self.scope.readyToDeploy( msg, list );
+                            }, 500)
+                        })
+                    });
+                },
+                notify: function( text ){
+                    this.upfileList.notify(text);
+                },
+                getUnDeployFiles: function(id){
+                    return ClientService.getUnDeployFiles(id).then(function( data ){
+                        this.upfileList.setList(data.result);
+                        this.show();
+                    }.bind(this))
+                },
+                scope: null,
+                setScope: function( s ){
+                    this.scope = s;
+                }
+            });
+
             return {
                 link: function( scope, elem ){
                     elem.click(function(){
+
+                        dialog.getUnDeployFiles(scope.client.Id);
+                        return;
+
                         ClientService.update( scope.client.Id ).then(function( data ){
                             scope.client.Version = data.result.Version;
+                            dialog.getUnDeployFiles(scope.client.Id);
+
                         }, function( data ){
                             console.log( data )
                         })

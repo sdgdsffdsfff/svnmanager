@@ -8,7 +8,7 @@ define(['kernel', 'angular', './module'],
             return {
                 refresh: function () {
                     return Helper.result(
-                        $http.get('/aj/client/refresh')
+                        $http.post('/aj/client/refresh')
                     )
                 },
                 edit: function (cid, data) {
@@ -77,6 +77,11 @@ define(['kernel', 'angular', './module'],
                         $http.post('/aj/client/check', {
                             clientsId: ids
                         })
+                    )
+                },
+                getUnDeployFiles: function(id){
+                    return Helper.result(
+                        $http.get('/aj/client/'+id+'/unDeploy')
                     )
                 }
             }

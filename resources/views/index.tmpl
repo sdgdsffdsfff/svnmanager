@@ -17,6 +17,9 @@
                 <p class="time">{{ formatTime(version.Time) }}</p>
             </div>
             <div class="page-controls" ng-class="{'disable-control' : lockControl || master.Status == Status.Busy }">
+                <button class="btn btn-sm btn-default" refresh>
+                    <i class="fa fa-refresh loader"></i> Refresh
+                </button>
                 <button class="btn btn-sm btn-primary" update>
                     <i class="fa fa-arrow-down loader"></i> Update
                 </button>

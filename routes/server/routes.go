@@ -30,10 +30,11 @@ func (ctn *Routes) SetRouter(m *martini.ClassicMartini) {
 	m.Group("/aj/client", func(r martini.Router) {
 		r.Get("/list", client.List)
 		r.Get("/:id/backuplist", client.GetBackupList)
+		r.Get("/:id/log", client.ShowLog)
+		r.Get("/:id/unDeploy", client.GetUnDeployFiles)
 		r.Post("/check", client.Check)
 		r.Post("/add", client.Add)
 		r.Post("/refresh", client.Refresh)
-		r.Get("/:id/log", client.ShowLog)
 		r.Post("/:id/edit", client.Edit)
 		r.Post("/:id/del", client.Del)
 		r.Post("/:id/change/group/:gid", client.Move)

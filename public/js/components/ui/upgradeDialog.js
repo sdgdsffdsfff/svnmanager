@@ -8,10 +8,26 @@ function( core, React, Dialog, FormBtns ){
     var UpfileList = React.createClass({displayName: "UpfileList",
         getDefaultProps: function(){
             return {
-                list: []
+                list: {}
             }
         },
         render: function(){
+            var list = [], n = 0;
+            $.each(this.props.list, function( path, action ){
+                var li = (
+                    React.createElement("li", {key: n++, "data-path": path, "data-action": action}, 
+                        React.createElement("label", null, 
+                            React.createElement("span", {className: "action " + this.getAction(action).toLowerCase()}, this.getAction(action)), 
+                            React.createElement("span", {className: "path"}, path), 
+                            React.createElement("input", {type: "checkbox", className: "hidden", onChange: this.check}), 
+                            React.createElement("span", {className: "checkbox"}, 
+                                React.createElement("i", {className: "fa fa-check"})
+                            )
+                        )
+                    )
+                );
+                list.push(li);
+            }.bind(this));
             return (
                 React.createElement("div", null, 
                     React.createElement("div", {className: "control"}, 
@@ -19,22 +35,7 @@ function( core, React, Dialog, FormBtns ){
                         React.createElement("span", {onClick: this.sortByPath, id: "UpFileSortByPath", "data-sortby": "0"}, React.createElement("i", {className: "fa fa-sort"}), " Path"), 
                         React.createElement("span", {onClick: this.selectAll, "data-all": "false", id: "UpFileSelectAllBtn"}, "Select All")
                     ), 
-                    React.createElement("ul", null, 
-                        this.props.list.map(function(item, index){
-                            return (
-                                React.createElement("li", {key: index, "data-id": item.Id}, 
-                                    React.createElement("label", null, 
-                                        React.createElement("span", {className: "action " + this.getAction(item.Action).toLowerCase()}, this.getAction(item.Action)), 
-                                        React.createElement("span", {className: "path"}, item.Path), 
-                                        React.createElement("input", {type: "checkbox", className: "hidden", value: item.Id, onChange: this.check}), 
-                                        React.createElement("span", {className: "checkbox"}, 
-                                            React.createElement("i", {className: "fa fa-check"})
-                                        )
-                                    )
-                                )
-                            )
-                        }, this)
-                    ), 
+                    React.createElement("ul", null, list), 
                     React.createElement("div", {className: "info"}, 
                         React.createElement("span", {className: "add"}, "Add:", React.createElement("b", null, "0")), 
                         React.createElement("span", {className: "update"}, "Update:", React.createElement("b", null, "0")), 
@@ -58,7 +59,6 @@ function( core, React, Dialog, FormBtns ){
             this.$selectAllBtn = this.$el.find('#UpFileSelectAllBtn');
             this.$sortByActionBtn = this.$el.find('#UpFileSortByAction');
             this.$sortByPathBtn = this.$el.find('#UpFileSortByPath');
-            this.$sortByVersionBtn = this.$el.find('#UpFileSortByVersion');
             this.$info = this.$el.find('.info');
             this.$nofity = this.$el.find('.nofity');
             this.$message = this.$el.find('textarea');
@@ -74,12 +74,12 @@ function( core, React, Dialog, FormBtns ){
         },
         getActionCount: function(list){
             var an = un = dn = 0;
-            list.map(function( t ){
-                if( t['Action'] == 1 ){
+            $.each(list, function(path, action){
+                if( action == 1 ){
                     an++;
-                }else if( t['Action'] == 2 ){
+                }else if( action == 2 ){
                     un++;
-                }else if( t['Action'] == 3 ){
+                }else if( action == 3 ){
                     dn++;
                 }
             });
@@ -113,9 +113,6 @@ function( core, React, Dialog, FormBtns ){
             this.setProps({
                 list: list
             });
-            list.map(function(t){
-                this.redundancyMap[t.Id] = t;
-            }.bind(this));
             this.forceUpdate();
             this.$oldSort = this.$list.html();
             this.getCheckbox();

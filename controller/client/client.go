@@ -14,7 +14,7 @@ import (
 	"net/http"
 )
 
-func List(rend render.Render) {
+func fillClientList() map[string]JSON.Type {
 	result := map[string]JSON.Type{}
 	clientsDict := map[string]JSON.Type{}
 
@@ -36,7 +36,20 @@ func List(rend render.Render) {
 		g["Clients"] = clientsDict[id]
 	}
 
-	rend.JSON(200, helper.Success(result))
+	return result
+}
+
+func List(rend render.Render) {
+	rend.JSON(200, helper.Success(fillClientList()))
+}
+
+func Refresh(rend render.Render) {
+	_, err := client.Fetch()
+	if err != nil {
+		rend.JSON(200, helper.Error(err))
+		return
+	}
+	rend.JSON(200, helper.Success(fillClientList()))
 }
 
 func Check(rend render.Render, req *http.Request) {
@@ -205,16 +218,6 @@ func RemoveBackup(rend render.Render, req *http.Request, params martini.Params) 
 	rend.JSON(200, helper.Success())
 }
 
-func Refresh(rend render.Render) {
-
-	list, err := client.Fetch()
-	if err != nil {
-		rend.JSON(200, helper.Error(err))
-		return
-	}
-	rend.JSON(200, helper.Success(list))
-}
-
 func ShowLog(rend render.Render, params martini.Params) {
 
 	id := helper.Int64(params["id"])
@@ -243,6 +246,23 @@ func GetBackupList(rend render.Render, params martini.Params) {
 	}
 
 	result, err := host.CallRpc("GetBackupList")
+	if err != nil {
+		rend.JSON(200, helper.Error(err))
+		return
+	}
+
+	rend.JSON(200, helper.Success(result))
+}
+
+func GetUnDeployFiles(rend render.Render, params martini.Params) {
+
+	id := helper.Int64(params["id"])
+	host, errResponse := getClientWithNoBusyOrJSONError(id)
+	if host == nil {
+		rend.JSON(200, errResponse)
+		return
+	}
+	result, err := host.GetUnDeployFiles()
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
 		return
