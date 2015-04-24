@@ -55,10 +55,10 @@ define(['kernel', 'angular', './module'],
                         $http.post('/aj/client/' + cid + '/change/group/' + gid)
                     )
                 },
-                update: function( id, fileIds){
+                update: function( id, files){
                     return Helper.result(
                         $http.post('/aj/client/'+id+'/update', {
-                            fileIds: fileIds
+                            files: files
                         })
                     )
                 },

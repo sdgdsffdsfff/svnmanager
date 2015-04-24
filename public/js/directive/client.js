@@ -322,7 +322,12 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
                 }
             }
         })
+        /**
+         * 单客户端文件文件更新
+         */
         .directive('clientUpdate', function( ClientService ){
+
+            var currentHostId = 0;
 
             var dialog = upgradeDialog({
                 confirm: function( btn ){
@@ -337,20 +342,20 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
             }, null, {
                 check: function(){
                     var self = this;
-                    return this.upfileList.message().then(function( msg ){
-                        return self.upfileList.getReadyToDeployFile().then(function( list ){
-                            self.hide();
-                            core.delay(function(){
-                                self.scope.readyToDeploy( msg, list );
-                            }, 500)
-                        })
-                    });
+                    return self.upfileList.getReadyToDeployFile().then(function( list ){
+                        self.hide();
+                        core.delay(function(){
+                            ClientService.update(currentHostId, list).then(function( data ){
+                                console.log( data )
+                            });
+                        }, 500)
+                    })
                 },
                 notify: function( text ){
                     this.upfileList.notify(text);
                 },
-                getUnDeployFiles: function(id){
-                    return ClientService.getUnDeployFiles(id).then(function( data ){
+                getUnDeployFiles: function(){
+                    return ClientService.getUnDeployFiles(currentHostId).then(function( data ){
                         this.upfileList.setList(data.result);
                         this.show();
                     }.bind(this))
@@ -364,13 +369,13 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
             return {
                 link: function( scope, elem ){
                     elem.click(function(){
-
-                        dialog.getUnDeployFiles(scope.client.Id);
+                        currentHostId = scope.client.Id;
+                        dialog.getUnDeployFiles(currentHostId);
                         return;
 
-                        ClientService.update( scope.client.Id ).then(function( data ){
+                        ClientService.update( currentHostId ).then(function( data ){
                             scope.client.Version = data.result.Version;
-                            dialog.getUnDeployFiles(scope.client.Id);
+                            dialog.getUnDeployFiles(currentHostId);
 
                         }, function( data ){
                             console.log( data )

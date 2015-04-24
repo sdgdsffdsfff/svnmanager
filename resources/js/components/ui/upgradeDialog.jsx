@@ -19,7 +19,7 @@ function( core, React, Dialog, FormBtns ){
                         <label>
                             <span className={"action " + this.getAction(action).toLowerCase()}>{this.getAction(action)}</span>
                             <span className="path">{path}</span>
-                            <input type="checkbox" className="hidden" onChange={this.check} />
+                            <input type="checkbox" className="hidden" value={path} onChange={this.check} />
                             <span className="checkbox">
                                 <i className="fa fa-check"></i>
                             </span>
@@ -41,9 +41,6 @@ function( core, React, Dialog, FormBtns ){
                         <span className="update">Update:<b>0</b></span>
                         <span className="delete">Delete:<b>0</b></span>
                     </div>
-                    <div className="message">
-                        <textarea className="form-control" placeholder="Deploy Message"></textarea>
-                    </div>
                     <div className="nofity"></div>
                 </div>
             )
@@ -61,7 +58,6 @@ function( core, React, Dialog, FormBtns ){
             this.$sortByPathBtn = this.$el.find('#UpFileSortByPath');
             this.$info = this.$el.find('.info');
             this.$nofity = this.$el.find('.nofity');
-            this.$message = this.$el.find('textarea');
         },
         getCheckbox: function(){
             this.$items = this.$el.find('li');
@@ -93,18 +89,6 @@ function( core, React, Dialog, FormBtns ){
             } else if( this.$selectAllBtn.data('all') ) {
                 this.$selectAllBtn.data('all', false).html('Select All');
             }
-        },
-        message: function(){
-            var q = $.Deferred(), value = this.$message.val().trim();
-            if( value.length ) {
-                q.resolve(value)
-            }else{
-                this.$message.focus();
-                q.reject({
-                    message: 'please enter deploy message'
-                });
-            }
-            return q;
         },
         notify: function( text ){
             this.$nofity.html(text);
@@ -207,11 +191,11 @@ function( core, React, Dialog, FormBtns ){
                 })
             } else if( checkedBoxes.length == this.$checkboxes.length) {
                 //表示部署全部文件
-                q.resolve([0])
+                q.resolve(this.props.list)
             } else {
-                var result = [];
+                var result = {};
                 checkedBoxes.each(function(){
-                    result.push( self.redundancyMap[this.value] )
+                    result[this.value] = self.props.list[this.value];
                 });
                 q.resolve(result);
             }
@@ -221,7 +205,7 @@ function( core, React, Dialog, FormBtns ){
 
     return function( events, options, extral ){
         var buttons = [{
-            text: 'Next',
+            text: 'Upload',
             className: 'btn-primary',
             click: events.confirm
         }];

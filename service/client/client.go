@@ -6,7 +6,6 @@ import (
 	"king/helper"
 	"king/model"
 	"king/rpc"
-	"king/service/master"
 	"king/service/task"
 	//"king/service/webSocket"
 	"king/utils"
@@ -64,6 +63,7 @@ func (r *HostClient) CallRpc(method string, params ...rpc.RpcInterface) (interfa
 		param = params[0]
 		param.SetId(r.Id)
 	}
+
 	return rpc.Send(r.RpcIp(), "RpcClient."+method, param)
 }
 
@@ -110,32 +110,6 @@ func (r *HostClient) Deploy() (interface{}, error) {
 		return nil, err
 	}
 	r.Message = "deploying.."
-	return result, nil
-}
-
-func (r *HostClient) Update(fileIds []int64) (JSON.Type, error) {
-	result := JSON.Type{}
-	fileList, err := master.GetUnDeployFileList(fileIds)
-	if err != nil {
-		return result, err
-	}
-
-	//webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
-
-	data, err := r.CallRpc("Update", rpc.UpdateArgs{r.Id, fileList, r.DeployPath})
-	if err != nil {
-		return result, err
-	}
-
-	r.Version = master.Version
-	err = Edit(r.WebServer, "Version")
-
-	result["Version"] = r.Version
-	result["Rpc"] = data
-	result["Error"] = err
-
-	//webSocket.BroadCastAll(&webSocket.Message{"lock", nil})
-
 	return result, nil
 }
 

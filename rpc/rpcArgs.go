@@ -1,7 +1,5 @@
 package rpc
 
-import "king/model"
-
 type RpcInterface interface {
 	SetId(int64)
 	GetId() int64
@@ -16,9 +14,12 @@ type SimpleArgs struct {
 }
 
 /***** Server Rpc Arguments ******/
+type UploadFileList map[string]int
+
 type UpdateArgs struct {
 	Id         int64
-	FileUrl    []*model.UpFile
+	FileList   UploadFileList
+	ResPath	   string
 	DeployPath string
 }
 
@@ -27,6 +28,8 @@ type UsageArgs struct {
 	CPUPercent float64
 	MEMPercent float64
 }
+
+
 
 type MessageArgs struct {
 	Id     int64

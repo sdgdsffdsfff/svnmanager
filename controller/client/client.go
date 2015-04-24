@@ -12,6 +12,8 @@ import (
 	"king/service/group"
 	"king/utils/JSON"
 	"net/http"
+	"king/config"
+	"fmt"
 )
 
 func fillClientList() map[string]JSON.Type {
@@ -140,24 +142,34 @@ func Move(rend render.Render, params martini.Params) {
 }
 
 func Update(rend render.Render, req *http.Request, params martini.Params) {
-
 	id := helper.Int64(params["id"])
-	host, errResponse := getClientWithAliveOrJSONError(id)
+	host, errResponse := getClientWithNoBusyOrJSONError(id)
 	if host == nil {
 		rend.JSON(200, errResponse)
 		return
 	}
 
-	body, err := jason.NewObjectFromReader(req.Body)
-	fileIds, err := body.GetInt64Array("fileIds")
+	body := JSON.FormRequest(req.Body)
+	files := body["files"]
 
-	result, err := host.Update(fileIds)
+	upFile := rpc.UploadFileList{}
+	JSON.ParseToStruct(JSON.Stringify(files), &upFile)
+
+	uploadFiles := &rpc.UpdateArgs{
+		Id: host.Id,
+		ResPath: config.ResServer(),
+		FileList: upFile,
+	}
+
+	fmt.Println(host.RpcIp())
+
+	_, err := host.CallRpc("Update", uploadFiles)
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
 		return
 	}
 
-	rend.JSON(200, helper.Success(result))
+	rend.JSON(200, helper.Success())
 }
 
 func Deploy(rend render.Render, req *http.Request, params martini.Params) {

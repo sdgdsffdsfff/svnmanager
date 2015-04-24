@@ -5,9 +5,8 @@ import (
 	"github.com/golang/glog"
 	"io/ioutil"
 	"king/config"
-	"king/enum/action"
+	actionEnum "king/enum/action"
 	"king/helper"
-	"king/model"
 	"king/rpc"
 	"king/utils"
 	"king/utils/JSON"
@@ -54,19 +53,20 @@ func Active(id int64) {
 	IsConnected = true
 }
 
-func Update(fileList []*model.UpFile, dpath ...string) []JSON.Type {
+func Update(u *rpc.UpdateArgs) []JSON.Type {
 	lock.Lock()
 	defer lock.Unlock()
 
 	results := []JSON.Type{}
 
-	helper.AsyncMap(fileList, func(key, value interface{}) bool {
+	helper.AsyncMap(u.FileList, func(key, value interface{}) bool {
 		var err error
-		file := value.(*model.UpFile)
+		path := key.(string)
+		action := value.(int)
 
 		//添加和更新直接下载覆盖
-		if file.Action == action.Add || file.Action == action.Update {
-			fileUrl := config.ResServer() + file.Path
+		if action == actionEnum.Add || action == actionEnum.Update {
+			fileUrl := u.ResPath + path
 
 			//解析URL错误
 			Url, err := url.Parse(fileUrl)
@@ -77,14 +77,14 @@ func Update(fileList []*model.UpFile, dpath ...string) []JSON.Type {
 				//下载错误
 				err = utils.Download(fileUrl, path, name)
 			}
-		} else if file.Action == action.Del {
+		} else if action == actionEnum.Del {
 
 			//删除文件错误
-			err = utils.RemovePath(file.Path, deployPath)
+			err = utils.RemovePath(path, deployPath)
 		}
 
 		results = append(results, JSON.Type{
-			"UpFile": file,
+			"UpFile": path,
 			"error":  err,
 		})
 		return false

@@ -30,8 +30,7 @@ func (h *RpcClient) Procstat(r *http.Request, args *rpc.SimpleArgs, reply *rpc.R
 
 func (h *RpcClient) Update(r *http.Request, args *rpc.UpdateArgs, reply *rpc.RpcReply) error {
 	host.Active(args.Id)
-
-	reply.Response = host.Update(args.FileUrl, args.DeployPath)
+	reply.Response = host.Update(args)
 	return nil
 }
 

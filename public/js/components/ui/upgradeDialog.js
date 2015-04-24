@@ -19,7 +19,7 @@ function( core, React, Dialog, FormBtns ){
                         React.createElement("label", null, 
                             React.createElement("span", {className: "action " + this.getAction(action).toLowerCase()}, this.getAction(action)), 
                             React.createElement("span", {className: "path"}, path), 
-                            React.createElement("input", {type: "checkbox", className: "hidden", onChange: this.check}), 
+                            React.createElement("input", {type: "checkbox", className: "hidden", value: path, onChange: this.check}), 
                             React.createElement("span", {className: "checkbox"}, 
                                 React.createElement("i", {className: "fa fa-check"})
                             )
@@ -41,9 +41,6 @@ function( core, React, Dialog, FormBtns ){
                         React.createElement("span", {className: "update"}, "Update:", React.createElement("b", null, "0")), 
                         React.createElement("span", {className: "delete"}, "Delete:", React.createElement("b", null, "0"))
                     ), 
-                    React.createElement("div", {className: "message"}, 
-                        React.createElement("textarea", {className: "form-control", placeholder: "Deploy Message"})
-                    ), 
                     React.createElement("div", {className: "nofity"})
                 )
             )
@@ -61,7 +58,6 @@ function( core, React, Dialog, FormBtns ){
             this.$sortByPathBtn = this.$el.find('#UpFileSortByPath');
             this.$info = this.$el.find('.info');
             this.$nofity = this.$el.find('.nofity');
-            this.$message = this.$el.find('textarea');
         },
         getCheckbox: function(){
             this.$items = this.$el.find('li');
@@ -93,18 +89,6 @@ function( core, React, Dialog, FormBtns ){
             } else if( this.$selectAllBtn.data('all') ) {
                 this.$selectAllBtn.data('all', false).html('Select All');
             }
-        },
-        message: function(){
-            var q = $.Deferred(), value = this.$message.val().trim();
-            if( value.length ) {
-                q.resolve(value)
-            }else{
-                this.$message.focus();
-                q.reject({
-                    message: 'please enter deploy message'
-                });
-            }
-            return q;
         },
         notify: function( text ){
             this.$nofity.html(text);
@@ -207,11 +191,11 @@ function( core, React, Dialog, FormBtns ){
                 })
             } else if( checkedBoxes.length == this.$checkboxes.length) {
                 //表示部署全部文件
-                q.resolve([0])
+                q.resolve(this.props.list)
             } else {
-                var result = [];
+                var result = {};
                 checkedBoxes.each(function(){
-                    result.push( self.redundancyMap[this.value] )
+                    result[this.value] = self.props.list[this.value];
                 });
                 q.resolve(result);
             }
@@ -221,7 +205,7 @@ function( core, React, Dialog, FormBtns ){
 
     return function( events, options, extral ){
         var buttons = [{
-            text: 'Next',
+            text: 'Upload',
             className: 'btn-primary',
             click: events.confirm
         }];
