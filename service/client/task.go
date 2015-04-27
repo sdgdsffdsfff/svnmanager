@@ -1,10 +1,10 @@
 package client
 
 import (
-	"fmt"
 	"king/helper"
 	"king/service/master"
 	"king/service/task"
+	"king/service/webSocket"
 )
 
 func init() {
@@ -15,7 +15,7 @@ func init() {
 
 	updating := false
 
-	task.New("UpdateHostUnDeployList", func(this *task.Task) interface{} {
+	task.New("client.UpdateHostUnDeployList", func(this *task.Task) interface{} {
 
 		if updating {
 			return nil
@@ -28,13 +28,21 @@ func init() {
 			updating = false
 		}()
 
+		webSocket.BroadCastAll(&webSocket.Message{
+			Method: "syncDeployList",
+		})
+
 		if master.UnDeployList != nil {
+			result := map[int64]error{}
 			helper.AsyncMap(hostMap, func(key, value interface{}) bool {
 				c := value.(*HostClient)
-				if err := c.UpdateUnDeployList(&master.UnDeployList); err != nil {
-					fmt.Println(err)
-				}
+				err := c.UpdateUnDeployList(&master.UnDeployList)
+				result[c.Id] = err
 				return false
+			})
+			webSocket.BroadCastAll(&webSocket.Message{
+				Method: "syncDeployList",
+				Params: result,
 			})
 		}
 		return nil

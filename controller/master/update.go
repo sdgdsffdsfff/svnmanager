@@ -44,7 +44,7 @@ func update() (model.Version, error) {
 
 	master.SetUnDeployFile(list)
 
-	task.Trigger("UpdateHostUnDeployList")
+	task.Trigger("client.UpdateHostUnDeployList")
 
 	webSocket.BroadCastAll(&webSocket.Message{
 		"svnup",

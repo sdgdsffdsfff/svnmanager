@@ -16,7 +16,6 @@ import (
 	"sync"
 	"time"
 	"path"
-	"fmt"
 )
 
 var Detail = rpc.ActiveArgs{}
@@ -54,15 +53,16 @@ func Active(id int64) {
 	IsConnected = true
 }
 
-func Update(u *rpc.UpdateArgs) []JSON.Type {
+func Update(u *rpc.UpdateArgs) JSON.Type {
 	lock.Lock()
 	defer lock.Unlock()
 
-	results := []JSON.Type{}
+	results := JSON.Type{}
 
 	helper.AsyncMap(u.FileList, func(key, value interface{}) bool {
 		var err error
-		filePath := "/" + key.(string)
+		p := key.(string)
+		filePath := "/" + p
 		action := value.(int)
 
 		//添加和更新直接下载覆盖
@@ -73,16 +73,15 @@ func Update(u *rpc.UpdateArgs) []JSON.Type {
 			err = utils.Download(fileUrl, path.Join(deployPath, filePath))
 		} else if action == actionEnum.Del {
 			//删除文件错误
-			err = utils.RemovePath( path.Join(deployPath, filePath) )
+			utils.RemovePath( path.Join(deployPath, filePath) )
 		}
 
-		fmt.Println(err)
+		if err != nil {
+			results[p] = err.Error()
+		} else {
+			results[p] = true
+		}
 
-		results = append(results, JSON.Type{
-			"path": filePath,
-			"action": action,
-			"error":  err,
-		})
 		return false
 	})
 

@@ -331,26 +331,19 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
 
             var dialog = upgradeDialog({
                 confirm: function( btn ){
-                    btn.loading();
-                    this.check().then(function(){
-                        btn.reset();
+
+                    this.upfileList.getReadyToDeployFile().then(function(list){
+                        btn.loading("Uploading..");
+                        ClientService.update(currentHostId, list).then(function( data ){
+                            self.close();
+                            btn.reset()
+                        });
                     }, function( data ){
                         btn.reset();
                         tips(btn.$elem(), data.message, 'warning');
                     });
                 }
             }, null, {
-                check: function(){
-                    var self = this;
-                    return self.upfileList.getReadyToDeployFile().then(function( list ){
-                        self.hide();
-                        core.delay(function(){
-                            ClientService.update(currentHostId, list).then(function( data ){
-                                console.log( data )
-                            });
-                        }, 500)
-                    })
-                },
                 notify: function( text ){
                     this.upfileList.notify(text);
                 },

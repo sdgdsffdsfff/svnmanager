@@ -206,6 +206,7 @@ function( core, React, Dialog, FormBtns ){
     return function( events, options, extral ){
         var buttons = [{
             text: 'Upload',
+            name: 'confirm',
             className: 'btn-primary',
             click: events.confirm
         }];

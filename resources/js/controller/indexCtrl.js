@@ -154,6 +154,17 @@ function (core, ng, Toast){
             });
         });
 
+        SocketInstance.on('syncDeployList', function( data ){
+
+            if( data ){
+                console.log( data )
+            } else {
+                $scope.mapClients(function( client ){
+                    $scope.notify(client, "Synchronizing file list..");
+                });
+            }
+        });
+
         SocketInstance.emit('heartbeat');
         SocketInstance.emit('procstat');
         SocketInstance.emit('master');
@@ -321,7 +332,7 @@ function (core, ng, Toast){
             $scope.lockControl = enable;
             $scope.$digest();
         }
-    })
+    });
 
 
     ng.bootstrap(document, ['App']);

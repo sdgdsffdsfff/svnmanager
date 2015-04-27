@@ -13,6 +13,7 @@ import (
 	"king/utils/JSON"
 	"net/http"
 	"king/config"
+	"reflect"
 	"fmt"
 )
 
@@ -149,6 +150,14 @@ func Update(rend render.Render, req *http.Request, params martini.Params) {
 		return
 	}
 
+	//未部署列表
+	unDeployFileList, err := host.GetUnDeployFiles()
+	if err != nil || unDeployFileList == nil {
+		rend.JSON(200, helper.Error(err))
+		return
+	}
+
+	//选择要上传的文件
 	body := JSON.FormRequest(req.Body)
 	files := body["files"]
 
@@ -159,15 +168,34 @@ func Update(rend render.Render, req *http.Request, params martini.Params) {
 		Id: host.Id,
 		ResPath: config.ResServer(),
 		FileList: upFile,
+		DeployPath: host.DeployPath,
 	}
 
-	_, err := host.CallRpc("Update", uploadFiles)
+	//上传
+	completeUploadList, err := host.CallRpc("Update", uploadFiles)
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
 		return
 	}
 
-	rend.JSON(200, helper.Success())
+	//上传ok就删除对应路径记录
+	helper.Map(completeUploadList, func(key, value interface{}) bool {
+		p := key.(string)
+		v := reflect.ValueOf(value)
+		if v.Kind() == reflect.Bool {
+			delete(unDeployFileList, p)
+		}
+		return false
+	})
+
+	//更新记录
+	host.WebServer.UnDeployList = JSON.Stringify(unDeployFileList)
+
+	err = client.Edit(host.WebServer, "UnDeployList")
+	if err != nil {
+		fmt.Println(err)
+	}
+	rend.JSON(200, helper.Success(completeUploadList))
 }
 
 func Deploy(rend render.Render, req *http.Request, params martini.Params) {
@@ -273,7 +301,7 @@ func GetUnDeployFiles(rend render.Render, params martini.Params) {
 		return
 	}
 	result, err := host.GetUnDeployFiles()
-	if err != nil || result == nil {
+	if err != nil || result == nil || helper.Cap(result) == 0 {
 		rend.JSON(200, helper.Error(err))
 		return
 	}
