@@ -11,11 +11,12 @@ import (
 	"king/utils"
 	"king/utils/JSON"
 	"log"
-	"net/url"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+	"path"
+	"fmt"
 )
 
 var Detail = rpc.ActiveArgs{}
@@ -25,7 +26,7 @@ var IsConnected = false
 var reActiveTimes time.Duration = 5
 var retryTimes time.Duration = 0
 var backupPath = "/opt/bak"
-var deployPath = "/usr/local/tomcat6/webapps/ROOT"
+var deployPath = "/home/languid/svn/download/test"
 var webrootPath = "/usr/local/tomcat6/webapps"
 
 func Connect() {
@@ -61,30 +62,25 @@ func Update(u *rpc.UpdateArgs) []JSON.Type {
 
 	helper.AsyncMap(u.FileList, func(key, value interface{}) bool {
 		var err error
-		path := key.(string)
+		filePath := "/" + key.(string)
 		action := value.(int)
 
 		//添加和更新直接下载覆盖
 		if action == actionEnum.Add || action == actionEnum.Update {
-			fileUrl := u.ResPath + path
 
-			//解析URL错误
-			Url, err := url.Parse(fileUrl)
-			if err == nil {
-				dir, name := filepath.Split(Url.Path)
-				path := deployPath + dir
-
-				//下载错误
-				err = utils.Download(fileUrl, path, name)
-			}
+			fileUrl := u.ResPath + filePath
+			//下载错误
+			err = utils.Download(fileUrl, path.Join(deployPath, filePath))
 		} else if action == actionEnum.Del {
-
 			//删除文件错误
-			err = utils.RemovePath(path, deployPath)
+			err = utils.RemovePath( path.Join(deployPath, filePath) )
 		}
 
+		fmt.Println(err)
+
 		results = append(results, JSON.Type{
-			"UpFile": path,
+			"path": filePath,
+			"action": action,
 			"error":  err,
 		})
 		return false

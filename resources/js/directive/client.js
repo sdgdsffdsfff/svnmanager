@@ -355,10 +355,13 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
                     this.upfileList.notify(text);
                 },
                 getUnDeployFiles: function(){
+                    var self = this;
                     return ClientService.getUnDeployFiles(currentHostId).then(function( data ){
-                        this.upfileList.setList(data.result);
-                        this.show();
-                    }.bind(this))
+                        if( data && data.result ) {
+                            self.upfileList.setList(data.result);
+                            self.show();
+                        }
+                    });
                 },
                 scope: null,
                 setScope: function( s ){
@@ -368,18 +371,15 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
 
             return {
                 link: function( scope, elem ){
+                    var lastDefer = null;
                     elem.click(function(){
                         currentHostId = scope.client.Id;
-                        dialog.getUnDeployFiles(currentHostId);
-                        return;
-
-                        ClientService.update( currentHostId ).then(function( data ){
-                            scope.client.Version = data.result.Version;
-                            dialog.getUnDeployFiles(currentHostId);
-
-                        }, function( data ){
-                            console.log( data )
-                        })
+                        if( lastDefer && lastDefer.state() == 'pending') {
+                            return;
+                        }
+                        lastDefer = dialog.getUnDeployFiles(currentHostId).then(null, function(){
+                            tips(elem, 'No Files', 'warning');
+                        });
                     })
                 }
             }

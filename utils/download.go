@@ -1,49 +1,41 @@
 package utils
 
 import (
-	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
+	"io"
+	"strings"
 )
 
-//fileUrl, where, [name]
 func Download(fileUrl, where string, args ...string) error {
-
-	name := ""
-	if len(args) == 1 {
-		name = args[0]
-	} else if _, n := filepath.Split(fileUrl); n != "" {
-		name = n
-	}
-
-	if name == "" {
-		return nil
-	}
-
-	err := os.MkdirAll(where, 0775)
-	if err != nil {
-		return err
-	}
-
 	resp, err := http.Get(fileUrl)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	file, err := os.Create(where + name)
+	token := strings.Split(where, "/")
+	name := token[len(token)-1]
+	dir := ""
+	if where != name {
+		dir = where[:(len(where) - len(name))]
+	}
+	if len(args) > 0 {
+		name = args[0]
+	}
+
+	err = os.MkdirAll(dir, 0775)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(where)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	content, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	_, err = file.Write(content)
+	_, err = io.Copy(file, resp.Body)
 	if err != nil {
 		return err
 	}
@@ -51,11 +43,11 @@ func Download(fileUrl, where string, args ...string) error {
 	return nil
 }
 
-func RemovePath(path string, where string) error {
-	if _, err := os.Stat(where + path); os.IsNotExist(err) {
+func RemovePath(path string) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return err
 	}
-	err := os.Remove(where + path)
+	err := os.Remove(path)
 	if err != nil {
 		return err
 	}

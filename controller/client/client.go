@@ -161,8 +161,6 @@ func Update(rend render.Render, req *http.Request, params martini.Params) {
 		FileList: upFile,
 	}
 
-	fmt.Println(host.RpcIp())
-
 	_, err := host.CallRpc("Update", uploadFiles)
 	if err != nil {
 		rend.JSON(200, helper.Error(err))
@@ -275,7 +273,7 @@ func GetUnDeployFiles(rend render.Render, params martini.Params) {
 		return
 	}
 	result, err := host.GetUnDeployFiles()
-	if err != nil {
+	if err != nil || result == nil {
 		rend.JSON(200, helper.Error(err))
 		return
 	}
