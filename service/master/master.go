@@ -2,7 +2,6 @@ package master
 
 import (
 	"fmt"
-	"github.com/astaxie/beego/orm"
 	"king/enum/status"
 	"king/helper"
 	"king/model"
@@ -98,28 +97,6 @@ func SetUnDeployFile(params ...JSON.Type) {
 	} else {
 		UnDeployList = nil
 	}
-}
-
-//获取未部署列表
-//参数为空或者是[0]代表获取所有文件
-func GetUnDeployFileList(ids ...[]int64) ([]*model.UpFile, error) {
-	var list []*model.UpFile
-	var qs orm.QuerySeter
-
-	//如果filter不连在QueryTable后面写会无效
-	if len(ids) == 1 && len(ids[0]) > 0 && ids[0][0] != 0 {
-		qs = db.Orm().QueryTable("up_file").Filter("id__in", ids[0])
-	} else {
-		qs = db.Orm().QueryTable("up_file")
-	}
-	if _, err := qs.All(&list); err != nil {
-		return list, err
-	}
-	return list, nil
-}
-
-func ClearDeployFile() error {
-	return db.Truncate("up_file")
 }
 
 func Lock() bool {

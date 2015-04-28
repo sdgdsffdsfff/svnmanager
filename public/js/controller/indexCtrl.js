@@ -74,13 +74,13 @@ function (core, ng, Toast){
             for(var i in data.result) {
                 if( client = $scope.findClient( i ) ){
                     status = data.result[i];
-                    if( client.Status != Status.Die && status == Status.Die ){
+                    if( client.status != Status.Die && status == Status.Die ){
                         $scope.notify(client, "offline", true);
                     }
                     var d = data.result[i];
-                    client.Status = d.Status;
-                    client.Message = d.Message;
-                    client.Error = d.Error;
+                    client.status = d.status;
+                    client.message = d.message;
+                    client.error = d.error;
                 }
             }
             !$scope.$$parse && $scope.$apply();
@@ -119,9 +119,9 @@ function (core, ng, Toast){
                 if(!stillEmptyProcstat){
                     stillEmptyProcstat = true;
                     $scope.mapClients(function(client){
-                        client.Proc = {
-                            CPUPercent: 0,
-                            MEMPercent: 0
+                        client.proc = {
+                            cpu_percent: 0,
+                            mem_percent: 0
                         }
                     })
                 }
@@ -129,7 +129,7 @@ function (core, ng, Toast){
                 stillEmptyProcstat = false;
                 for(var i in data.result) {
                     if( client = $scope.findClient( i ) ){
-                        client.Proc = data.result[i]
+                        client.proc = data.result[i]
                     }
                 }
             }
@@ -174,7 +174,7 @@ function (core, ng, Toast){
             $scope.mapClients(function(client){
                 client._lock = false;
                 client._error = false;
-                if( client.Status == Status.Die ){
+                if( client.status == Status.Die ){
                     $scope.notify(client, "connecting..")
                 }
             });
@@ -204,10 +204,10 @@ function (core, ng, Toast){
                 org = $scope.findGroup(ex);
 
             if( org && target ){
-                $.each(org.Clients, function(index, client ){
-                    if( client.Id == id ){
-                        delete org.Clients[id];
-                        target.Clients[id] = client;
+                $.each(org.clients, function(index, client ){
+                    if( client.id == id ){
+                        delete org.clients[id];
+                        target.clients[id] = client;
                         $scope.$apply();
                         return false;
                     }
@@ -218,7 +218,7 @@ function (core, ng, Toast){
         $scope.addClientToGroup = function( client, gid ){
             var group;
             if( group = $scope.findGroup(gid) ){
-                group.Clients[client.Id] = client;
+                group.clients[client.id] = client;
                 return true;
             }
             return false;
@@ -247,7 +247,7 @@ function (core, ng, Toast){
             } else {
                 $.each($scope.groupList, function(gid, group){
                     var notFound = true;
-                    $.each(group.Clients, function(cid, host) {
+                    $.each(group.clients, function(cid, host) {
                         if( cid == id ) {
                             result = host;
                             notFound = false;
@@ -262,7 +262,7 @@ function (core, ng, Toast){
 
         $scope.mapClients = function(fn){
             $.each($scope.groupList, function(index, group){
-                $.each(group.Clients, function(index, host) {
+                $.each(group.clients, function(index, host) {
                     fn(host)
                 })
             })
@@ -277,7 +277,7 @@ function (core, ng, Toast){
         $scope.delClient = function(id) {
             var client = $scope.findClient(id);
             if( client ){
-                delete $scope.groupList[client.Group]["Clients"][client.Id];
+                delete $scope.groupList[client.Group].clients[client.Id];
             }
         };
 
@@ -291,7 +291,7 @@ function (core, ng, Toast){
         $scope.setStatus = function(id, status) {
             var client = $scope.findClient(id);
             if( client ){
-                client.Status = status;
+                client.status = status;
             }
 
             return client

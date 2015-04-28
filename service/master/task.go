@@ -11,7 +11,7 @@ var compiling = false
 
 func init() {
 
-	task.New("compile", func(this *task.Task) interface{} {
+	task.New("master.Compile", func(this *task.Task) interface{} {
 
 		if compiling {
 			return nil

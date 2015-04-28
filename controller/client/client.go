@@ -19,24 +19,29 @@ import (
 
 func fillClientList() map[string]JSON.Type {
 	result := map[string]JSON.Type{}
+	//组map
 	clientsDict := map[string]JSON.Type{}
 
+	//获取组
 	groups := group.List()
+	//获取主机
 	clients := client.List()
 
+	//创建组map
 	for id, g := range groups {
 		result[helper.Itoa64(id)] = JSON.Parse(g)
 		clientsDict[helper.Itoa64(id)] = JSON.Type{}
 	}
 
 	for id, c := range clients {
+		//添加到对应组map里
 		if list, found := clientsDict[helper.Itoa64(c.Group)]; found {
 			list[helper.Itoa64(id)] = c
 		}
 	}
 
 	for id, g := range result {
-		g["Clients"] = clientsDict[id]
+		g["clients"] = clientsDict[id]
 	}
 
 	return result
@@ -105,11 +110,13 @@ func Edit(rend render.Render, req *http.Request, params martini.Params) {
 	}
 	keys := JSON.GetKeys(body)
 
+	c.Id = id;
+
 	if err := client.Edit(c, keys...); err != nil {
 		rend.JSON(200, helper.Error(err))
 		return
 	}
-	rend.JSON(200, helper.Success(client.FindFromCache(c.Id)))
+	rend.JSON(200, helper.Success(c))
 }
 
 func Del(rend render.Render, params martini.Params) {

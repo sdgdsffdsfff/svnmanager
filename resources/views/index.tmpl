@@ -7,16 +7,16 @@
 <body ng-controller="masterCtrl" class="index">
     <div class="container-fluid">
         ${template "header"}
-        <div id="Notify" class="master-notify" ng-class="{ show: master.Message }">
-            <div>{{master.Message}}</div>
+        <div id="Notify" class="master-notify" ng-class="{ show: master.message }">
+            <div>{{master.message}}</div>
         </div>
 
         <div class="version-control-bar">
             <div id="version" class="version">
-                <p class="number">Version: {{ version.Version }}</p>
-                <p class="time">{{ formatTime(version.Time) }}</p>
+                <p class="number">Version: {{ version.version }}</p>
+                <p class="time">{{ formatTime(version.time) }}</p>
             </div>
-            <div class="page-controls" ng-class="{'disable-control' : lockControl || master.Status == Status.Busy }">
+            <div class="page-controls" ng-class="{'disable-control' : lockControl || master.status == Status.Busy }">
                 <button class="btn btn-sm btn-default" refresh>
                     <i class="fa fa-refresh loader"></i> Refresh
                 </button>
@@ -26,29 +26,29 @@
                 <button class="btn btn-sm btn-success" compile>
                     <i class="glyphicon glyphicon-compressed"></i> Compile
                 </button>
-                <button class="btn btn-sm btn-danger" ng-show="master.Error" show-error><i class="fa fa-exclamation"></i></button>
+                <button class="btn btn-sm btn-danger" ng-show="master.error" show-error><i class="fa fa-exclamation"></i></button>
             </div>
         </div>
 
         <ul id="GroupList" group-list class="group-list" ng-class="{controllable: !lockControl}">
-            <li class="group" ng-class="{ hidden: !group.Clients || isEmptyObject(group.Clients) }"
+            <li class="group" ng-class="{ hidden: !group.clients || isEmptyObject(group.clients) }"
                 ng-repeat="(gid, group) in groupList | orderBy:'-Id'"
                 data-id="{{gid}}">
-                <h3>{{group.Name}}</h3>
-                <p class="desc">{{group.Desc}}</p>
+                <h3>{{group.name}}</h3>
+                <p class="desc">{{group.desc}}</p>
                 <div class="client-list row">
-                    <div class="col-lg-3 col-md-4 col-sm-6 client-col" ng-repeat="(cid, client) in group.Clients | orderBy:'Id'" data-id="{{cid}}}">
-                        <div class="client" ng-class="{ lock: client.Status == Status.Busy || client._lock, online: client.Status == Status.Alive, busy: client.Status == Status.Busy }">
-                            <h5>{{client.Name || client.Ip}}</h5>
-                            <p class="ip">{{client.Ip}}/{{client.InternalIp}}</p>
-                            <span class="version">version: {{client.Version}}</span>
+                    <div class="col-lg-3 col-md-4 col-sm-6 clinnt-col" ng-repeat="(cid, client) in group.clients | orderBy:'id'" data-id="{{cid}}}">
+                        <div class="client" ng-class="{ lock: client.status == Status.Busy || client._lock, online: client.status == Status.Alive, busy: client.status == Status.Busy }">
+                            <h5>{{client.web_server.name || client.web_server.ip}}</h5>
+                            <p class="ip">{{client.web_server.ip}}/{{client.web_server.internalIp}}</p>
+                            <span class="version">version: {{client.web_server.version}}</span>
                             <div class="notify">
-                                <div class="usage" ng-class="{ show: !client.Message }">
-                                    cpu: {{client.Proc.CPUPercent}}%
-                                    mem: {{client.Proc.MEMPercent}}%
+                                <div class="usage" ng-class="{ show: !client.message }">
+                                    cpu: {{client.proc.cpu_percent}}%
+                                    mem: {{client.proc.mem_percent}}%
                                 </div>
-                                <div class="message" ng-class="{ show: client.Message  }">
-                                    <i class="fa fa-spinner fx-spinner"></i> {{ client.Message }}
+                                <div class="message" ng-class="{ show: client.message  }">
+                                    <i class="fa fa-spinner fx-spinner"></i> {{ client.message }}
                                 </div>
                             </div>
                             <label>
@@ -57,15 +57,15 @@
                             </label>
 
                             <div class="control" client-control>
-                                <i class="warning fa fa-exclamation-circle" ng-show="!!client.Error" client-error></i>
+                                <i class="warning fa fa-exclamation-circle" ng-show="!!client.error" client-error></i>
                                 <div class="quick">
                                     <em client-move><i class="fa fa-map-marker"></i></em>
                                     <em class="more"><i class="fa fa-bars"></i></em>
                                 </div>
-                                <span client-update ng-class="{ disabled: client.Version >= version.Version || client.Status != Status.Alive }"><i class="fa fa-arrow-down"></i> Update</span>
-                                <span client-deploy ng-class="{ disabled: client.Version < version.Version || client.Status != Status.Alive }"><i class="fa fa-bolt"></i> Deploy</span>
-                                <span client-revert ng-class="{ disabled: client.Status != Status.Alive }"><i class="fa fa-clock-o"></i> Revert</span>
-                                <span client-log ng-class="{ disabled: client.Status == Status.Die }"><i class="fa fa-file-o"></i> Log</span>
+                                <span client-update ng-class="{ disabled: client.status != Status.Alive }"><i class="fa fa-arrow-down"></i> Update</span>
+                                <span client-deploy ng-class="{ disabled: client.version < version.version || client.status != Status.Alive }"><i class="fa fa-bolt"></i> Deploy</span>
+                                <span client-revert ng-class="{ disabled: client.status != Status.Alive }"><i class="fa fa-undo"></i> Recover</span>
+                                <span client-log ng-class="{ disabled: client.status == Status.Die }"><i class="fa fa-file-o"></i> Log</span>
                                 <span client-edit><i class="fa fa-cog"></i> Edit</span>
                             </div>
                         </div>

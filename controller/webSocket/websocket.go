@@ -31,9 +31,9 @@ func init() {
 
 		for _, c := range list {
 			result[helper.Itoa64(c.Id)] = JSON.Type{
-				"Status":  c.Status,
-				"Message": c.Message,
-				"Error":   c.Error,
+				"status":  c.Status,
+				"message": c.Message,
+				"error":   c.Error,
 			}
 		}
 		return helper.Success(result)
@@ -52,9 +52,9 @@ func init() {
 
 	webSocket.OnEmit("master", func() JSON.Type {
 		return helper.Success(JSON.Type{
-			"Message": master.Message,
-			"Error":   master.Error,
-			"Status":  master.Status,
+			"message": master.Message,
+			"error":   master.Error,
+			"status":  master.Status,
 		})
 	})
 }

@@ -39,27 +39,24 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
                     }
                 }],
                 fields: [{
-                    name: 'Name',
+                    name: 'name',
                     placeholder: 'client name'
                 }, {
-                    name: 'Ip',
+                    name: 'ip',
                     required: true,
                     placeholder: 'ip address'
                 }, {
-                    name: 'InternalIp',
+                    name: 'internalIp',
                     placeholder: 'intranet ip',
                     require: true
                 }, {
-                    name: 'Port',
+                    name: 'port',
                     placeholder: 'port'
                 }, {
-                    name: 'DeployPath',
+                    name: 'deployPath',
                     placeholder: 'deploy path'
                 }, {
-                    name: 'BackupPath',
-                    placeholder: 'backup path'
-                },{
-                    name: 'Id',
+                    name: 'id',
                     type: 'hidden'
                 }]
             }, {
@@ -99,10 +96,11 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
                     var self = this;
                     var scope = this.getScope();
                     this.getFormData().then(function (data) {
+                        var id = data.id;
+                        delete data.id;
 
                         if( self.getState() == 'add' ){
-                            delete data.Id;
-                            data['group'] = scope.group.Id;
+                            data['group'] = scope.group.id;
                             ClientService.add(data).then(function(data){
                                 scope.addClientToGroup(data.result, data.result.Group);
                                 self.hide();
@@ -110,17 +108,16 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
                                 console.log( data )
                             })
                         }else{
-                            data.Id *= 1;
                             var same = true;
                             $.each(data, function(key, value){
-                                if( scope.client[key] != value ){
+                                if( scope.client.web_server[key] != value ){
                                     same = false;
                                     return false;
                                 }
                             });
-                            same ? self.hide() : ClientService.edit(data.Id, data).then(function(data){
+                            same ? self.hide() : ClientService.edit(id, data).then(function(data){
                                 //直接更新对象引用
-                                scope.client = data.result;
+                                scope.client.web_server = data.result;
                                 self.hide();
                             })
 
@@ -313,10 +310,11 @@ function( core, ng, directive, FormFlyout, FormDialog, revertDialog, upgradeDial
                 scope: '=',
                 link: function (scope, elem) {
                     elem.click(function () {
+
                         EditClientDialog
                             .setScope(scope)
                             .setState('edit')
-                            .setFormValue(scope.client)
+                            .setFormValue(scope.client.web_server)
                             .show();
                     })
                 }

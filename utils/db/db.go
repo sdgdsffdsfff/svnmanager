@@ -34,7 +34,6 @@ func Connect() {
 		new(model.Group),
 		new(model.WebServer),
 		new(model.Config),
-		new(model.UpFile),
 		new(model.Version),
 	)
 	log.Println("database connected")

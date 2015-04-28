@@ -7,8 +7,8 @@ var mini = require('gulp-minify-css');
 
 gulp.task('sass', function(){
     return sass('resources/scss/base.scss')
-    //.pipe(mini())
-    .pipe(gulp.dest('public/css/'))
+        .pipe(mini())
+        .pipe(gulp.dest('public/css/'))
 });
 
 gulp.task('jsx', function(){

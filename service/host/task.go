@@ -23,7 +23,7 @@ func broadcastAll(what int, message string) {
 }
 
 func init() {
-	task.New("ProcStat", func(this *task.Task) interface{} {
+	task.New("host.ProcStat", func(this *task.Task) interface{} {
 
 		if IsConnected == false {
 			return nil
@@ -35,7 +35,7 @@ func init() {
 		return nil
 	}, time.Second*1)
 
-	task.New("Deploy", func(this *task.Task) interface{} {
+	task.New("host.Deploy", func(this *task.Task) interface{} {
 
 		if IsConnected == false {
 			return nil

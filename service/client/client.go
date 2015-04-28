@@ -16,16 +16,16 @@ import (
 )
 
 type ProcStat struct {
-	CPUPercent float64
-	MEMPercent float64
+	CPUPercent float64		`json:"cpu_percent"`
+	MEMPercent float64		`json:"mem_percent"`
 }
 
 type HostClient struct {
-	*model.WebServer
-	Status  status.Status
-	Proc    *ProcStat
-	Message string
-	Error   string
+	*model.WebServer		`json:"web_server"`
+	Status  status.Status	`json:"status"`
+	Proc    *ProcStat		`json:"proc"`
+	Message string			`json:"message"`
+	Error   string			`json:"error"`
 }
 
 func (r *HostClient) SetBusy(yes ...bool) {

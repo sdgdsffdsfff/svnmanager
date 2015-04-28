@@ -51,7 +51,6 @@ func (ctn *Routes) SetRouter(m *martini.ClassicMartini) {
 	m.Group("/aj", func(r martini.Router) {
 		r.Get("/error", master.ShowError)
 		r.Get("/lastVersion", master.GetLastVersion)
-		r.Get("/undeploy/files", master.GetUndeployFiles)
 		r.Post("/update", master.Update)
 		r.Post("/compile", master.Compile)
 	})

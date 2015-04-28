@@ -23,7 +23,7 @@ func (h *RpcClient) CheckDeployPath(r *http.Request, args *rpc.CheckDeployPathAr
 func (h *RpcClient) Procstat(r *http.Request, args *rpc.SimpleArgs, reply *rpc.RpcReply) error {
 	host.Active(args.Id)
 
-	task.Trigger("ProcStat")
+	task.Trigger("host.ProcStat")
 	reply.Response = true
 	return nil
 }
@@ -37,7 +37,7 @@ func (h *RpcClient) Update(r *http.Request, args *rpc.UpdateArgs, reply *rpc.Rpc
 func (h *RpcClient) Deploy(r *http.Request, args *rpc.SimpleArgs, reply *rpc.RpcReply) error {
 	host.Active(args.Id)
 
-	task.Trigger("Deploy")
+	task.Trigger("host.Deploy")
 	reply.Response = true
 	return nil
 }

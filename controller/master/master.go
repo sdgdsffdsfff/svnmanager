@@ -38,7 +38,7 @@ func Compile(rend render.Render, req *http.Request) {
 	master.SetBusy()
 	master.SetMessage("ready to compile")
 
-	task.Trigger("compile")
+	task.Trigger("master.Compile")
 	rend.JSON(200, helper.Success())
 }
 
@@ -55,19 +55,8 @@ func GetLastVersion(rend render.Render) {
 		return
 	}
 	result := JSON.Parse(version)
-	result["List"] = JSON.Parse(version.List)
+	result["list"] = JSON.Parse(version.List)
 	rend.JSON(200, helper.Success(result))
-}
-
-func GetUndeployFiles(rend render.Render) {
-	list, err := master.GetUnDeployFileList()
-	if err != nil {
-		rend.JSON(200, helper.Error(err))
-	} else if len(list) == 0 {
-		rend.JSON(200, helper.Error(helper.EmptyError))
-	} else {
-		rend.JSON(200, helper.Success(list))
-	}
 }
 
 func ShowError(rend render.Render) {
